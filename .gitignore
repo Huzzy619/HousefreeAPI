@@ -127,3 +127,7 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+media/apartments
+media/background_images
+media/profile_pictures
