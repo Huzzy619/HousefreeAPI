@@ -18,7 +18,6 @@ import requests
 from django.conf import settings
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import AllowAny, IsAuthenticated
-from drf_yasg.utils import swagger_auto_schema
 
 # env = environ.Env()
 # environ.Env.read_env("housefree.env")
@@ -44,7 +43,6 @@ class MakePayment(APIView):
     permisssion_classes = [IsAuthenticated]
     serializer_class = PaymentSerializer
 
-    @swagger_auto_schema(request_body=PaymentSerializer)
     def post(self, request):
         serializer = PaymentSerializer(data=request.data)
         if serializer.is_valid(raise_exception=True):
@@ -195,7 +193,6 @@ class AgentWithdrawal(APIView):
     authentication_classes = [TokenAuthentication]
     permisssion_classes = [IsAuthenticated]
 
-    @swagger_auto_schema(request_body=WithdrawalSerializer)
     def post(self, request):
 
         """

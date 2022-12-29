@@ -14,8 +14,6 @@ CSRF_TRUSTED_ORIGINS = ["*"]
 
 DATABASES = {"default": dj_database_url.config()}
 
-INSTALLED_APPS.remove("playground")
-
 DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
 
 CLOUDINARY_STORAGE = {
@@ -31,7 +29,7 @@ EMAIL_HOST_PASSWORD = "e99890b04db43b"
 EMAIL_PORT = "2525"
 
 
-CELERY_BROKER_URL = "redis://localhost:6379/1"
+# CELERY_BROKER_URL = "redis://localhost:6379/1"
 
 SOCIALACCOUNT_PROVIDERS = {
     "google": {

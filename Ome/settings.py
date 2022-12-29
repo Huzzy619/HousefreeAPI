@@ -28,7 +28,7 @@ SECRET_KEY = "django-insecure-2j7na566q5h%1*j$mo@c+*7-z)r&#62j^4*-a8$g@a(%#5stjy
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
+ALLOWED_HOSTS = []
 
 
 # Application definition
@@ -64,8 +64,8 @@ INSTALLED_APPS = [
     "cloudinary_storage",
 
     "corsheaders",
-    "django_redis",
-    "django_countries",
+    # "django_redis",
+    # "django_countries",
     "phonenumber_field",
     "django_filters",
     
@@ -113,24 +113,16 @@ WSGI_APPLICATION = "Ome.wsgi.application"
 
 DATABASES = {
     "default": {
-        # "ENGINE": "django.db.backends.sqlite3",
-        # "NAME": BASE_DIR / "db.sqlite3",
-    },
-    "info_db":{
-        "ENGINE":"django.db.backends.postgresql",
-        "NAME":"house2",
-        "USER":"postgres",
-        "HOST":"localhost",
-        "PASSWORD":"0509"
-
-    },
-    "blue_db": {
         "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "bluedb.sqlite3",
+        "NAME": BASE_DIR / "db.sqlite3",
+    },
+    "info_db": {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": BASE_DIR / "infodb.sqlite3",
     },
 }
 
-DATABASE_ROUTERS = [ 'routers.db_routers.BlueRouter'] #'routers.db_routers.InfoRouter',
+DATABASE_ROUTERS = ['routers.db_routers.InfoRouter']
 
 # Password validation
 # https://docs.djangoproject.com/en/4.1/ref/settings/#auth-password-validators
