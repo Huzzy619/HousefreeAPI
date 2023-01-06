@@ -35,6 +35,7 @@ ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
     "daphne",
+    "jazzmin",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -68,7 +69,6 @@ INSTALLED_APPS = [
     # "django_countries",
     "phonenumber_field",
     "django_filters",
-    "jazzmin",
     "channels",
     
     # Local
