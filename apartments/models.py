@@ -25,8 +25,7 @@ class Apartment(models.Model):
     price = models.DecimalField(max_digits=6, decimal_places=2)
     location = models.CharField(max_length=550)
     descriptions = models.TextField(blank=True, null=True)
-    features = models.CharField(max_length=250, blank=False, null=True)
-    location_info = models.CharField(max_length=250, null=True)
+    specifications = models.JSONField(null=True, blank=True)
     is_available = models.BooleanField(default=True)
 
     agent = models.ForeignKey(get_user_model(), on_delete=models.DO_NOTHING)
@@ -73,3 +72,10 @@ class Review(models.Model):
 
     class Meta:
         ordering = ["-date_updated"]
+
+
+class Bookmark(models.Model):
+
+    apartment = models.ForeignKey(Apartment, on_delete=models.CASCADE)
+    user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
+    

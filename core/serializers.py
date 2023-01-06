@@ -4,7 +4,7 @@ from dj_rest_auth.registration.serializers import (
     RegisterSerializer,
     SocialLoginSerializer,
 )
-from dj_rest_auth.serializers import LoginSerializer
+from dj_rest_auth.serializers import LoginSerializer, UserDetailsSerializer
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
