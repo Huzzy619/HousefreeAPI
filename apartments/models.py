@@ -7,7 +7,7 @@ from django.db import models
 TYPE_CHOICES = [
     ('Rent','Rent'),
     ('Buy', "Buy"),
-    ("Consultant","Consultant"),
+    ("Event Center","Event Center"),
 ]
 
 CATEGORY_TYPE = [
