@@ -1,6 +1,12 @@
 from rest_framework import serializers
 
-from .models import Apartment, Media, Picture, Review
+from .models import Apartment, Bookmark, Media, Picture, Review
+
+
+class CreateBookmarkSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Bookmark
+        fields = ["id", "apartment_id"]  #'__all__'
 
 
 class ReviewSerializer(serializers.ModelSerializer):
@@ -19,24 +25,26 @@ class MediaSerializer(serializers.ModelSerializer):
         fields = ["id", "video"]
 
     def save(self, **kwargs):
-        _id = self.context['apartment_pk']
-        return super().save(apartment_id = _id, **self.validated_data)
+        _id = self.context["apartment_pk"]
+        return super().save(apartment_id=_id, **self.validated_data)
 
     def get_video(self, obj):
-        return self.context['request'].build_absolute_uri(obj.video.url)
+        return self.context["request"].build_absolute_uri(obj.video.url)
+
 
 class PictureSerializer(serializers.ModelSerializer):
     image = serializers.SerializerMethodField()
+
     class Meta:
         model = Picture
         fields = ["id", "image"]
-    
+
     def get_image(self, obj):
-        return self.context['request'].build_absolute_uri(obj.image.url)
-    
+        return self.context["request"].build_absolute_uri(obj.image.url)
+
     def save(self, **kwargs):
-        _id = self.context['apartment_pk']
-        return super().save(apartment_id = _id, **self.validated_data)
+        _id = self.context["apartment_pk"]
+        return super().save(apartment_id=_id, **self.validated_data)
 
 
 class CreateApartmentSerializer(serializers.ModelSerializer):
@@ -48,33 +56,36 @@ class CreateApartmentSerializer(serializers.ModelSerializer):
             "category",
             "price",
             "location",
-            "features",
+            "specifications",
             "descriptions",
-            "is_available"
+            "is_available",
         ]
 
     def save(self, **kwargs):
         user = self.context["user"]
-        return super().save(agent =user, **self.validated_data)
-
+        return super().save(agent=user, **self.validated_data)
 
 
 class ApartmentSerializer(serializers.ModelSerializer):
-
-    class Meta: 
+    class Meta:
         model = Apartment
-        fields = ["id",
+        fields = [
+            "id",
             "title",
             "category",
             "price",
             "location",
-            "features",
+            "specifications",
             "descriptions",
-            "is_available", 'agent', 'pictures', 'videos']
+            "is_available",
+            "agent",
+            "pictures",
+            "videos",
+        ]
 
     agent = serializers.SerializerMethodField()
-    pictures = PictureSerializer(many = True)
-    videos = MediaSerializer(many = True)
+    pictures = PictureSerializer(many=True)
+    videos = MediaSerializer(many=True)
 
     def get_agent(self, object):
         user = object.agent.get_full_name()

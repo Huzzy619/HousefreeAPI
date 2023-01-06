@@ -52,8 +52,8 @@ urlpatterns = [
     path("accounts/", include("core.urls")),
     path("", include('apartments.urls')),
     path("accounts/google/login/callback", google_view),
-    path("message/", include("message.urls")),
     path("transaction/", include("transaction.urls")),
+    path('messages/', include('chat.urls')),
     path("", include("info.urls")),
 ]
 

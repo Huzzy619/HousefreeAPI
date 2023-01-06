@@ -34,7 +34,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
-
+    "daphne",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -68,11 +68,13 @@ INSTALLED_APPS = [
     # "django_countries",
     "phonenumber_field",
     "django_filters",
+    "jazzmin",
+    "channels",
     
     # Local
     "apartments",
     "core",
-    "message",
+    "chat",
     "transaction",
     "info",
     "blog",
@@ -93,7 +95,7 @@ ROOT_URLCONF = "Ome.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [BASE_DIR / "templates"],
+        "DIRS": ["templates"],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -107,7 +109,16 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = "Ome.wsgi.application"
+ASGI_APPLICATION = "Ome.asgi.application"
 
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("127.0.0.1", 6379)],
+        },
+    },
+}
 
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
@@ -117,6 +128,7 @@ DATABASES = {
         "ENGINE": "django.db.backends.sqlite3",
         "NAME": BASE_DIR / "db.sqlite3",
     },
+    # The Multiple database system is not implemented yet
     "info_db": {
         "ENGINE": "django.db.backends.sqlite3",
         "NAME": BASE_DIR / "infodb.sqlite3",
@@ -164,7 +176,7 @@ MEDIA_URL = "/media/"
 
 
 STATICFILES_DIRS = [
-    BASE_DIR / "static",
+   BASE_DIR / "static",
 ]
 
 STATIC_ROOT = BASE_DIR / "staticfiles"

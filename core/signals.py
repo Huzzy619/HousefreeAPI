@@ -13,29 +13,31 @@ def create_user_profile(instance, created, **kwargs):
         
 @receiver(post_save, sender = get_user_model())
 def send_confirmation_email(instance, created, **kwargs):
-    if created:
+    pass
+    #Not for Now 
+    # if created:
 
         
-        api_key = settings.MJ_APIKEY_PUBLIC
-        api_secret = settings.MJ_APIKEY_PRIVATE
-        mailjet = Client(auth=(api_key, api_secret), version='v3.1')
-        data = {
-        'Messages': [
-            {
-            "From": {
-                "Email": "$SENDER_EMAIL",
-                "Name": "Me"
-            },
-            "To": [
-                {
-                "Email": instance.email,
-                "Name": instance.get_full_name()
-                }
-            ],
-            "Subject": "Email Confirmation",
-            "TextPart": "",
-            "HTMLPart": "<h3>Dear passenger 1, welcome to <a href=\"https://www.mailjet.com/\">Mailjet</a>!</h3><br />May the delivery force be with you!"
-            }
-        ]
-        }
-        mailjet.send.create(data=data)
+    #     api_key = settings.MJ_APIKEY_PUBLIC
+    #     api_secret = settings.MJ_APIKEY_PRIVATE
+    #     mailjet = Client(auth=(api_key, api_secret), version='v3.1')
+    #     data = {
+    #     'Messages': [
+    #         {
+    #         "From": {
+    #             "Email": "$SENDER_EMAIL",
+    #             "Name": "Me"
+    #         },
+    #         "To": [
+    #             {
+    #             "Email": instance.email,
+    #             "Name": instance.get_full_name()
+    #             }
+    #         ],
+    #         "Subject": "Email Confirmation",
+    #         "TextPart": "",
+    #         "HTMLPart": "<h3>Dear passenger 1, welcome to <a href=\"https://www.mailjet.com/\">Mailjet</a>!</h3><br />May the delivery force be with you!"
+    #         }
+    #     ]
+    #     }
+    #     mailjet.send.create(data=data)
