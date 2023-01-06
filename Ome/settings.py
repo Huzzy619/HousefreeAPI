@@ -75,6 +75,7 @@ INSTALLED_APPS = [
     "message",
     "transaction",
     "info",
+    "blog",
 ]
 
 MIDDLEWARE = [
