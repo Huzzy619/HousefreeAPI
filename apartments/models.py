@@ -5,9 +5,9 @@ from django.core.validators import FileExtensionValidator
 from django.db import models
 
 TYPE_CHOICES = [
-    ('RENT','RENT'),
-    ('BUY', "BUY"),
-    ("CONSULTANT','CONSULTANT"),
+    ('Rent','Rent'),
+    ('Buy', "Buy"),
+    ("Consultant","Consultant"),
 ]
 
 CATEGORY_TYPE = [
@@ -28,7 +28,7 @@ class Apartment(models.Model):
         max_length=100, null=False, blank=True, verbose_name="Apartment Title"
     )
     category = models.CharField(choices=CATEGORY_TYPE, max_length=20)
-    type_ = models.CharField(max_length=255, choices=TYPE_CHOICES, default="RENT")
+    type = models.CharField(max_length=255, choices=TYPE_CHOICES, default="Rent")
     price = models.DecimalField(max_digits=6, decimal_places=2)
     location = models.CharField(max_length=550)
     descriptions = models.TextField(blank=True, null=True)
