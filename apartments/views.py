@@ -6,9 +6,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
-
 from core.permissions import IsOwner
-
 from .models import Apartment, Bookmark, Media, Picture, Review
 from utils.permissions import IsAgent
 from .serializers import *
@@ -31,7 +29,7 @@ class ApartmentViewSet(ModelViewSet):
     """
 
     filter_backends = [DjangoFilterBackend, OrderingFilter, SearchFilter]
-    filterset_fields = ["location", "price", "category"]
+    filterset_fields = ["location", "price", "category", 'type']
     http_method_names = ["get", "post", "put", "delete"]
     permission_classes = [IsOwner, IsAgent]
     search_fields = ["location", "price", "category", "title"]

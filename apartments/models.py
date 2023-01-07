@@ -4,15 +4,21 @@ from django.contrib.auth import get_user_model
 from django.core.validators import FileExtensionValidator
 from django.db import models
 
+TYPE_CHOICES = [
+    ('Rent','Rent'),
+    ('Buy', "Buy"),
+    ("Event Center","Event Center"),
+]
 
+CATEGORY_TYPE = [
+    ("Bungalow", "Bungalow"),
+    ("Duplex", "Duplex"),
+    ("Flats", "Flats"),
+    ("Self Contain", "Self Contain"),
+    ("Hostels", "Hostels"),
+]
 class Apartment(models.Model):
 
-    CATEGORY_TYPE = [
-        ("Bungalow", "Bungalow"),
-        ("Duplex", "Duplex"),
-        ("Flats", "Flats"),
-        ("Self Contain", "Self Contain"),
-    ]
 
     id = models.UUIDField(
         default=uuid.uuid4, editable=False, primary_key=True, unique=True
@@ -22,6 +28,7 @@ class Apartment(models.Model):
         max_length=100, null=False, blank=True, verbose_name="Apartment Title"
     )
     category = models.CharField(choices=CATEGORY_TYPE, max_length=20)
+    type = models.CharField(max_length=255, choices=TYPE_CHOICES, default="Rent")
     price = models.DecimalField(max_digits=10, decimal_places=2)
     location = models.CharField(max_length=550)
     descriptions = models.TextField(blank=True, null=True)
