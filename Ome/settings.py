@@ -75,7 +75,7 @@ INSTALLED_APPS = [
     "apartments",
     "core",
     "chat",
-    "transaction",
+    # "transaction",
     "info",
     "blog",
 ]
@@ -252,7 +252,7 @@ ACCOUNT_EMAIL_CONFIRMATION_HMAC = False
 # Choose “optional” or “none” to allow logins with an unverified e-mail address.
 # In case of “optional”, the e-mail verification mail is still sent, whereas in case of “none” no e-mail verification mails are sent.
 
-# ACCOUNT_EMAIL_VERIFICATION = "mandatory"
+ACCOUNT_EMAIL_VERIFICATION = "none"
 
 SITE_ID = 1
 

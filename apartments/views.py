@@ -10,7 +10,7 @@ from rest_framework.viewsets import ModelViewSet
 from core.permissions import IsOwner
 
 from .models import Apartment, Bookmark, Media, Picture, Review
-from .permissions import IsAgent
+from utils.permissions import IsAgent
 from .serializers import *
 
 
@@ -49,6 +49,11 @@ class ApartmentViewSet(ModelViewSet):
         #     # .order_by("-date_created")
         #     # .select_related("reviews", "pictures", "videos")
         # )
+        from django.contrib.sites.models import Site
+
+
+        domain = Site.objects.get_current().domain
+        print(domain)
 
         serializer = ApartmentSerializer(my_apartments, many=True)
 

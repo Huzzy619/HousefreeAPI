@@ -22,7 +22,7 @@ class Apartment(models.Model):
         max_length=100, null=False, blank=True, verbose_name="Apartment Title"
     )
     category = models.CharField(choices=CATEGORY_TYPE, max_length=20)
-    price = models.DecimalField(max_digits=6, decimal_places=2)
+    price = models.DecimalField(max_digits=10, decimal_places=2)
     location = models.CharField(max_length=550)
     descriptions = models.TextField(blank=True, null=True)
     specifications = models.JSONField(null=True, blank=True)
@@ -40,7 +40,7 @@ class Picture(models.Model):
     apartment = models.ForeignKey(
         Apartment, on_delete=models.CASCADE, related_name="pictures"
     )
-
+    
     date_created = models.DateTimeField(auto_now_add=True)
     date_updated = models.DateTimeField(auto_now=True)
 

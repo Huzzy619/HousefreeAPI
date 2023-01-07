@@ -1,19 +1,39 @@
+import os
+
 from allauth.socialaccount.providers.google.views import GoogleOAuth2Adapter
 from allauth.socialaccount.providers.oauth2.client import OAuth2Client
+from decouple import config
 from dj_rest_auth.registration.views import RegisterView, SocialLoginView
+from django.conf import settings
 from django.contrib.auth import get_user_model
-from django.shortcuts import redirect
+from rest_framework.generics import CreateAPIView
 from rest_framework.viewsets import ModelViewSet
 
-from .models import Profile
+from utils.permissions import IsAgent
+
+from .models import AgentDetails, Profile
 from .permissions import IsOwner
 from .serializers import (
+    AgentDetailsSerializer,
     CustomRegisterSerializer,
     CustomSocialLoginSerializer,
     ProfileSerializer,
 )
-from decouple import config
-import os
+
+
+class AgentDetailsView(CreateAPIView):
+    """
+    Send Agent's Data in for Validation and verification
+
+    Only users that are agent can access this endpoint
+    """
+
+    permission_classes = [IsAgent]
+    serializer_class = AgentDetailsSerializer
+    queryset = AgentDetails.objects.all()
+
+    def get_serializer_context(self):
+        return {"user": self.request.user}
 
 
 class ProfileViewSet(ModelViewSet):
@@ -26,23 +46,16 @@ class ProfileViewSet(ModelViewSet):
 
 
 class CustomSocialLoginView(SocialLoginView):
-    """_summary_
-
-    Args:
-        SocialLoginView (_type_): _description_
+    """
+    Google Login- Changing the Serializer class to a Custom made one
     """
 
     serializer_class = CustomSocialLoginSerializer
 
 
 class CustomRegisterView(RegisterView):
-    """_summary_
-
-    Args:
-        RegisterView (_type_): _description_
-
-    Returns:
-        _type_: _description_
+    """
+    Register New users
     """
 
     serializer_class = CustomRegisterSerializer
@@ -62,35 +75,27 @@ class CustomRegisterView(RegisterView):
 
 # if you want to use Authorization Code Grant, use this
 class GoogleLogin(CustomSocialLoginView):
-    """_summary_
-
-    Args:
-        CustomSocialLoginView (_type_): _description_
     """
+    # Visit this [`link`](https://accounts.google.com/o/oauth2/v2/auth?redirect_uri=http://127.0.0.1:8000/accounts/google/login/callback/&prompt=consent&response_type=code&client_id=878674025478-e8s4rf34md8h4n7qobb6mog43nfhfb7r.apps.googleusercontent.com&scope=openid%20email%20profile&access_type=offline) for users to see the google account select modal.
+
+
+    After Users select account for login, they will be redirected to a new url.
+
+    extract the `code` query parameter passed in the redirected url and send to this endpoint to get access and refresh tokens
+
+    Example data:
+
+        code : "4%2F0AWgavdfDkbD_aCXtaruulCuVFpZSEpImEuZouGFZACGO1hxoDwqCV1znzazpn7ev5FmH2w"
+    """
+
+    # CALLBACK_URL_YOU_SET_ON_GOOGLE
+    if settings.DEBUG:
+        _call_back_url = "http://127.0.0.1:8000/accounts/google/login/callback/"
+    else:
+        _call_back_url = settings.ALLOWED_HOSTS[0] + "/accounts/google/login/callback/"
 
     adapter_class = GoogleOAuth2Adapter
-    # CALLBACK_URL_YOU_SET_ON_GOOGLE
-    default = "http://127.0.0.1:8000/accounts/google/login/callback/"
-    callback_url = os.environ.get("CALLBACK_URL", config("CALLBACK_URL", default))
+    callback_url = os.environ.get(
+        "CALLBACK_URL", config("CALLBACK_URL", _call_back_url)
+    )
     client_class = OAuth2Client
-
-
-def google_view(request):
-
-    """
-    # Alternatively, you can send a post request from directly.
-
-    response = requests.post('http://127.0.0.1:8000/dj/google', data={'code': code})
-    print("status: " + response.status_code)
-    print(response.json()['access_token'])
-    """
-    # This View just gets the code and prints on the terminal.
-
-    code = request.GET.get("code")
-    print(f"The code is : {code}")
-    print("go to the browser to make a post request")
-
-    return redirect("google-rest")
-
-
-# https://accounts.google.com/o/oauth2/v2/auth?redirect_uri=http://127.0.0.1:8000/accounts/google/login/callback/&prompt=consent&response_type=code&client_id=878674025478-e8s4rf34md8h4n7qobb6mog43nfhfb7r.apps.googleusercontent.com&scope=openid%20email%20profile&access_type=offline

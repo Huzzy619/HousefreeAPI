@@ -4,11 +4,19 @@ from dj_rest_auth.registration.serializers import (
     RegisterSerializer,
     SocialLoginSerializer,
 )
-from dj_rest_auth.serializers import LoginSerializer, UserDetailsSerializer
+from dj_rest_auth.serializers import LoginSerializer
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
 from .models import *
+
+class AgentDetailsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AgentDetails
+        fields = ['nin', 'id_front', "id_back", "photo", "id_type", "phone"]
+    
+    def save(self, **kwargs):
+        return super().save(agent = self.context['user'], **kwargs)
 
 class ProfileSerializer(serializers.ModelSerializer):
 

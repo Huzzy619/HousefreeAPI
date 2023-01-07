@@ -20,3 +20,4 @@ class BlogDetailView(generics.RetrieveUpdateDestroyAPIView):
     def get_object(self):
         return get_object_or_404(Blog, pk=self.kwargs.get('pk'))
 
+
