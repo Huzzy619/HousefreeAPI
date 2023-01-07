@@ -28,7 +28,7 @@ class Apartment(models.Model):
         max_length=100, null=False, blank=True, verbose_name="Apartment Title"
     )
     category = models.CharField(choices=CATEGORY_TYPE, max_length=20)
-    type = models.CharField(max_length=255, choices=TYPE_CHOICES, default="Rent")
+    type_ = models.CharField(max_length=255, choices=TYPE_CHOICES, default="Rent")
     price = models.DecimalField(max_digits=10, decimal_places=2)
     location = models.CharField(max_length=550)
     descriptions = models.TextField(blank=True, null=True)
