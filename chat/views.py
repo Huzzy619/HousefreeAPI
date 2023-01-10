@@ -1,46 +1,68 @@
-from django.shortcuts import render
-from .models import Conversation
-from rest_framework.decorators import api_view
-from rest_framework.response import Response
-# from users.models import MyUser as User
-from django.contrib.auth.models import User
-from .serializers import ConversationListSerializer, ConversationSerializer
 from django.db.models import Q
-from django.shortcuts import redirect, reverse
+from rest_framework.generics import get_object_or_404
+from rest_framework.mixins import (
+    CreateModelMixin,
+    DestroyModelMixin,
+    ListModelMixin,
+    RetrieveModelMixin,
+)
+from rest_framework.viewsets import GenericViewSet, ModelViewSet
+
+from .models import Attachment, Conversation, Message
+from .paginators import MessagePagination
+from .serializers import AttachmentSerializer, ConversationSerializer, MessageSerializer, CreateAttachmentSerializer
 
 
-# Create your views here.
-@api_view(['POST'])
-def start_convo(request, ):
-    data = request.data
-    username = data.pop('username')
-    try:
-        participant = User.objects.get(username=username)
-    except User.DoesNotExist:
-        return Response({'message': 'You cannot chat with a non existent user'})
+class MessageViewSet(ListModelMixin, DestroyModelMixin, GenericViewSet):  #
+    """
+    To get message between two users, send the conversation_name as a query parameter
 
-    conversation = Conversation.objects.filter(Q(initiator=request.user, receiver=participant) |
-                                               Q(initiator=participant, receiver=request.user))
-    if conversation.exists():
-        return redirect(reverse('get_conversation', args=(conversation[0].id,)))
-    else:
-        conversation = Conversation.objects.create(initiator=request.user, receiver=participant)
-        return Response(ConversationSerializer(instance=conversation).data)
+    Example:
+        http://domain/chat/messages?conversation=Hussein_Ibrahim__Admin_Man
+
+    Args:
+        conversation: str
 
 
-@api_view(['GET'])
-def get_conversation(request, convo_id):
-    conversation = Conversation.objects.filter(id=convo_id)
-    if not conversation.exists():
-        return Response({'message': 'Conversation does not exist'})
-    else:
-        serializer = ConversationSerializer(instance=conversation[0])
-        return Response(serializer.data)
+    """
+
+    serializer_class = MessageSerializer
+    queryset = Message.objects.none()
+    pagination_class = MessagePagination
+
+    def get_queryset(self):
+        conversation_name = self.request.GET.get("conversation", "")
+
+        queryset = (
+            Message.objects.filter(
+                Q(conversation__name__icontains=self.request.user.first_name)
+                & Q(conversation__name__icontains=self.request.user.last_name)
+            )
+            .filter(conversation__name=conversation_name)
+            .order_by("-timestamp")
+        )
+        return queryset
 
 
-@api_view(['GET'])
-def conversations(request):
-    conversation_list = Conversation.objects.filter(Q(initiator=request.user) |
-                                                    Q(receiver=request.user))
-    serializer = ConversationListSerializer(instance=conversation_list, many=True)
-    return Response(serializer.data)
+class ConversationViewSet(ListModelMixin, RetrieveModelMixin, GenericViewSet):
+    serializer_class = ConversationSerializer
+    queryset = Conversation.objects.none()
+    lookup_field = "name"
+
+    def get_queryset(self):
+        queryset = Conversation.objects.filter(
+            name__contains=self.request.user.first_name
+        )
+        return queryset
+
+    def get_serializer_context(self):
+        return {"request": self.request, "user": self.request.user}
+
+
+class AttachmentViewSet(CreateModelMixin, GenericViewSet):
+    queryset = Attachment.objects.none()
+
+    def get_serializer_class(self):
+        if self.request.method == 'POST':
+            return CreateAttachmentSerializer
+        return AttachmentSerializer

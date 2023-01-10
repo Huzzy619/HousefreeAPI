@@ -11,7 +11,7 @@ from utils.validators.models import validate_NIN_digits
 from .managers import CustomUserManager
 
 # Create your models here.
-
+from channels.db import database_sync_to_async
 
 class User(AbstractUser):
     username = None
@@ -23,6 +23,8 @@ class User(AbstractUser):
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []
+
+
 
 
 class Profile(models.Model):

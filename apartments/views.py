@@ -29,7 +29,7 @@ class ApartmentViewSet(ModelViewSet):
     """
 
     filter_backends = [DjangoFilterBackend, OrderingFilter, SearchFilter]
-    filterset_fields = ["location", "price", "category", 'type']
+    filterset_fields = ["location", "price", "category", '_type']
     http_method_names = ["get", "post", "put", "delete"]
     permission_classes = [IsOwner, IsAgent]
     search_fields = ["location", "price", "category", "title"]

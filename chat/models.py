@@ -1,26 +1,52 @@
+import uuid
+
+from django.contrib.auth import get_user_model
 from django.db import models
-from django.conf import settings
+from utils.paths.path_helpers import get_attachment_path
 
+User = get_user_model()
 
-# Create your models here.
 
 class Conversation(models.Model):
-    initiator = models.ForeignKey(
-        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, related_name="convo_starter"
-    )
-    receiver = models.ForeignKey(
-        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, related_name="convo_participant"
-    )
-    start_time = models.DateTimeField(auto_now_add=True)
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    name = models.CharField(max_length=128)
+    online = models.ManyToManyField(to=User, blank=True)
+
+    def get_online_count(self):
+        return self.online.count()
+
+    def join(self, user):
+        self.online.add(user)
+        self.save()
+
+    def leave(self, user):
+        self.online.remove(user)
+        self.save()
+
+    def __str__(self):
+        return f"{self.name} ({self.get_online_count()})"
 
 
 class Message(models.Model):
-    sender = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL,
-                              null=True, related_name='message_sender')
-    text = models.CharField(max_length=200, blank=True)
-    attachment = models.FileField(blank=True)
-    conversation_id = models.ForeignKey(Conversation, on_delete=models.CASCADE,)
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    conversation = models.ForeignKey(
+        Conversation, on_delete=models.CASCADE, related_name="messages"
+    )
+    from_user = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="messages_from_me"
+    )
+    to_user = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="messages_to_me"
+    )
+    text = models.TextField()
     timestamp = models.DateTimeField(auto_now_add=True)
+    read = models.BooleanField(default=False)
 
-    class Meta:
-        ordering = ('-timestamp',)
+
+    def __str__(self):
+        return f"From {self.from_user.first_name} to {self.to_user.first_name}: {self.text} [{self.timestamp}]"
+
+    
+class Attachment(models.Model):
+    _file = models.FileField(blank=True, null=True, upload_to=get_attachment_path)
+    message = models.ForeignKey(Message, on_delete=models.CASCADE, related_name='attachment')

@@ -51,8 +51,11 @@ urlpatterns = [
     path("accounts/", include("core.urls")),
     path("", include('apartments.urls')),
     # path("transaction/", include("transaction.urls")), 
-    path('messages/', include('chat.urls')),
+    path('chat/', include('chat.urls')),
+    # path('chat/', include('new_chat.urls')),
+
     path("", include("info.urls")),
+    path('__debug__/', include('debug_toolbar.urls')),
 ]
 
 # # Documentation paths

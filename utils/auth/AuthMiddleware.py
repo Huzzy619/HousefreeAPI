@@ -15,7 +15,6 @@ def is_token_expired(decoded_token):
      
 
 async def get_user(user_id):
-    print(user_id)
     try:  
         user = await get_user_model().objects.aget(id = user_id)
         return user

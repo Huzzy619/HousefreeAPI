@@ -1,8 +1,16 @@
 from django.urls import path
-from . import views
+from rest_framework.routers import DefaultRouter
+
+from .views import AttachmentViewSet, ConversationViewSet, MessageViewSet
+
+router = DefaultRouter()
+
+
+router.register("conversations", ConversationViewSet)
+router.register("messages", MessageViewSet)
+router.register("attachment", AttachmentViewSet)
+
 
 urlpatterns = [
-    path('start/', views.start_convo, name='start_convo'),
-    path('<int:convo_id>/', views.get_conversation, name='get_conversation'),
-    path('', views.conversations, name='conversations')
-]
+    # path("mess/", MessView.as_view())
+] + router.urls
