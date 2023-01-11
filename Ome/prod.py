@@ -8,9 +8,9 @@ SECRET_KEY = os.environ.get("SECRET_KEY", config("SECRET_KEY", SECRET_KEY))
 
 DEBUG = False
 
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = ["housefree.up.railway.app"]
 
-CSRF_TRUSTED_ORIGINS = ["*"]
+CSRF_TRUSTED_ORIGINS = ["https://housefree.up.railway.app"]
 
 DATABASES = {"default": dj_database_url.config()}
 
@@ -44,8 +44,9 @@ CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "channels_redis.core.RedisChannelLayer",
         "CONFIG": {
-            "hosts": [('redis-14998.c9.us-east-1-4.ec2.cloud.redislabs.com', 14998)],
-            'password':'@Huzkid619'
+            "hosts": [('redis://default:TNaDnuIKgr4PjTCrPZwB@containers-us-west-47.railway.app:6965', 6379)]#[('redis-14998.c9.us-east-1-4.ec2.cloud.redislabs.com', 14998)],
+            # 'password':'@Huzkid619'
         },
     },
 }
+

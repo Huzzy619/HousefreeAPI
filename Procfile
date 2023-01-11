@@ -1,1 +1,1 @@
-web: python manage.py migrate && gunicorn Ome.asgi
+web: python manage.py migrate && python manage.py runserver
