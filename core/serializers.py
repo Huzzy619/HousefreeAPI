@@ -54,3 +54,13 @@ class CustomRegisterSerializer(RegisterSerializer):
         user_obj.save()
 
         pass
+
+
+class UserSerializer(serializers.ModelSerializer):
+    name = serializers.SerializerMethodField()
+    class Meta:
+        model = get_user_model()
+        fields = ["id", "name", "email"]
+
+    def get_name(self, obj):
+        return obj.get_full_name()

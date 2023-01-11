@@ -67,13 +67,14 @@ class CreateApartmentSerializer(serializers.ModelSerializer):
 
 
 class ApartmentSerializer(serializers.ModelSerializer):
+    apartment_type = serializers.CharField(source = '_type')
     class Meta:
         model = Apartment
         fields = [
             "id",
             "title",
             "category",
-            "type",
+            "apartment_type",
             "price",
             "location",
             "specifications",
