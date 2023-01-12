@@ -1,1 +1,2 @@
-web: python manage.py migrate && gunicorn Ome.wsgi
+release: python manage.py migrate
+web: gunicorn Ome.wsgi
