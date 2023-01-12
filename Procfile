@@ -1,2 +1,2 @@
 release: python manage.py migrate
-web: gunicorn Ome.wsgi
+web: gunicorn RentRite.wsgi

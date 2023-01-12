@@ -25,7 +25,7 @@ def send_contact_email(instance, created, **kwargs):
                 "Name": "You"
                 }
             ],
-            "Subject": "Ome Contact",
+            "Subject": "RentRite Contact",
             "TextPart": instance.message,
             "HTMLPart": "<h3>Dear passenger 1, welcome to <a href=\"https://www.mailjet.com/\">Mailjet</a>!</h3><br />May the delivery force be with you!"
             }

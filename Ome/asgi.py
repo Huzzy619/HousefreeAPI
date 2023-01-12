@@ -1,5 +1,5 @@
 """
-ASGI config for Ome project.
+ASGI config for RentRite project.
 
 It exposes the ASGI callable as a module-level variable named ``application``.
 
@@ -16,7 +16,7 @@ from django.core.asgi import get_asgi_application
 import chat.routing
 from utils.auth.AuthMiddleware import JWTAuthMiddleWareStack
 
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "Ome.settings")
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "RentRite.settings")
 
 application = ProtocolTypeRouter(
     {
