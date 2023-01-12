@@ -12,7 +12,6 @@ cloudinary==1.30.0
 colorama==0.4.6
 ConfigArgParse==1.5.3
 cryptography==39.0.0
-daphne==4.0.0
 defusedxml==0.7.1
 dj-database-url==1.2.0
 dj-rest-auth==2.2.6
@@ -63,7 +62,6 @@ pytest-watch==4.2.0
 python-decouple==3.7
 python3-openid==3.2.0
 pytz==2022.7
-# pywin32==305
 PyYAML==6.0
 pyzmq==24.0.1
 redis==4.4.1
@@ -78,5 +76,6 @@ uritemplate==4.1.1
 urllib3==1.26.13
 watchdog==2.2.1
 Werkzeug==2.2.2
+whitenoise==6.3.0
 zope.event==4.6
 zope.interface==5.5.2
