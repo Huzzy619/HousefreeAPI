@@ -42,8 +42,8 @@ INSTALLED_APPS = [
     "info",
     "blog",
     
-    "channels",
-    "daphne",
+    # "channels",
+    # "daphne",
     "jazzmin",
 
     "django.contrib.admin",

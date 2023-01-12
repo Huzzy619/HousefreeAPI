@@ -1,1 +1,1 @@
-web: python manage.py makemigrations && python manage.py migrate && daphne Ome.asgi:application
+web: python manage.py migrate && python manage.py runserver
