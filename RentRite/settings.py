@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     "apartments",
     "core",
     "chat",
+    'payments',
     # "transaction",
     "info",
     "blog",
