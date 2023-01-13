@@ -8,9 +8,9 @@ SECRET_KEY = os.environ.get("SECRET_KEY", config("SECRET_KEY", SECRET_KEY))
 
 DEBUG = False
 
-ALLOWED_HOSTS = ["housefree.up.railway.app"]
+ALLOWED_HOSTS = ["rentrite.up.railway.app"]
 
-CSRF_TRUSTED_ORIGINS = ["https://housefree.up.railway.app"]
+CSRF_TRUSTED_ORIGINS = ["https://rentrite.up.railway.app"]
 
 DATABASES = {"default": dj_database_url.config()}
 

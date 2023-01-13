@@ -132,3 +132,6 @@ dmypy.json
 media/apartments
 media/background_images
 media/profile_pictures
+media/blogs
+media/message
+media/passport
