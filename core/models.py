@@ -13,6 +13,12 @@ from .managers import CustomUserManager
 # Create your models here.
 from channels.db import database_sync_to_async
 
+GENDER_CHOICES = [
+    ("M", "Male"),
+    ("F", "Female"),
+]
+ID_TYPE_CHOICES = [("NIN", "NIN"), ("GOVERNMENT_ID", "GOVERNMENT_ID")]
+
 class User(AbstractUser):
     username = None
     id = models.UUIDField(default=uuid.uuid4, primary_key=True, editable=False)
@@ -25,13 +31,7 @@ class User(AbstractUser):
     REQUIRED_FIELDS = []
 
 
-
-
 class Profile(models.Model):
-    GENDER = [
-        ("M", "Male"),
-        ("F", "Female"),
-    ]
 
     image = models.ImageField(default="default.jpg", upload_to="profile_pictures")
     background_image = models.ImageField(
@@ -41,13 +41,12 @@ class Profile(models.Model):
     location = models.CharField(max_length=550, blank=True, null=True)
     country = models.CharField(max_length=250, blank=True, null=True)
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    gender = models.CharField(max_length=10, choices=GENDER)
+    gender = models.CharField(max_length=10, choices=GENDER_CHOICES)
     date_created = models.DateTimeField(auto_now_add=True)
     date_updated = models.DateTimeField(auto_now_add=True)
 
 
 class AgentDetails(models.Model):
-    ID_TYPE = [("NIN", "NIN"), ("GOVERNMENT_ID", "GOVERNMENT_ID")]
 
     nin = models.CharField(
         max_length=11,
@@ -68,7 +67,7 @@ class AgentDetails(models.Model):
         verbose_name="Goverment ID Back",
     )
     photo = models.ImageField(upload_to=get_passport_path)
-    id_type = models.CharField(choices=ID_TYPE, max_length=50)
+    id_type = models.CharField(choices=ID_TYPE_CHOICES, max_length=50)
     phone = PhoneNumberField()
     is_verified = models.BooleanField(default=False)
 
