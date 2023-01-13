@@ -6,7 +6,13 @@ PAYMENT_OPTION_CHOICES = (
 	('paystack', 'paystack'),
 	('flutterwave', 'flutterwave'),
 )
-
+PAYMENT_PLANS_CHOICES = (
+	('Standard 1', 'Standard 1'),
+	('Standard 2', 'Standard 2'),
+	('Standard 3', 'Standard 3'),
+	('Gold 1', 'Gold 1'),
+	('Gold 2', 'Gold 2')
+)
 class Payment(models.Model):
 	user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, blank=True, null=True)
 	email = models.EmailField()
@@ -14,6 +20,7 @@ class Payment(models.Model):
 	txn_ref = models.CharField(max_length=200, unique=True)
 	verified = models.BooleanField(default=False)
 	payment_options = models.CharField(max_length=255, choices=PAYMENT_OPTION_CHOICES)
+	payment_plan = models.CharField(max_length=255, choices=PAYMENT_PLANS_CHOICES)
 	created_at = models.DateTimeField(auto_now_add=True)
 	updated_at = models.DateTimeField(auto_now=True)
 	metadata = models.JSONField()
