@@ -6,7 +6,7 @@ from .models import Apartment, Bookmark, Media, Picture, Review
 class CreateBookmarkSerializer(serializers.ModelSerializer):
     class Meta:
         model = Bookmark
-        fields = ["id", "apartment_id"]  #'__all__'
+        fields = ["id", "apartment_id"]  
 
 
 class ReviewSerializer(serializers.ModelSerializer):
@@ -28,7 +28,7 @@ class MediaSerializer(serializers.ModelSerializer):
         _id = self.context["apartment_pk"]
         return super().save(apartment_id=_id, **self.validated_data)
 
-    def get_video(self, obj):
+    def get_video(self, obj: Media):
         return self.context["request"].build_absolute_uri(obj.video.url)
 
 
@@ -39,7 +39,7 @@ class PictureSerializer(serializers.ModelSerializer):
         model = Picture
         fields = ["id", "image"]
 
-    def get_image(self, obj):
+    def get_image(self, obj: Picture):
         return self.context["request"].build_absolute_uri(obj.image.url)
 
     def save(self, **kwargs):
@@ -89,8 +89,9 @@ class ApartmentSerializer(serializers.ModelSerializer):
     pictures = PictureSerializer(many=True)
     videos = MediaSerializer(many=True)
 
-    def get_agent(self, object):
+    def get_agent(self, object: Apartment):
         user = object.agent.get_full_name()
         if not user:
             return ""
         return user
+

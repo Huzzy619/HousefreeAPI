@@ -30,31 +30,32 @@ urlpatterns = [
     path("", TemplateView.as_view(template_name = 'index.html'), name = "index"),
     path("admin/", admin.site.urls),
     path("accounts/", include("dj_rest_auth.urls")),
-    path("accounts/verify-email/", VerifyEmailView.as_view(), name="rest_verify_email"),
-    path(
-        "accounts/resend-email/",
-        ResendEmailVerificationView.as_view(),
-        name="rest_resend_email",
-    ),
-    path('accounts/password/reset/confirm/<str:uidb64>/<str:token>', PasswordResetConfirmView.as_view(),
-            name='password_reset_confirm'),
-    re_path(
-        r"^account-confirm-email/(?P<key>[-:\w]+)/$",
-        TemplateView.as_view(),
-        name="account_confirm_email",
-    ),
-    path(
-        "account-email-verification-sent/",
-        TemplateView.as_view(),
-        name="account_email_verification_sent",
-    ),
+    # path("accounts/verify-email/", VerifyEmailView.as_view(), name="rest_verify_email"),
+    # path(
+    #     "accounts/resend-email/",
+    #     ResendEmailVerificationView.as_view(),
+    #     name="rest_resend_email",
+    # ),
+    # path('accounts/password/reset/confirm/<str:uidb64>/<str:token>', PasswordResetConfirmView.as_view(),
+            # name='password_reset_confirm'),
+    # re_path(
+    #     r"^account-confirm-email/(?P<key>[-:\w]+)/$",
+    #     TemplateView.as_view(),
+    #     name="account_confirm_email",
+    # ),
+    # path(
+    #     "account-email-verification-sent/",
+    #     TemplateView.as_view(),
+    #     name="account_email_verification_sent",
+    # ),
     path("accounts/", include("core.urls")),
     path("", include('apartments.urls')),
     # path("transaction/", include("transaction.urls")), 
     path('chat/', include('chat.urls')),
-    # path('chat/', include('new_chat.urls')),
 
-    path("", include("info.urls")),
+    path("info/", include("info.urls")),
+    path("", include("blog.urls")),
+
     path('__debug__/', include('debug_toolbar.urls')),
 ]
 

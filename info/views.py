@@ -1,15 +1,16 @@
 from rest_framework.viewsets import ModelViewSet
 from django.shortcuts import redirect
-from .models import Contact, Newsletter
-from .serializers import ContactSerializer, NewsletterSerializer
-
+from .models import Contact, Newsletter, HelpDesk
+from .serializers import ContactSerializer, NewsletterSerializer, HelpDeskSerializer
+from rest_framework.permissions import IsAuthenticated
+from django.contrib import messages
 # Create your views here.
 
 
 class ContactViewSet(ModelViewSet):
     http_method_names = ["post", "head", "options"]
 
-    queryset = Contact.objects.all()
+    queryset = Contact.objects.none()
     serializer_class = ContactSerializer
 
 
@@ -19,6 +20,15 @@ class NewsletterViewSet(ModelViewSet):
     queryset = Newsletter.objects.all()
     serializer_class = NewsletterSerializer
 
+class HelpDeskViewSet(ModelViewSet):
+    http_method_names = ["post", "head", "options"]
+    permission_classes = [IsAuthenticated]
+
+    queryset = HelpDesk.objects.none()
+    serializer_class = HelpDeskSerializer
+
+    def get_serializer_context(self):
+        return {"user": self.request.user}
 
 def form_subscribe(request):
     """
@@ -32,6 +42,13 @@ def form_subscribe(request):
         Redirect to home page
     """
     email = request.POST.get("email", "")
-    Newsletter.objects.get_or_create(email=email)
+
+
+    if Newsletter.objects.filter(email = email):
+        messages.error(request, "Email is subscribed already")
+    else:
+        Newsletter.objects.create(email= email)
+        messages.success(request, "Email subscribed successfully")
+
 
     return redirect('index')

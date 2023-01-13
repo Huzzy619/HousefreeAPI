@@ -132,13 +132,13 @@ DATABASES = {
         "NAME": BASE_DIR / "db.sqlite3",
     },
     # The Multiple database system is not implemented yet
-    "info_db": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "infodb.sqlite3",
-    },
+    # "info_db": {
+    #     "ENGINE": "django.db.backends.sqlite3",
+    #     "NAME": BASE_DIR / "infodb.sqlite3",
+    # },
 }
 
-DATABASE_ROUTERS = ['routers.db_routers.InfoRouter']
+# DATABASE_ROUTERS = ['routers.db_routers.InfoRouter']
 
 # Password validation
 # https://docs.djangoproject.com/en/4.1/ref/settings/#auth-password-validators
