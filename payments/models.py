@@ -2,6 +2,8 @@ from django.db import models
 from django.contrib.auth import get_user_model
 import secrets
 
+from payments.paystack import Paystack
+
 PAYMENT_OPTION_CHOICES = (
 	('paystack', 'paystack'),
 	('flutterwave', 'flutterwave'),
@@ -36,4 +38,16 @@ class Payment(models.Model):
 		if not self.txn_ref:
 			self.txn_ref = secrets.token_urlsafe(50)
 		super().save(*args, **kwargs)
+
+	def verify_paystack_payment(self):
+		paystack = Paystack()
+		status, result = paystack.verify_payment(self.txn_ref, self.amount)
+		if not status:
+			return False
+		if result['amount'] / 100 != self.amount:
+			return False
+		self.verified = True
+		self.save()
+		return True
+
 
