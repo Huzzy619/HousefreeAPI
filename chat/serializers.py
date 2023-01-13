@@ -35,13 +35,13 @@ class MessageSerializer(serializers.ModelSerializer):
             "read",
         )
 
-    def get_conversation(self, obj):
+    def get_conversation(self, obj: Message):
         return str(obj.conversation.id)
 
-    def get_from_user(self, obj):
+    def get_from_user(self, obj: Message):
         return UserSerializer(obj.from_user).data
 
-    def get_to_user(self, obj):
+    def get_to_user(self, obj: Message):
         return UserSerializer(obj.to_user).data
     
     

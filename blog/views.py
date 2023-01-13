@@ -1,23 +1,28 @@
-from django.shortcuts import get_object_or_404
-from rest_framework import generics, pagination, filters
-from .serializers import BlogSerializer
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import filters, pagination, permissions
+from rest_framework.viewsets import ModelViewSet
+
 from .models import Blog
+from .serializers import BlogSerializer, CreateBlogSerializer
 
-class BlogListView(generics.ListCreateAPIView):
+
+class BlogViewSet(ModelViewSet):
+    
     queryset = Blog.objects.all()
-    serializer_class = BlogSerializer
     pagination_class = pagination.LimitOffsetPagination
-    filter_backends = [filters.SearchFilter]
-    search_fields = ['title', 'content']
+    filter_backends = [
+        DjangoFilterBackend,
+        filters.SearchFilter,
+        filters.OrderingFilter,
+    ]
+    search_fields = ["title", "content", "category"]
+    ordering_fields = ["published_date", "date_updated"]
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
-    def perform_create(self, serializer):
-        serializer.save(author=self.request.user)
+    def get_serializer_class(self):
+        if self.request.method in permissions.SAFE_METHODS:
+            return BlogSerializer
+        return CreateBlogSerializer
 
-class BlogDetailView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Blog.objects.all()
-    serializer_class = BlogSerializer
-
-    def get_object(self):
-        return get_object_or_404(Blog, pk=self.kwargs.get('pk'))
-
-
+    def get_serializer_context(self):
+        return {"user": self.request.user, "request": self.request}

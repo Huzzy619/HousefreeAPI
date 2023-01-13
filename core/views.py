@@ -26,11 +26,18 @@ class AgentDetailsView(CreateAPIView):
     Send Agent's Data in for Validation and verification
 
     Only users that are agent can access this endpoint
+
+
+    id_type - (Options)
+    
+    NIN, 
+    GOVERNMENT_ID
+
     """
 
     permission_classes = [IsAgent]
     serializer_class = AgentDetailsSerializer
-    queryset = AgentDetails.objects.all()
+    queryset = AgentDetails.objects.none()
 
     def get_serializer_context(self):
         return {"user": self.request.user}
