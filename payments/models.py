@@ -29,3 +29,4 @@ class Payment(models.Model):
 		if not self.txn_ref:
 			self.txn_ref = secrets.token_urlsafe(50)
 		super().save(*args, **kwargs)
+
