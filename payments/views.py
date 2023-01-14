@@ -6,6 +6,7 @@ from .serializers import PaymentSerializer, PaystackPaymentSerializer
 from rave_python.rave_exceptions import RaveError, IncompletePaymentDetailsError
 from rave_python.rave_payment import Payment
 from rest_framework.generics import CreateAPIView
+from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from django.conf import settings
 
@@ -37,3 +38,13 @@ class PaystackPaymentView(CreateAPIView):
 
 	def perform_create(self, serializer):
 		serializer.save(user=self.request.user)
+
+class VerifyPaystackPayment(APIView):
+	def get(self, request, reference):
+		payment = Payment.objects.get(txn_ref=reference)
+		verified = payment.verify_payment()
+		if verified:
+			# do some things
+			return Response({"message": "Verified payment successfully"}, status=status.HTTP_200_OK)
+		return Response({"message": "Payment Verification Failed"}, status=status.HTTP_400_BAD_REQUEST)
+			
