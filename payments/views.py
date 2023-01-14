@@ -1,7 +1,7 @@
 from rest_framework import generics
 from rest_framework.response import Response
 from rest_framework import status
-from .models import Payment
+from .models import Payment, Wallet
 from .serializers import PaymentSerializer, PaystackPaymentSerializer
 from rave_python.rave_exceptions import RaveError, IncompletePaymentDetailsError
 from rave_python.rave_payment import Payment
@@ -104,6 +104,45 @@ class CreateCardDepositFlutterwaveAPIView(generics.GenericAPIView):
 			return Response({"error": {"something went wrong":str(error)}}, status=status.HTTP_400_BAD_REQUEST)
 
 flutterwave_card_deposit = CreateCardDepositFlutterwaveAPIView.as_view()
+
+
+class ConfirmCardDepositFlutterwave(generics.GenericAPIView):
+	"""
+	webhook to confirm card deposit and increase associated user balance
+	"""
+	def get(self, request):
+		tx_status = self.request.query_params.get('status')
+		tx_ref = self.request.query_params.get('tx_ref')
+		transaction_id = request.query_params.get('transaction_id')
+		print(f"tx ref is {tx_ref} and tx status is {tx_status} and transaction id is {transaction_id}")
+		
+		if tx_status == 'successful':
+			url = f"https://api.flutterwave.com/v3/transactions/verify_by_reference?tx_ref={tx_ref}"
+			headers = {
+				"Authorization": f"Bearer {settings.FLW_SECRET_KEY}"
+			}
+			response = requests.get(url, headers=headers)
+			print(response.status_code, response.text)
+			response = response.json()
+			transactionDetails = Payment.objects.filter(txn_ref=tx_ref).first()		
+			if response['data']['amount'] == transactionDetails.amount and response['data']['currency'] == "NGN":
+				transactionDetails.verified = True
+				print("txn verified now increase user wallet balance")
+				recipient = transactionDetails.user
+				user_wallet = Wallet.objects.filter(user=recipient, currency="NGN").first()
+				if user_wallet.currency == "NGN":
+					user_wallet.balance += transactionDetails.amount
+					user_wallet.save()
+					return Response({"success": "successful deposit"}, status=status.HTTP_200_OK)
+				return Response({"error": {"something went wrong": "error"}}, status=status.HTTP_400_BAD_REQUEST)	
+			else:
+				# Inform the customer their payment was unsuccessful
+				print("unsuccessful payment")
+				return Response({"error": {"something went wrong": "unsuccessful payment"}}, status=status.HTTP_400_BAD_REQUEST)	
+
+		return Response({"error": {"something went wrong": "unsuccessful payment"}}, status=status.HTTP_400_BAD_REQUEST)	
+	
+flutterwave_confirm_card_deposit = ConfirmCardDepositFlutterwave.as_view()
 
 
 class PaystackPaymentView(CreateAPIView):

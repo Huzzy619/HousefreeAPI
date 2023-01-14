@@ -50,4 +50,10 @@ class Payment(models.Model):
 		self.save()
 		return True
 
+class Wallet(models.Model):
+    user = models.OneToOneField(get_user_model(), on_delete=models.CASCADE)
+    balance = models.PositiveIntegerField(default=0)
+    currency = models.CharField(default="NGN", max_length=100)
 
+    def __str__(self):
+        return f'{self.user}: {self.balance} {self.currency}'
