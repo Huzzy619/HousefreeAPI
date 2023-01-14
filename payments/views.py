@@ -2,9 +2,11 @@ from rest_framework import generics
 from rest_framework.response import Response
 from rest_framework import status
 from .models import Payment
-from .serializers import PaymentSerializer
+from .serializers import PaymentSerializer, PaystackPaymentSerializer
 from rave_python.rave_exceptions import RaveError, IncompletePaymentDetailsError
 from rave_python.rave_payment import Payment
+from rest_framework.generics import CreateAPIView
+from rest_framework.permissions import IsAuthenticated
 
 class PaymentView(generics.GenericAPIView):
 	queryset = Payment.objects.all()
@@ -27,3 +29,10 @@ class PaymentView(generics.GenericAPIView):
 				return Response(response, status=status.HTTP_400_BAD_REQUEST)
 		except (RaveError, IncompletePaymentDetailsError) as e:
 			return Response({'message': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+class PaystackPaymentView(CreateAPIView):
+	serializer_class = PaystackPaymentSerializer
+	permission_classes = (IsAuthenticated,)
+
+	def perform_create(self, serializer):
+		serializer.save(user=self.request.user)
