@@ -2,7 +2,7 @@ from rest_framework import generics
 from rest_framework.response import Response
 from rest_framework import status
 from .models import Payment, Wallet
-from .serializers import PaymentSerializer, PaystackPaymentSerializer
+from .serializers import CreateCardDepositFlutterwaveSerializer, PaymentSerializer, PaystackPaymentSerializer
 from rave_python.rave_exceptions import RaveError, IncompletePaymentDetailsError
 from rave_python.rave_payment import Payment
 from rest_framework.generics import CreateAPIView
@@ -40,25 +40,17 @@ class PaymentView(generics.GenericAPIView):
 
 
 class CreateCardDepositFlutterwaveAPIView(generics.GenericAPIView):
-	"""
-	Endpoint to create a link for deposit
-	takes in {
-		user: int(user id),
-		amount: int(amount to deposit in NGN)
-		email: str(email of user making deposit)
-	}
-	"""
 	permission_classes = (permissions.IsAuthenticated,)
-
-	def post(self, request):
-		user = request.user
-		user_id = request.data.get("user", None)
-		amount = request.data.get('amount')
-		email = request.data.get('email', None)
+	serializer_class = CreateCardDepositFlutterwaveSerializer
+	
+	def post(self, request, *args, **kwargs):
+		serializer = self.get_serializer(data=request.data)
+		serializer.is_valid(raise_exception=True)
+		
 		payment = Payment.objects.create(
-			user=user,
-			amount=amount,
-			email=email,
+			user=request.user,
+			amount=serializer.validated_data['amount'],
+			email=serializer.validated_data['email'],
 			verified=False,
 			payment_option='flutterwave'
 		)
@@ -75,12 +67,12 @@ class CreateCardDepositFlutterwaveAPIView(generics.GenericAPIView):
 			"currency": "NGN",
 			"redirect_url": full_url,
 			"meta": {
-				"customer_id": user_id,
+				"customer_id": request.user.id,
 			},
 			"customer": {
-				"email": email,
-				"phonenumber": user.profile.phone,
-				"name": user.username,
+				"email": serializer.validated_data['email'],
+				"phonenumber": request.user.profile.phone,
+				"name": request.user.username,
 			},
 			"customizations": {
 				"title": "Ome NGN Card Deposit Payments",
@@ -96,9 +88,8 @@ class CreateCardDepositFlutterwaveAPIView(generics.GenericAPIView):
 				else:
 					error = response.json()
 					return Response({"error": {"some error occurred": str(error)}}, status=status.HTTP_400_BAD_REQUEST)
-			
 			except Exception as error:
-				return Response({"error": {"something went wrong": str(error)}}, status=status.HTTP_400_BAD_REQUEST)	
+				return Response({"error": {"something went wrong": str(error)}}, status=status.HTTP_400_BAD_REQUEST)    
 
 		except Exception as error:
 			return Response({"error": {"something went wrong":str(error)}}, status=status.HTTP_400_BAD_REQUEST)

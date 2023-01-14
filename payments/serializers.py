@@ -49,3 +49,23 @@ class PaystackPaymentSerializer(serializers.ModelSerializer):
 			verified=False
 		)
 		return response_data
+
+class CreateCardDepositFlutterwaveSerializer(serializers.Serializer):
+    user = serializers.IntegerField()
+    amount = serializers.IntegerField()
+    email = serializers.EmailField()
+
+    def validate(self, data):
+        user = data.get("user")
+        amount = data.get("amount")
+        email = data.get("email")
+
+        if user is None:
+            raise serializers.ValidationError("user id is required")
+
+        if amount is None:
+            raise serializers.ValidationError("amount is required")
+        
+        if email is None:
+            raise serializers.ValidationError("email is required")
+        return data
