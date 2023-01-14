@@ -72,4 +72,5 @@ tzdata==2022.7
 uritemplate==4.1.1
 urllib3==1.26.13
 websocket-client==1.4.2
+whitenoise==6.3.0
 zope.interface==5.5.2
