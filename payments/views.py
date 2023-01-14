@@ -7,6 +7,7 @@ from rave_python.rave_exceptions import RaveError, IncompletePaymentDetailsError
 from rave_python.rave_payment import Payment
 from rest_framework.generics import CreateAPIView
 from rest_framework.permissions import IsAuthenticated
+from django.conf import settings
 
 class PaymentView(generics.GenericAPIView):
 	queryset = Payment.objects.all()
@@ -17,7 +18,7 @@ class PaymentView(generics.GenericAPIView):
 		serializer.is_valid(raise_exception=True)
 
 		# Get Rave API keys from settings
-		rave = Payment(RAVE_PUBLIC_KEY, RAVE_SECRET_KEY)
+		rave = Payment(settings.RAVE_PUBLIC_KEY, settings.RAVE_SECRET_KEY)
 
 		try:
 			# Make payment
