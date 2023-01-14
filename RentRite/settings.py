@@ -290,4 +290,4 @@ FLUTTERWAVE_KEY = os.environ.get('FLUTTERWAVE_KEY', config("FLUTTERWAVE_KEY", de
 FLW_SECRET_KEY = os.environ.get('FLW_SECRET_KEY')
 RAVE_PUBLIC_KEY = os.environ.get('RAVE_PUBLIC_KEY')
 RAVE_SECRET_KEY = os.environ.get('RAVE_SECRET_KEY')
-
+PAYSTACK_SECRET_KEY = os.environ.get('PAYSTACK_SECRET_KEY')

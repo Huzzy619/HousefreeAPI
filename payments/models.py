@@ -28,7 +28,7 @@ class Payment(models.Model):
 	metadata = models.JSONField()
 
 	class Meta:
-		ordering = ('-date_created',)
+		ordering = ('-created_at',)
 		verbose_name_plural = 'Payments'
 
 	def __str__(self):
