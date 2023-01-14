@@ -47,4 +47,5 @@ class VerifyPaystackPayment(APIView):
 			# do some things
 			return Response({"message": "Verified payment successfully"}, status=status.HTTP_200_OK)
 		return Response({"message": "Payment Verification Failed"}, status=status.HTTP_400_BAD_REQUEST)
-			
+
+verify_paystack_payment = VerifyPaystackPayment.as_view()
