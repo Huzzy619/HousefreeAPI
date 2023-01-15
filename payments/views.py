@@ -30,7 +30,6 @@ class CreateCardDepositFlutterwaveAPIView(generics.GenericAPIView):
 	def post(self, request, *args, **kwargs):
 		serializer = self.get_serializer(data=request.data)
 		serializer.is_valid(raise_exception=True)
-		
 		payment = Payment.objects.create(
 			user=request.user,
 			amount=serializer.validated_data['amount'],
@@ -39,10 +38,9 @@ class CreateCardDepositFlutterwaveAPIView(generics.GenericAPIView):
 			payment_options='flutterwave',
 			metadata=serializer.validated_data['metadata']
 		)
-		payment.save()
 		endpoint = "https://api.flutterwave.com/v3/payments"
 		scheme = request.is_secure() and "https" or "http"
-		full_url = scheme +"://"+ str(get_current_site(request).domain) + "/api/billpayments/pay/card-deposit/confirm-card-deposit/"
+		full_url = scheme +"://"+ str(get_current_site(request).domain) + "/api/card-deposit/confirm-card-deposit/"
 		headers = {
 			"Authorization": f"Bearer {settings.FLW_SECRET_KEY}"
 		}
@@ -52,20 +50,23 @@ class CreateCardDepositFlutterwaveAPIView(generics.GenericAPIView):
 			"currency": "NGN",
 			"redirect_url": full_url,
 			"meta": {
-				"customer_id": request.user.id,
+				"customer_id": 'fefef',
 			},
 			"customer": {
 				"email": serializer.validated_data['email'],
-				"phonenumber": request.user.profile.phone,
-				"name": request.user.username,
+				"phonenumber": request.user.profile.phone or '090000000000',
+				"name": request.user.username or 'customer name',
 			},
 			"customizations": {
 				"title": "Ome NGN Card Deposit Payments",
 				"logo": "logo image here"
 			}
 		}
+		# print(headers)
+		# print(json)
 		try:
-			response = requests.post(endpoint, json=json, headers=headers)
+			response = requests.post(endpoint, data=json, headers=headers)
+			print(response.json())
 			try:
 				if response.json()['status'] == "success":
 					payment_link = response.json()['data']['link']

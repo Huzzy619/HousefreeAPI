@@ -287,7 +287,7 @@ MJ_API_KEY = os.environ.get('MJ_API_KEY', config("MJ_API_KEY", default = ""))
 MJ_API_SECRET = os.environ.get('MJ_API_SECRET', config("MJ_API_SECRET", default = ""))
 REDIS_URL = 'redis://JHKLKLKLJJKJK'
 FLUTTERWAVE_KEY = os.environ.get('FLUTTERWAVE_KEY', config("FLUTTERWAVE_KEY", default = ""))
-FLW_SECRET_KEY = os.environ.get('FLW_SECRET_KEY')
+FLW_SECRET_KEY = os.environ.get('FLW_SECRET_KEY', config("FLW_SECRET_KEY", default =""))
 RAVE_PUBLIC_KEY = os.environ.get('RAVE_PUBLIC_KEY')
 RAVE_SECRET_KEY = os.environ.get('RAVE_SECRET_KEY')
 PAYSTACK_SECRET_KEY = os.environ.get('PAYSTACK_SECRET_KEY')

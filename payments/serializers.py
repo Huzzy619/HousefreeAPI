@@ -42,7 +42,7 @@ class CreateCardDepositFlutterwaveSerializer(serializers.Serializer):
 	
 	def validate(self, data):
 		request = self.context.get('request')
-		user = request.user
+		user = str(request.user)
 		amount = data.get("amount")
 		email = data.get("email")
 		metadata = data.get("metadata")
