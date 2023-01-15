@@ -2,9 +2,7 @@ from rest_framework import generics
 from rest_framework.response import Response
 from rest_framework import status
 from .models import Payment, Wallet
-from .serializers import CreateCardDepositFlutterwaveSerializer, PaymentSerializer, PaystackPaymentSerializer
-from rave_python.rave_exceptions import RaveError, IncompletePaymentDetailsError
-from rave_python.rave_payment import Payment
+from .serializers import CreateCardDepositFlutterwaveSerializer, PaystackPaymentSerializer
 from rest_framework.generics import CreateAPIView
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
@@ -16,35 +14,19 @@ import requests
 
 User = get_user_model()
 
-class PaymentView(generics.GenericAPIView):
-	serializer_class = PaymentSerializer
-
-	def get_queryset(self):
-		return Payment.objects.all()
-
-	def post(self, request, *args, **kwargs):
-		serializer = self.get_serializer(data=request.data)
-		serializer.is_valid(raise_exception=True)
-
-		# Get Rave API keys from settings
-		rave = Payment(settings.RAVE_PUBLIC_KEY, settings.RAVE_SECRET_KEY)
-
-		try:
-			# Make payment
-			response = rave.card.charge(request.data['amount'], request.data['email'], request.data['txn_ref'], request.data['metadata']['product_name'])
-			if response['status'] == 'success':
-				serializer.save(verified=True)
-				return Response(response, status=status.HTTP_201_CREATED)
-			else:
-				return Response(response, status=status.HTTP_400_BAD_REQUEST)
-		except (RaveError, IncompletePaymentDetailsError) as e:
-			return Response({'message': str(e)}, status=status.HTTP_400_BAD_REQUEST)
-
-
 class CreateCardDepositFlutterwaveAPIView(generics.GenericAPIView):
 	permission_classes = (permissions.IsAuthenticated,)
 	serializer_class = CreateCardDepositFlutterwaveSerializer
 	
+	def get_serializer(self, *args, **kwargs):
+		kwargs['context'] = self.get_serializer_context()
+		return super().get_serializer(*args, **kwargs)
+
+	def get_serializer_context(self):
+		context = super().get_serializer_context()
+		context['request'] = self.request
+		return context
+
 	def post(self, request, *args, **kwargs):
 		serializer = self.get_serializer(data=request.data)
 		serializer.is_valid(raise_exception=True)
@@ -54,7 +36,8 @@ class CreateCardDepositFlutterwaveAPIView(generics.GenericAPIView):
 			amount=serializer.validated_data['amount'],
 			email=serializer.validated_data['email'],
 			verified=False,
-			payment_option='flutterwave'
+			payment_options='flutterwave',
+			metadata=serializer.validated_data['metadata']
 		)
 		payment.save()
 		endpoint = "https://api.flutterwave.com/v3/payments"

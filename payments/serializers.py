@@ -3,23 +3,8 @@ from .models import Payment
 from django.contrib.auth.models import User
 from django.conf import settings
 import requests
-
-class PaymentSerializer(serializers.ModelSerializer):
-	metadata = serializers.JSONField(required=False)
-
-	def validate_metadata(self, value):
-		if not isinstance(value, dict):
-			raise serializers.ValidationError("metadata must be a dictionary.")
-		if 'product_name' not in value:
-			raise serializers.ValidationError("metadata must contain a product_name key.")
-		if len(value['product_name']) > 100:
-			raise serializers.ValidationError("product_name must be less than 100 characters.")
-		return value
-
-	class Meta:
-		model = Payment
-		fields = ('id', 'user', 'email', 'amount', 'txn_ref', 'verified', 'payment_options', 'created_at', 'updated_at', 'metadata')
-		read_only_fields = ('txn_ref', 'created_at', 'updated_at')
+import json
+from django.core.serializers.json import DjangoJSONEncoder
 
 class PaystackPaymentSerializer(serializers.ModelSerializer):
 	amount = serializers.IntegerField()
@@ -51,17 +36,25 @@ class PaystackPaymentSerializer(serializers.ModelSerializer):
 		return response_data
 
 class CreateCardDepositFlutterwaveSerializer(serializers.Serializer):
-    amount = serializers.IntegerField()
-    email = serializers.EmailField()
+	amount = serializers.IntegerField()
+	email = serializers.EmailField()
+	metadata = serializers.JSONField()
+	
+	def validate(self, data):
+		request = self.context.get('request')
+		user = request.user
+		amount = data.get("amount")
+		email = data.get("email")
+		metadata = data.get("metadata")
+		# json.dumps(user, cls=DjangoJSONEncoder)
 
-    def validate(self, data):
-        user = data.get("user")
-        amount = data.get("amount")
-        email = data.get("email")
-
-        if amount is None:
-            raise serializers.ValidationError("amount is required")
-        
-        if email is None:
-            raise serializers.ValidationError("email is required")
-        return data
+		if amount is None:
+			raise serializers.ValidationError("amount is required")
+		
+		if email is None:
+			raise serializers.ValidationError("email is required")
+		
+		if metadata is None:
+			raise serializers.ValidationError("metadata is required")
+		
+		return data
