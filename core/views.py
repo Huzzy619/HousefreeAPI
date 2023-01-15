@@ -7,6 +7,7 @@ from allauth.socialaccount.providers.google.views import GoogleOAuth2Adapter
 from allauth.socialaccount.providers.oauth2.client import OAuth2Client
 from decouple import config
 from dj_rest_auth.registration.views import RegisterView, SocialLoginView
+from allauth.account.models import EmailAddress
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from rest_framework.generics import CreateAPIView
@@ -20,7 +21,7 @@ from rest_framework.permissions import AllowAny
 
 from utils.permissions import IsAgent
 
-from .models import AgentDetails, Profile, User 
+from .models import AgentDetails, Profile, User
 from RentRite.settings import SECRET_KEY
 from .permissions import IsOwner
 from .serializers import (
