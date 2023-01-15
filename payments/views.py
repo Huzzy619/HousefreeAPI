@@ -1,3 +1,4 @@
+import json
 from rest_framework import generics
 from rest_framework.response import Response
 from rest_framework import status
@@ -44,7 +45,7 @@ class CreateCardDepositFlutterwaveAPIView(generics.GenericAPIView):
 		headers = {
 			"Authorization": f"Bearer {settings.FLW_SECRET_KEY}"
 		}
-		json = {
+		json_data = {
 			"tx_ref": payment.txn_ref,
 			"amount": payment.amount,
 			"currency": "NGN",
@@ -59,13 +60,11 @@ class CreateCardDepositFlutterwaveAPIView(generics.GenericAPIView):
 			},
 			"customizations": {
 				"title": "Ome NGN Card Deposit Payments",
-				"logo": "logo image here"
+				"logo": "http://www.piedpiper.com/app/themes/joystick-v27/images/logo.png"
 			}
 		}
-		# print(headers)
-		# print(json)
 		try:
-			response = requests.post(endpoint, data=json, headers=headers)
+			response = requests.post(endpoint, json=json_data, headers=headers)
 			print(response.json())
 			try:
 				if response.json()['status'] == "success":
