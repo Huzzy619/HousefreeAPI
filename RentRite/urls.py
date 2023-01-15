@@ -50,12 +50,11 @@ urlpatterns = [
     # ),
     path("accounts/", include("core.urls")),
     path("", include('apartments.urls')),
-    # path("transaction/", include("transaction.urls")), 
+    path("payments/", include("payments.urls")), 
     path('chat/', include('chat.urls')),
-
     path("info/", include("info.urls")),
     path("", include("blog.urls")),
-
+    
     path('__debug__/', include('debug_toolbar.urls')),
 ]
 

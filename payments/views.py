@@ -17,8 +17,10 @@ import requests
 User = get_user_model()
 
 class PaymentView(generics.GenericAPIView):
-	queryset = Payment.objects.all()
 	serializer_class = PaymentSerializer
+
+	def get_queryset(self):
+		return Payment.objects.all()
 
 	def post(self, request, *args, **kwargs):
 		serializer = self.get_serializer(data=request.data)

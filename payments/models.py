@@ -1,7 +1,6 @@
 from django.db import models
 from django.contrib.auth import get_user_model
 import secrets
-
 from payments.paystack import Paystack
 
 PAYMENT_OPTION_CHOICES = (
