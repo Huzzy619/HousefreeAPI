@@ -3,8 +3,6 @@ from .models import Payment
 from django.contrib.auth.models import User
 from django.conf import settings
 import requests
-import json
-from django.core.serializers.json import DjangoJSONEncoder
 
 class PaystackPaymentSerializer(serializers.ModelSerializer):
 	amount = serializers.IntegerField()
@@ -41,12 +39,9 @@ class CreateCardDepositFlutterwaveSerializer(serializers.Serializer):
 	metadata = serializers.JSONField()
 	
 	def validate(self, data):
-		request = self.context.get('request')
-		user = str(request.user)
 		amount = data.get("amount")
 		email = data.get("email")
 		metadata = data.get("metadata")
-		# json.dumps(user, cls=DjangoJSONEncoder)
 
 		if amount is None:
 			raise serializers.ValidationError("amount is required")
