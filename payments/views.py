@@ -41,7 +41,7 @@ class CreateCardDepositFlutterwaveAPIView(generics.GenericAPIView):
 		)
 		endpoint = "https://api.flutterwave.com/v3/payments"
 		scheme = request.is_secure() and "https" or "http"
-		full_url = scheme +"://"+ str(get_current_site(request).domain) + "/api/card-deposit/confirm-card-deposit/"
+		full_url = scheme +"://"+ str(get_current_site(request).domain) + "/flw-deposit/verify/"
 		headers = {
 			"Authorization": f"Bearer {settings.FLW_SECRET_KEY}"
 		}
@@ -65,7 +65,6 @@ class CreateCardDepositFlutterwaveAPIView(generics.GenericAPIView):
 		}
 		try:
 			response = requests.post(endpoint, json=json_data, headers=headers)
-			print(response.json())
 			try:
 				if response.json()['status'] == "success":
 					payment_link = response.json()['data']['link']
@@ -105,18 +104,16 @@ class ConfirmCardDepositFlutterwave(generics.GenericAPIView):
 				transactionDetails.verified = True
 				print("txn verified now increase user wallet balance")
 				recipient = transactionDetails.user
-				user_wallet = Wallet.objects.filter(user=recipient, currency="NGN").first()
-				if user_wallet.currency == "NGN":
-					user_wallet.balance += transactionDetails.amount
-					user_wallet.save()
-					return Response({"success": "successful deposit"}, status=status.HTTP_200_OK)
-				return Response({"error": {"something went wrong": "error"}}, status=status.HTTP_400_BAD_REQUEST)	
+				user_wallet = Wallet.objects.filter(user=recipient).first()
+				user_wallet.balance += transactionDetails.amount
+				user_wallet.save()
+				return Response({"success": "successful deposit"}, status=status.HTTP_200_OK)
 			else:
 				# Inform the customer their payment was unsuccessful
 				print("unsuccessful payment")
 				return Response({"error": {"something went wrong": "unsuccessful payment"}}, status=status.HTTP_400_BAD_REQUEST)	
 
-		return Response({"error": {"something went wrong": "unsuccessful payment"}}, status=status.HTTP_400_BAD_REQUEST)	
+		return Response({"error": {"something went wrong": "payment could not be verified, contact the admin"}}, status=status.HTTP_400_BAD_REQUEST)	
 	
 flutterwave_confirm_card_deposit = ConfirmCardDepositFlutterwave.as_view()
 
@@ -128,12 +125,17 @@ class PaystackPaymentView(CreateAPIView):
 	def perform_create(self, serializer):
 		serializer.save(user=self.request.user)
 
+paystack_card_deposit = PaystackPaymentView.as_view()
 class VerifyPaystackPayment(APIView):
 	def get(self, request, reference):
 		payment = Payment.objects.get(txn_ref=reference)
 		verified = payment.verify_payment()
 		if verified:
 			# do some things
+			recipient = payment.user
+			user_wallet = Wallet.objects.filter(user=recipient).first()
+			user_wallet.balance += payment.amount
+			user_wallet.save()
 			return Response({"message": "Verified payment successfully"}, status=status.HTTP_200_OK)
 		return Response({"message": "Payment Verification Failed"}, status=status.HTTP_400_BAD_REQUEST)
 
