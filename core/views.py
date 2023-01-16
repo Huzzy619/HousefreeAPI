@@ -1,6 +1,6 @@
 import os
 from jose import JWTError, jwt
-import requests
+import asyncio
 from datetime import datetime, timedelta, timezone
 
 from allauth.socialaccount.providers.google.views import GoogleOAuth2Adapter
@@ -14,12 +14,14 @@ from rest_framework.generics import CreateAPIView
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
+from asgiref.sync import async_to_sync
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny
 
 from utils.permissions import IsAgent
+from utils.auth.agent_verification import agent_identity_verification
 
 from .models import AgentDetails, Profile, User
 from RentRite.settings import SECRET_KEY
@@ -49,6 +51,38 @@ class AgentDetailsView(CreateAPIView):
     permission_classes = [IsAgent]
     serializer_class = AgentDetailsSerializer
     queryset = AgentDetails.objects.none()
+
+    @async_to_sync
+    async def create(self, request, *args, **kwargs):
+
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        front_image = serializer.validated_data['id_front']
+        back_image = serializer.validated_data['id_back']
+        selfie_image = serializer.validated_data['photo']
+        await AgentDetails.objects.all().adelete()
+
+        agent_verification = await agent_identity_verification(
+            front_image, back_image, selfie_image
+            )
+        if agent_verification:
+            # checks if the agent details from identity verification service provider API
+            # matches the agent details we've in our DB
+            agent_first_name = agent_verification['result']['firstName']
+            agent_last_name = agent_verification['result']['lastName']
+            print(request.user.firstname)
+            if request.user.first_name.lower() == agent_first_name.lower() and \
+                request.user.last_name.lower() == agent_last_name.lower():
+                serializer.save(is_verified=True)
+                headers = self.get_success_headers(serializer.data)
+                return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+            return Response(data='user details does not match', status=status.HTTP_400_BAD_REQUEST)
+
+        return Response(
+            data= "agent verification failed", 
+            status=status.HTTP_422_UNPROCESSABLE_ENTITY
+            )
 
     def get_serializer_context(self):
         return {"user": self.request.user}
@@ -142,6 +176,7 @@ class Send_verification_token(APIView):
     def post(self, request, email):
 
         user = get_object_or_404(User, email=email)
+        print('heelloo \n', request.user.firstname)
         user.is_agent = True
         user.save()
         expiration_time = datetime.now(timezone.utc) + timedelta(seconds=600)
@@ -173,7 +208,7 @@ class Token_verification(APIView):
 
     permission_classes = [AllowAny]
 
-    def get(self, request, token):
+    def post(self, request, token):
 
         if not token:
             return Response(
@@ -223,34 +258,3 @@ class Token_verification(APIView):
         return Response('verification successful', status=status.HTTP_200_OK)
 
 
-def agent_identity_verification(
-    front_image, back_image, selfie_image
-):
-
-    id = '71527f40-931d-11ed-9c25-97af89cddc4a '
-    email = 'akinolatolulope24@gmail.com'
-    body = {
-        'client_id': id,
-        'email': email
-    }
-    result = requests.post(
-        url='https://app.faceki.com/getToken',
-        json=body
-    )
-    identity_data = {
-        "doc_front_image": front_image,
-        "doc_back_image": back_image,
-        "selfie_image": selfie_image
-    }
-    if result.json():
-        token = result.json()['token']
-
-        verify = requests.post(
-            url='https://app.faceki.com/kyc-verification',
-            headers={
-                "Content-Type": "multipart/form-data",
-                "Authorization": f"Bearer {token}"
-            },
-            data=identity_data
-        )
-        print(verify.json())

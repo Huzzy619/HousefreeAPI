@@ -9,22 +9,28 @@ from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
 from .models import *
+# from .views import agent_identity_verification
+
 
 class AgentDetailsSerializer(serializers.ModelSerializer):
     class Meta:
         model = AgentDetails
-        fields = ['nin', 'id_front', "id_back", "photo", "id_type", "phone"]
-    
+        fields = ['nin', 'id_front', "id_back", "photo", "id_type", "phone", "is_verified"]
+
     def save(self, **kwargs):
-        return super().save(agent = self.context['user'], **kwargs)
+        
+        return super().save(agent=self.context['user'], **kwargs)
+
 
 class ProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Profile
-        fields = ["id","image", "background_image", "location"]
+        fields = ["id", "image", "background_image", "location"]
 
 # For Google Login
+
+
 class CustomSocialLoginSerializer(SocialLoginSerializer):
     def validate(self, attrs):
         # update the received code to a proper format. so it doesn't throw error.
@@ -44,7 +50,6 @@ class CustomRegisterSerializer(RegisterSerializer):
     last_name = serializers.CharField(max_length=250)
     is_agent = serializers.BooleanField(required=False)
 
-    
     def custom_signup(self, request, user):
         user_obj = get_user_model().objects.get(email=user)
 
@@ -58,6 +63,7 @@ class CustomRegisterSerializer(RegisterSerializer):
 
 class UserSerializer(serializers.ModelSerializer):
     name = serializers.SerializerMethodField()
+
     class Meta:
         model = get_user_model()
         fields = ["id", "name", "email"]
