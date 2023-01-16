@@ -16,7 +16,7 @@ class BlogViewSet(ModelViewSet):
         filters.OrderingFilter,
     ]
     search_fields = ["title", "content", "category"]
-    ordering_fields = ["published_date", "date_updated"]
+    ordering_fields = ["date_published", "date_updated"]
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
     def get_serializer_class(self):

@@ -13,7 +13,7 @@ from .models import *
 class AgentDetailsSerializer(serializers.ModelSerializer):
     class Meta:
         model = AgentDetails
-        fields = ['nin', 'id_front', "id_back", "photo", "id_type", "phone"]
+        fields = ['nin', 'id_front', "id_back", "photo", "id_type", "phone", "certificate"]
     
     def save(self, **kwargs):
         return super().save(agent = self.context['user'], **kwargs)
