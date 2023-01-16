@@ -17,8 +17,8 @@ class AttachmentSerializer(serializers.ModelSerializer):
         fields = ['id', '_file']
 
 class MessageSerializer(serializers.ModelSerializer):
-    from_user = serializers.SerializerMethodField()
-    to_user = serializers.SerializerMethodField()
+    from_user = UserSerializer()
+    to_user = UserSerializer()
     conversation = serializers.SerializerMethodField()
     attachment = AttachmentSerializer(many = True)
 
@@ -38,11 +38,6 @@ class MessageSerializer(serializers.ModelSerializer):
     def get_conversation(self, obj: Message):
         return str(obj.conversation.id)
 
-    def get_from_user(self, obj: Message):
-        return UserSerializer(obj.from_user).data
-
-    def get_to_user(self, obj: Message):
-        return UserSerializer(obj.to_user).data
     
     
 

@@ -1,11 +1,19 @@
-from django.dispatch import receiver
-from django.db.models.signals import post_save
-from .models import Contact
-from mailjet_rest import Client
 from django.conf import settings
+from django.contrib.auth import get_user_model
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from mailjet_rest import Client
+
+from .models import Contact, Newsletter
 
 
-@receiver(post_save, sender = Contact)
+@receiver(post_save, sender=get_user_model())
+def subscribe_user_to_newsletters(instance, created, **kwargs):
+    if created:
+        Newsletter.objects.create(email=instance.email)
+
+
+@receiver(post_save, sender=Contact)
 def send_contact_email(instance, created, **kwargs):
     if created:
 
@@ -32,5 +40,5 @@ def send_contact_email(instance, created, **kwargs):
         # ]
         # }
         # mailjet.send.create(data=data)
-       
+
         pass

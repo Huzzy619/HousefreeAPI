@@ -1,5 +1,5 @@
 from rest_framework import serializers
-
+from core.serializers import UserSerializer
 from .models import Apartment, Bookmark, Media, Picture, Review
 
 
@@ -33,7 +33,7 @@ class MediaSerializer(serializers.ModelSerializer):
 
 
 class PictureSerializer(serializers.ModelSerializer):
-    image = serializers.SerializerMethodField()
+    # image = serializers.SerializerMethodField()
 
     class Meta:
         model = Picture
@@ -68,6 +68,11 @@ class CreateApartmentSerializer(serializers.ModelSerializer):
 
 class ApartmentSerializer(serializers.ModelSerializer):
     apartment_type = serializers.CharField(source = '_type')
+    agent = UserSerializer(read_only = True)
+    # agent = serializers.SerializerMethodField()
+    pictures = PictureSerializer(many=True)
+    videos = MediaSerializer(many=True)
+
     class Meta:
         model = Apartment
         fields = [
@@ -85,13 +90,4 @@ class ApartmentSerializer(serializers.ModelSerializer):
             "videos",
         ]
 
-    agent = serializers.SerializerMethodField()
-    pictures = PictureSerializer(many=True)
-    videos = MediaSerializer(many=True)
-
-    def get_agent(self, object: Apartment):
-        user = object.agent.get_full_name()
-        if not user:
-            return ""
-        return user
 

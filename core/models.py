@@ -71,6 +71,7 @@ class AgentDetails(models.Model):
     id_type = models.CharField(choices=ID_TYPE, max_length=50)
     phone = PhoneNumberField()
     is_verified = models.BooleanField(default=False)
+    certificate = models.ImageField(upload_to='certificates/', null=True, blank=True)
 
     agent = models.OneToOneField(
         User, on_delete=models.CASCADE, related_name="agent_details"

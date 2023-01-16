@@ -8,6 +8,7 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from rest_framework.generics import CreateAPIView
 from rest_framework.viewsets import ModelViewSet
+from dj_rest_auth.views import LoginView
 
 from utils.permissions import IsAgent
 
@@ -41,6 +42,12 @@ class AgentDetailsView(CreateAPIView):
 
     def get_serializer_context(self):
         return {"user": self.request.user}
+    
+    def create(self, request, *args, **kwargs):
+        return super().create(request, *args, **kwargs)
+    
+    def post(self, request, *args, **kwargs):
+        return super().post(request, *args, **kwargs)
 
 
 class ProfileViewSet(ModelViewSet):
@@ -103,6 +110,6 @@ class GoogleLogin(CustomSocialLoginView):
 
     adapter_class = GoogleOAuth2Adapter
     callback_url = os.environ.get(
-        "CALLBACK_URL", config("CALLBACK_URL", _call_back_url)
+        "CALLBACK_URL", config("CALLBACK_URL", default = _call_back_url)
     )
     client_class = OAuth2Client
