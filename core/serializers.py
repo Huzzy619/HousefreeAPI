@@ -15,11 +15,11 @@ from .models import *
 class AgentDetailsSerializer(serializers.ModelSerializer):
     class Meta:
         model = AgentDetails
-        fields = ['nin', 'id_front', "id_back", "photo", "id_type", "phone", "is_verified"]
+        fields = ['nin', 'id_front', "id_back", "photo", "id_type", "phone"]
 
     def save(self, **kwargs):
         
-        return super().save(agent=self.context['user'], **kwargs)
+        return super().save(agent=self.context['user'], is_verified=True, **kwargs)
 
 
 class ProfileSerializer(serializers.ModelSerializer):

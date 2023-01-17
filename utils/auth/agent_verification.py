@@ -1,4 +1,3 @@
-import asyncio
 import httpx
 
 
@@ -38,7 +37,6 @@ async def agent_identity_verification(
             )
 
             verify_agent_details = verify_agent_details.json()
-            print('hello \n', verify_agent_details)
             status = verify_agent_details.get('status', '')
             if status:
                 return None

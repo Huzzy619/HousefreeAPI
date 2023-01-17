@@ -33,7 +33,6 @@ from .serializers import (
     ProfileSerializer,
 )
 
-
 class AgentDetailsView(CreateAPIView):
     """
     Send Agent's Data in for Validation and verification
@@ -66,14 +65,14 @@ class AgentDetailsView(CreateAPIView):
             front_image, back_image, selfie_image
             )
         if agent_verification:
+            
             # checks if the agent details from identity verification service provider API
             # matches the agent details we've in our DB
             agent_first_name = agent_verification['result']['firstName']
             agent_last_name = agent_verification['result']['lastName']
-            print(request.user.firstname)
             if request.user.first_name.lower() == agent_first_name.lower() and \
                 request.user.last_name.lower() == agent_last_name.lower():
-                serializer.save(is_verified=True)
+                await asyncio.get_event_loop().run_in_executor(None, serializer.save)
                 headers = self.get_success_headers(serializer.data)
                 return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
@@ -176,9 +175,6 @@ class Send_verification_token(APIView):
     def post(self, request, email):
 
         user = get_object_or_404(User, email=email)
-        print('heelloo \n', request.user.firstname)
-        user.is_agent = True
-        user.save()
         expiration_time = datetime.now(timezone.utc) + timedelta(seconds=600)
         encode_user_data = {"user_id": str(
             user.id), "expire": str(expiration_time)}
