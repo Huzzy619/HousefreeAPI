@@ -71,7 +71,6 @@ class AgentDetailsView(CreateAPIView):
         front_image = serializer.validated_data['id_front']
         back_image = serializer.validated_data['id_back']
         selfie_image = serializer.validated_data['photo']
-        await AgentDetails.objects.all().adelete()
 
         agent_verification = await agent_identity_verification(
             front_image, back_image, selfie_image
@@ -171,7 +170,7 @@ class GoogleLogin(CustomSocialLoginView):
     client_class = OAuth2Client
 
 
-class Send_verification_token(APIView):
+class SendVerification_token(APIView):
     """
     An endpoint that encodes user data and generate JWT token
 
@@ -201,7 +200,7 @@ class Send_verification_token(APIView):
         return Response(status=status.HTTP_201_CREATED, data=encoded_jwt)
 
 
-class Token_verification(APIView):
+class TokenVerification(APIView):
     """
     An email verification endpoint
 
