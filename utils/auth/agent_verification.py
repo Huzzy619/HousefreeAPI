@@ -1,16 +1,18 @@
 import httpx
+import os
+from decouple import config
 
-
+FACEKI_ID = os.environ.get("FACEKI_ID", config("FACEKI_ID"))
+FACEKI_EMAIL = os.environ.get("FACEKI_EMAIL", config("FACEKI_EMAIL"))
 
 async def agent_identity_verification(
     front_image, back_image, selfie_image
 ):
 
-    id = '71527f40-931d-11ed-9c25-97af89cddc4a '
-    email = 'akinolatolulope24@gmail.com'
+    
     body = {
-        'client_id': id,
-        'email': email
+        'client_id': FACEKI_ID,
+        'email': FACEKI_EMAIL
     }
     async with httpx.AsyncClient() as client:
 

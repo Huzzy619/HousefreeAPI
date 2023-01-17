@@ -9,14 +9,14 @@ from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
 from .models import *
-# from .views import agent_identity_verification
 
 
 class AgentDetailsSerializer(serializers.ModelSerializer):
     class Meta:
         model = AgentDetails
-        fields = ['nin', 'id_front', "id_back", "photo", "id_type", "phone"]
 
+        fields = ['nin', 'id_front', "id_back", "photo", "id_type", "phone", "certificate"]
+    
     def save(self, **kwargs):
         
         return super().save(agent=self.context['user'], is_verified=True, **kwargs)
@@ -66,7 +66,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = get_user_model()
-        fields = ["id", "name", "email"]
+        fields = ["id", "name", "email", "is_agent", "date_joined"]
 
     def get_name(self, obj):
         return obj.get_full_name()

@@ -1,16 +1,13 @@
 from django.urls import path
-from rest_framework import routers
 
-from .views import ContactViewSet, NewsletterViewSet, form_subscribe, HelpDeskViewSet
+from .views import form_subscribe,  NewsletterView, HelpDeskView, ContactView
 
-router = routers.DefaultRouter()
-
-router.register("subscribe", NewsletterViewSet)
-router.register("contact", ContactViewSet)
-router.register("help/desk", HelpDeskViewSet)
 
 urlpatterns = [
     path(
-        "form_subscribe", form_subscribe , name='form_subscribe'
-    )
-] + router.urls
+        "form_subscribe/", form_subscribe , name='form_subscribe', 
+    ),
+    path("subscribe/", NewsletterView.as_view()), 
+    path("help/desk/", HelpDeskView.as_view()),
+    path("contact/", ContactView.as_view())
+] 
