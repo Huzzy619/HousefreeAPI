@@ -1,9 +1,8 @@
 from django.contrib import messages
-
 from django.core.validators import EmailValidator
 from django.shortcuts import redirect
 from rest_framework import status
-from rest_framework.generics import GenericAPIView, CreateAPIView
+from rest_framework.generics import CreateAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
@@ -19,11 +18,17 @@ class ContactView(CreateAPIView):
 class NewsletterView(CreateAPIView):
     """
     request body for both subscribe endpoints
+
+    Post : `Subscribe`
+
+    Delete : `Unsubscribe`
+
         {
-    
-            "email":"userexample.com"
+
+            "email":"user@example.com"
         }
     """
+
     serializer_class = NewsletterSerializer
 
     def delete(self, request, **kwargs):

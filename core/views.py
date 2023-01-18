@@ -164,7 +164,7 @@ class GoogleLogin(CustomSocialLoginView):
     client_class = OAuth2Client
 
 
-class SendVerification_token(APIView):
+class SendVerificationTokenView(APIView):
     """
     An endpoint that encodes user data and generate JWT token
 
@@ -194,7 +194,7 @@ class SendVerification_token(APIView):
         return Response(status=status.HTTP_201_CREATED, data=encoded_jwt)
 
 
-class TokenVerification(APIView):
+class TokenVerificationView(APIView):
     """
     An email verification endpoint
 
