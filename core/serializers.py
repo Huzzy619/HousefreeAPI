@@ -15,18 +15,26 @@ class AgentDetailsSerializer(serializers.ModelSerializer):
     class Meta:
         model = AgentDetails
 
-        fields = ['nin', 'id_front', "id_back", "photo", "id_type", "phone", "certificate"]
-    
+        fields = [
+            "nin",
+            "id_front",
+            "id_back",
+            "photo",
+            "id_type",
+            "phone",
+            "certificate",
+        ]
+
     def save(self, **kwargs):
-        
-        return super().save(agent=self.context['user'], is_verified=True, **kwargs)
+
+        return super().save(agent=self.context["user"], is_verified=True, **kwargs)
 
 
 class ProfileSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = Profile
         fields = ["id", "image", "background_image", "location"]
+
 
 # For Google Login
 
@@ -71,5 +79,6 @@ class UserSerializer(serializers.ModelSerializer):
     def get_name(self, obj):
         return obj.get_full_name()
 
-class OTPSerializer (serializers.Serializer):
+
+class OTPSerializer(serializers.Serializer):
     otp = serializers.CharField(max_length=6)

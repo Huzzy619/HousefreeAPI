@@ -73,7 +73,6 @@ class ApartmentViewSet(ModelViewSet):
     def retrieve(self, request, *args, **kwargs):
 
         # simulate getting this endpoint so that it can trigger the views count.
-        import pprint
         domain = request.META["HTTP_HOST"]
         id = kwargs["pk"]
         tls = "http" if settings.DEBUG else "https"

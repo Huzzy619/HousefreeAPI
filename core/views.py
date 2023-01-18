@@ -1,55 +1,38 @@
-import os
-from jose import JWTError, jwt
 import asyncio
+import os
 from datetime import datetime, timedelta, timezone
 
+from allauth.account.models import EmailAddress
 from allauth.socialaccount.providers.google.views import GoogleOAuth2Adapter
 from allauth.socialaccount.providers.oauth2.client import OAuth2Client
+from asgiref.sync import async_to_sync
 from decouple import config
 from dj_rest_auth.registration.views import RegisterView, SocialLoginView
-from allauth.account.models import EmailAddress
 from django.conf import settings
 from django.contrib.auth import get_user_model
-from rest_framework.generics import CreateAPIView
-from rest_framework.viewsets import ModelViewSet
-from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
-from asgiref.sync import async_to_sync
-from rest_framework.response import Response
-from rest_framework import status
-from rest_framework.views import APIView
-from rest_framework.permissions import AllowAny
-from dj_rest_auth.views import LoginView
-
-from rest_framework.response import Response
-from django.shortcuts import get_object_or_404
-from asgiref.sync import async_to_sync
-from rest_framework.response import Response
-from rest_framework import status
-from rest_framework.views import APIView
-from rest_framework.permissions import AllowAny
-
+from jose import JWTError, jwt
 from pyotp import HOTP, random_base32
-from django.conf import settings
+from rest_framework import status
+from rest_framework.generics import CreateAPIView
+from rest_framework.permissions import AllowAny
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from rest_framework.viewsets import ModelViewSet
 
-
-from utils.permissions import IsAgent
 from utils.auth.agent_verification import agent_identity_verification
+from utils.permissions import IsAgent
 
 from .models import AgentDetails, Profile, User
-from RentRite.settings import SECRET_KEY
 from .permissions import IsOwner
 from .serializers import (
     AgentDetailsSerializer,
     CustomRegisterSerializer,
     CustomSocialLoginSerializer,
+    OTPSerializer,
     ProfileSerializer,
-    OTPSerializer
 )
-from rest_framework.response import Response
-# from rest_framework.permissions import IsAuthenticated
-from rest_framework.views import APIView
-from rest_framework import status
+
 
 class AgentDetailsView(CreateAPIView):
     """
@@ -60,7 +43,7 @@ class AgentDetailsView(CreateAPIView):
 
     id_type - (Options)
 
-    NIN, 
+    NIN,
     GOVERNMENT_ID
 
     """
@@ -74,38 +57,44 @@ class AgentDetailsView(CreateAPIView):
 
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        front_image = serializer.validated_data['id_front']
-        back_image = serializer.validated_data['id_back']
-        selfie_image = serializer.validated_data['photo']
+        front_image = serializer.validated_data["id_front"]
+        back_image = serializer.validated_data["id_back"]
+        selfie_image = serializer.validated_data["photo"]
 
         agent_verification = await agent_identity_verification(
             front_image, back_image, selfie_image
-            )
+        )
         if agent_verification:
-            
+
             # checks if the agent details from identity verification service provider API
             # matches the agent details we've in our DB
-            agent_first_name = agent_verification['result']['firstName']
-            agent_last_name = agent_verification['result']['lastName']
-            if request.user.first_name.lower() == agent_first_name.lower() and \
-                request.user.last_name.lower() == agent_last_name.lower():
+            agent_first_name = agent_verification["result"]["firstName"]
+            agent_last_name = agent_verification["result"]["lastName"]
+            if (
+                request.user.first_name.lower() == agent_first_name.lower()
+                and request.user.last_name.lower() == agent_last_name.lower()
+            ):
                 await asyncio.get_event_loop().run_in_executor(None, serializer.save)
                 headers = self.get_success_headers(serializer.data)
-                return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+                return Response(
+                    serializer.data, status=status.HTTP_201_CREATED, headers=headers
+                )
 
-            return Response(data='user details does not match', status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                data="user details does not match", status=status.HTTP_400_BAD_REQUEST
+            )
 
         return Response(
-            data= "agent verification failed", 
-            status=status.HTTP_422_UNPROCESSABLE_ENTITY
-            )
+            data="agent verification failed",
+            status=status.HTTP_422_UNPROCESSABLE_ENTITY,
+        )
 
     def get_serializer_context(self):
         return {"user": self.request.user}
-    
+
     def create(self, request, *args, **kwargs):
         return super().create(request, *args, **kwargs)
-    
+
     def post(self, request, *args, **kwargs):
         return super().post(request, *args, **kwargs)
 
@@ -166,12 +155,11 @@ class GoogleLogin(CustomSocialLoginView):
     if settings.DEBUG:
         _call_back_url = "http://127.0.0.1:8000/accounts/google/login/callback/"
     else:
-        _call_back_url = settings.ALLOWED_HOSTS[0] + \
-            "/accounts/google/login/callback/"
+        _call_back_url = settings.ALLOWED_HOSTS[0] + "/accounts/google/login/callback/"
 
     adapter_class = GoogleOAuth2Adapter
     callback_url = os.environ.get(
-        "CALLBACK_URL", config("CALLBACK_URL", default = _call_back_url)
+        "CALLBACK_URL", config("CALLBACK_URL", default=_call_back_url)
     )
     client_class = OAuth2Client
 
@@ -199,10 +187,10 @@ class SendVerification_token(APIView):
 
         user = get_object_or_404(User, email=email)
         expiration_time = datetime.now(timezone.utc) + timedelta(seconds=600)
-        encode_user_data = {"user_id": str(
-            user.id), "expire": str(expiration_time)}
+        encode_user_data = {"user_id": str(user.id), "expire": str(expiration_time)}
         encoded_jwt = jwt.encode(
-            encode_user_data, SECRET_KEY, algorithm='HS256')
+            encode_user_data, settings.SECRET_KEY, algorithm="HS256"
+        )
         return Response(status=status.HTTP_201_CREATED, data=encoded_jwt)
 
 
@@ -230,29 +218,22 @@ class TokenVerification(APIView):
     def post(self, request, token):
 
         if not token:
-            return Response(
-                "token cannot be empty",
-                status=status.HTTP_404_NOT_FOUND
-            )
+            return Response("token cannot be empty", status=status.HTTP_404_NOT_FOUND)
 
         credentials_exception = Response(
             status=status.HTTP_400_BAD_REQUEST,
             data="Could not validate credentials",
-
         )
 
         try:
             # Decodes token
-            payload = jwt.decode(token, SECRET_KEY, algorithms='HS256')
+            payload = jwt.decode(token, settings.SECRET_KEY, algorithms="HS256")
             user_id: str = payload.get("user_id")
             expire = payload.get("expire")
             if user_id is None or expire is None:
                 raise credentials_exception
         except JWTError as e:
-            msg = {
-                "error": e,
-                "time": datetime.now().strftime("%m/%d/%Y, %H:%M:%S")
-            }
+            msg = {"error": e, "time": datetime.now().strftime("%m/%d/%Y, %H:%M:%S")}
 
             return credentials_exception
 
@@ -267,20 +248,15 @@ class TokenVerification(APIView):
         get_allauth = get_object_or_404(EmailAddress, user=user)
 
         if get_allauth.verified == True:
-            return Response(
-                'email already verified',
-                status=status.HTTP_403_FORBIDDEN
-            )
+            return Response("email already verified", status=status.HTTP_403_FORBIDDEN)
 
         get_allauth.verified = True
         get_allauth.save()
-        return Response('verification successful', status=status.HTTP_200_OK)
+        return Response("verification successful", status=status.HTTP_200_OK)
 
 
-
-
-# I will be back 
-class OTPView (APIView):
+# I will be back
+class OTPView(APIView):
 
     # permission_classes = [IsAuthenticated]
     def __init__(self, **kwargs) -> None:
@@ -294,24 +270,26 @@ class OTPView (APIView):
 
         otp = hotp.at(1)
 
-        request.session['value'] = otp
-        
+        request.session["value"] = otp
+
         return Response({"detail": int(otp)})
 
     def post(self, request):
         serializer = OTPSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        otp = serializer.validated_data['otp']
-        hotp = request.session.get('value', '')
+        otp = serializer.validated_data["otp"]
+        hotp = request.session.get("value", "")
         if hotp:
             if hotp.verify(otp, 1):
 
                 # user = request.user
                 # user.is_verified = True
                 # user.save()
-                return Response({"success" : "2FA successful"}, status=status.HTTP_202_ACCEPTED)
+                return Response(
+                    {"success": "2FA successful"}, status=status.HTTP_202_ACCEPTED
+                )
 
-            return Response({"error" : "invalid otp"})
-        
+            return Response({"error": "invalid otp"})
+
         return Response({"no value"})
