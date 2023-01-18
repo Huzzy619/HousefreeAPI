@@ -78,6 +78,7 @@ INSTALLED_APPS = [
     "corsheaders",
     "phonenumber_field",
     "django_filters",
+    "hitcount",
     
 ]
 
@@ -136,7 +137,16 @@ DATABASES = {
     #     "ENGINE": "django.db.backends.sqlite3",
     #     "NAME": BASE_DIR / "infodb.sqlite3",
     # },
+    # "default":{
+    #     "ENGINE": "django.db.backends.postgresql",
+    #     "NAME": "freehouse",
+    #     "USER": "postgres",
+    #     "PASSWORD": "0509",
+    #     "HOST": "localhost"
+    # }
 }
+
+
 
 # DATABASE_ROUTERS = ['routers.db_routers.InfoRouter']
 
@@ -286,4 +296,5 @@ MJ_API_KEY = os.environ.get('MJ_API_KEY', config("MJ_API_KEY", default = ""))
 MJ_API_SECRET = os.environ.get('MJ_API_SECRET', config("MJ_API_SECRET", default = ""))
 REDIS_URL = 'redis://JHKLKLKLJJKJK'
 FLUTTERWAVE_KEY = os.environ.get('FLUTTERWAVE_KEY', config("FLUTTERWAVE_KEY", default = ""))
+HITCOUNT_HITS_PER_IP_LIMIT = 1
 

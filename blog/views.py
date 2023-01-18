@@ -2,8 +2,8 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters, pagination, permissions
 from rest_framework.viewsets import ModelViewSet
 
-from .models import Blog
-from .serializers import BlogSerializer, CreateBlogSerializer
+from .models import Blog, Image
+from .serializers import BlogSerializer, CreateBlogSerializer, BlogImageSerializer
 
 
 class BlogViewSet(ModelViewSet):
@@ -26,3 +26,20 @@ class BlogViewSet(ModelViewSet):
 
     def get_serializer_context(self):
         return {"user": self.request.user, "request": self.request}
+
+class ImageViewSet(ModelViewSet):
+    http_method_names = ['post', 'get', 'delete']
+    serializer_class = BlogImageSerializer
+
+    def get_queryset(self):
+        if pk := self.kwargs.get("blog_pk", ""):
+            return Image.objects.filter(blog_id = pk)
+        return super().get_queryset()
+
+    def get_serializer_context(self):
+        context = {'request', self.request}
+
+        if pk := self.kwargs.get("blog_pk", ""):
+            context['blog_pk'] = pk
+        return context
+

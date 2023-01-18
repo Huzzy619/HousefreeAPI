@@ -14,7 +14,6 @@ class Blog(models.Model):
     ]
     title = models.CharField(max_length=500)
     content = models.TextField()
-    image = models.ImageField(upload_to=get_blogs_image_path, null=True, blank=True)
     category = models.CharField(max_length=200, choices=CATEGORY)
     featured = models.BooleanField(default=False)
     author = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
@@ -26,3 +25,7 @@ class Blog(models.Model):
 
     def __str__(self):
         return self.title
+
+class Image(models.Model):
+    img = models.ImageField(upload_to=get_blogs_image_path, null=True, blank=True)
+    blog = models.ForeignKey(Blog, on_delete=models.CASCADE, related_name='images')

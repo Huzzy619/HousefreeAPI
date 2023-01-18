@@ -69,14 +69,15 @@ class CreateApartmentSerializer(serializers.ModelSerializer):
 class ApartmentSerializer(serializers.ModelSerializer):
     apartment_type = serializers.CharField(source = '_type')
     agent = UserSerializer(read_only = True)
-    # agent = serializers.SerializerMethodField()
     pictures = PictureSerializer(many=True)
     videos = MediaSerializer(many=True)
+    clicks = serializers.SerializerMethodField()
 
     class Meta:
         model = Apartment
         fields = [
             "id",
+            "property_ref",
             "title",
             "category",
             "apartment_type",
@@ -85,9 +86,14 @@ class ApartmentSerializer(serializers.ModelSerializer):
             "specifications",
             "descriptions",
             "is_available",
+            "clicks",
             "agent",
             "pictures",
             "videos",
         ]
 
+    
+    
+    def get_clicks(self, apartment):
+        return apartment.hit_count.hits 
 

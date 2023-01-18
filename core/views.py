@@ -8,7 +8,8 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from rest_framework.generics import CreateAPIView
 from rest_framework.viewsets import ModelViewSet
-from dj_rest_auth.views import LoginView
+from pyotp import HOTP, random_base32
+from django.conf import settings
 
 from utils.permissions import IsAgent
 
@@ -19,7 +20,12 @@ from .serializers import (
     CustomRegisterSerializer,
     CustomSocialLoginSerializer,
     ProfileSerializer,
+    OTPSerializer
 )
+from rest_framework.response import Response
+# from rest_framework.permissions import IsAuthenticated
+from rest_framework.views import APIView
+from rest_framework import status
 
 
 class AgentDetailsView(CreateAPIView):
@@ -113,3 +119,41 @@ class GoogleLogin(CustomSocialLoginView):
         "CALLBACK_URL", config("CALLBACK_URL", default = _call_back_url)
     )
     client_class = OAuth2Client
+
+
+# I will be back 
+class OTPView (APIView):
+
+    # permission_classes = [IsAuthenticated]
+    def __init__(self, **kwargs) -> None:
+        super().__init__(**kwargs)
+        # self.hotp = HOTP('Hussein')
+
+    def get(self, request):
+        # global hotp
+
+        hotp = HOTP(random_base32())
+
+        otp = hotp.at(1)
+
+        request.session['value'] = otp
+        
+        return Response({"detail": int(otp)})
+
+    def post(self, request):
+        serializer = OTPSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        otp = serializer.validated_data['otp']
+        hotp = request.session.get('value', '')
+        if hotp:
+            if hotp.verify(otp, 1):
+
+                # user = request.user
+                # user.is_verified = True
+                # user.save()
+                return Response({"success" : "2FA successful"}, status=status.HTTP_202_ACCEPTED)
+
+            return Response({"error" : "invalid otp"})
+        
+        return Response({"no value"})

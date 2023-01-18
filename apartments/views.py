@@ -1,3 +1,4 @@
+import requests
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import permissions, status
 from rest_framework.decorators import action
@@ -6,11 +7,14 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
+
 from core.permissions import IsOwner
-from .models import Apartment, Bookmark, Media, Picture, Review
 from utils.permissions import IsAgent
-from .serializers import *
+
 from .filters import ApartmentFilter
+from .models import Apartment, Bookmark, Media, Picture, Review
+from .serializers import *
+from django.conf import settings
 
 
 class ApartmentViewSet(ModelViewSet):
@@ -30,9 +34,9 @@ class ApartmentViewSet(ModelViewSet):
     """
 
     filter_backends = [DjangoFilterBackend, OrderingFilter, SearchFilter]
-    filterset_class= ApartmentFilter
+    filterset_class = ApartmentFilter
     http_method_names = ["get", "post", "put", "delete"]
-    permission_classes = [IsOwner, IsAgent]
+    # permission_classes = [IsOwner, IsAgent]
     search_fields = ["location", "price", "category", "title"]
     ordering_fields = ["category"]
 
@@ -48,12 +52,7 @@ class ApartmentViewSet(ModelViewSet):
         #     # .order_by("-date_created")
         #     # .select_related("reviews", "pictures", "videos")
         # )
-        from django.contrib.sites.models import Site
-
-
-        domain = Site.objects.get_current().domain
-        print(domain)
-
+        
         serializer = ApartmentSerializer(my_apartments, many=True)
 
         return Response(serializer.data, status=status.HTTP_200_OK)
@@ -70,6 +69,19 @@ class ApartmentViewSet(ModelViewSet):
         return (
             Apartment.objects.all()
         )  # .select_related("reviews", "pictures", "videos")
+
+    def retrieve(self, request, *args, **kwargs):
+
+        # simulate getting this endpoint so that it can trigger the views count.
+        import pprint
+        domain = request.META["HTTP_HOST"]
+        id = kwargs["pk"]
+        tls = "http" if settings.DEBUG else "https"
+        requests.get(f"{tls}://{domain}/clicks/count/{id}", )
+
+        # requests.get(f"http://{domain}/apartment/{id}")
+
+        return super().retrieve(request, *args, **kwargs)
 
 
 class PicturesViewSet(ModelViewSet):
@@ -96,7 +108,7 @@ class PicturesViewSet(ModelViewSet):
             return {"apartment_pk": pk, "request": self.request}
         return super().get_serializer_context()
 
-    
+
 class MediaViewSet(ModelViewSet):
 
     """
@@ -136,7 +148,7 @@ class ReviewViewSet(ModelViewSet):
     """
 
     http_method_names = ["get", "post", "put", "delete"]
-    queryset = Review.objects.all()
+    queryset = Review.objects.none()
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
     serializer_class = ReviewSerializer
 
@@ -158,11 +170,11 @@ class BookmarkView(APIView):
     def get(self, request):
 
         """
-            Provides all the apartments that have been saved by the currently logged in user
+        Provides all the apartments that have been saved by the currently logged in user
         """
 
         my_bookmark = Bookmark.objects.filter(user=request.user).values("apartment_id")
-        
+
         _ids = [item["apartment_id"] for item in my_bookmark]
 
         apartments = Apartment.objects.filter(id__in=_ids)
@@ -173,11 +185,11 @@ class BookmarkView(APIView):
 
     def post(self, request):
         """
-        Add an apartment to bookmark or saved apartment 
+        Add an apartment to bookmark or saved apartment
 
         Args:
 
-            request: Should contain the Bearer(JWT Token) in the Authorization Header 
+            request: Should contain the Bearer(JWT Token) in the Authorization Header
 
             apartment_id: The id of the apartment to be saved
 
@@ -200,7 +212,7 @@ class BookmarkView(APIView):
 
         Args:
 
-            request: Should contain the Bearer(JWT Token) in the Authorization Header 
+            request: Should contain the Bearer(JWT Token) in the Authorization Header
 
             apartment_id: An array of the ids' of the apartment to be deleted
 

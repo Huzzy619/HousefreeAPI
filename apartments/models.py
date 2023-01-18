@@ -1,13 +1,20 @@
+import random
+import string
 import uuid
 
 from django.contrib.auth import get_user_model
+from django.contrib.contenttypes.fields import GenericRelation
 from django.core.validators import FileExtensionValidator
 from django.db import models
+from hitcount.models import (  # This will add a reverse lookup from HitCount Model
+    HitCount,
+    HitCountMixin,
+)
 
 TYPE_CHOICES = [
-    ('Rent','Rent'),
-    ('Buy', "Buy"),
-    ("Event Center","Event Center"),
+    ("Rent", "Rent"),
+    ("Buy", "Buy"),
+    ("Event Center", "Event Center"),
 ]
 
 CATEGORY_TYPE = [
@@ -17,25 +24,48 @@ CATEGORY_TYPE = [
     ("Self Contain", "Self Contain"),
     ("Hostels", "Hostels"),
 ]
-class Apartment(models.Model):
 
 
-    id = models.UUIDField(
-        default=uuid.uuid4, editable=False, primary_key=True, unique=True
+class Apartment(models.Model, HitCountMixin):
+
+    guid = models.UUIDField(
+        default=uuid.uuid4,
+        editable=False,
     )
 
     title = models.CharField(
         max_length=100, null=False, blank=True, verbose_name="Apartment Title"
     )
+    property_ref = models.CharField(max_length=10, editable=False)
     category = models.CharField(choices=CATEGORY_TYPE, max_length=20)
-    _type = models.CharField(max_length=255, choices=TYPE_CHOICES, default="Rent")
+    _type = models.CharField(
+        max_length=255, choices=TYPE_CHOICES, default="Rent", verbose_name="type"
+    )
     price = models.DecimalField(max_digits=10, decimal_places=2)
     location = models.CharField(max_length=550)
     descriptions = models.TextField(blank=True, null=True)
     specifications = models.JSONField(null=True, blank=True)
     is_available = models.BooleanField(default=True)
+    clicks = GenericRelation(
+        HitCount, object_id_field="object_pk", related_query_name="clicks_relation"
+    )
 
     agent = models.ForeignKey(get_user_model(), on_delete=models.DO_NOTHING)
+    
+    def property_ref_generator(self, length=10, chars=string.digits):
+        value = "".join(random.choice(chars) for _ in range(length))
+        while self.__class__.objects.filter(property_ref=value).exists():
+            value = "".join(random.choice(chars) for _ in range(length))
+
+        return value
+
+    def save(self, **kwargs) -> None:
+        self.property_ref = self.property_ref_generator()
+        return super().save(**kwargs)
+    
+    def __str__(self) -> str:
+        return self.title 
+
 
     class Meta:
         ordering = ["category"]
@@ -47,7 +77,7 @@ class Picture(models.Model):
     apartment = models.ForeignKey(
         Apartment, on_delete=models.CASCADE, related_name="pictures"
     )
-    
+
     date_created = models.DateTimeField(auto_now_add=True)
     date_updated = models.DateTimeField(auto_now=True)
 
@@ -85,4 +115,3 @@ class Bookmark(models.Model):
 
     apartment = models.ForeignKey(Apartment, on_delete=models.CASCADE)
     user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
-    

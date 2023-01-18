@@ -1,6 +1,14 @@
 from rest_framework_nested.routers import DefaultRouter, NestedDefaultRouter
 
-from .views import ApartmentViewSet, MediaViewSet, PicturesViewSet, ReviewViewSet, BookmarkView
+from utils.views import ApartmentClicks
+
+from .views import (
+    ApartmentViewSet,
+    BookmarkView,
+    MediaViewSet,
+    PicturesViewSet,
+    ReviewViewSet,
+)
 
 router = DefaultRouter()
 
@@ -15,6 +23,11 @@ nested_router.register("reviews", ReviewViewSet, basename="apartments_reviews")
 
 from django.urls import path
 
-urlpatterns = [
-    path('bookmark/', BookmarkView.as_view())
-] + router.urls + nested_router.urls
+urlpatterns = (
+    [
+        path("bookmark/", BookmarkView.as_view()),
+        path("clicks/count/<int:pk>", ApartmentClicks.as_view()),
+    ]
+    + router.urls
+    + nested_router.urls
+)
