@@ -32,6 +32,7 @@ from .serializers import (
     OTPSerializer,
     ProfileSerializer,
 )
+from dj_rest_auth.views import PasswordResetView
 
 
 class AgentDetailsView(CreateAPIView):
@@ -91,12 +92,6 @@ class AgentDetailsView(CreateAPIView):
 
     def get_serializer_context(self):
         return {"user": self.request.user}
-
-    def create(self, request, *args, **kwargs):
-        return super().create(request, *args, **kwargs)
-
-    def post(self, request, *args, **kwargs):
-        return super().post(request, *args, **kwargs)
 
 
 class ProfileViewSet(ModelViewSet):

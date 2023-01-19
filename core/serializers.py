@@ -71,14 +71,29 @@ class CustomRegisterSerializer(RegisterSerializer):
 
 class UserSerializer(serializers.ModelSerializer):
     name = serializers.SerializerMethodField()
+    status = serializers.SerializerMethodField()
+    phone = serializers.SerializerMethodField()
 
     class Meta:
         model = get_user_model()
-        fields = ["id", "name", "email", "is_agent", "date_joined"]
+        fields = ["id", "name", "email", "is_agent", "date_joined", "status", "phone"]
 
     def get_name(self, obj):
         return obj.get_full_name()
-
+    
+    def get_status (self, obj):
+        try:
+            if obj.is_agent:
+                status = obj.agent_details.is_verified
+                return "Verified" if status else "Unverified"
+        except:
+            return None
+    def get_phone (self, obj):
+        try:
+            if obj.is_agent:
+                return str(obj.agent_details.phone)
+        except:
+            return None
 
 class OTPSerializer(serializers.Serializer):
     otp = serializers.CharField(max_length=6)

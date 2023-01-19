@@ -232,6 +232,7 @@ REST_FRAMEWORK = {
 REST_AUTH_SERIALIZERS = {
     "LOGIN_SERIALIZER": "core.serializers.CustomLoginSerializer",
     "REGISTER_SERIALIZER": "core.serializers.CustomRegisterSerializer",
+    # "PASSWORD_RESET_CONFIRM_SERIALIZER": ""
 }
 REST_USE_JWT = True
 

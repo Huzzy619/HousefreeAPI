@@ -51,6 +51,7 @@ class Apartment(models.Model, HitCountMixin):
     )
 
     agent = models.ForeignKey(get_user_model(), on_delete=models.DO_NOTHING)
+    verified = models.BooleanField(default=False)
     
     def property_ref_generator(self, length=10, chars=string.digits):
         value = "".join(random.choice(chars) for _ in range(length))
@@ -69,6 +70,7 @@ class Apartment(models.Model, HitCountMixin):
 
     class Meta:
         ordering = ["category"]
+        
 
 
 class Picture(models.Model):

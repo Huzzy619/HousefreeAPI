@@ -6,7 +6,7 @@ from django.db import models
 from phonenumber_field.modelfields import PhoneNumberField
 
 from utils.paths.path_helpers import get_passport_path
-from utils.validators.models import validate_NIN_digits
+from utils.validators.models import validate_NIN_digits, validate_file_size
 
 from .managers import CustomUserManager
 
@@ -60,12 +60,15 @@ class AgentDetails(models.Model):
         null=True,
         blank=True,
         verbose_name="Goverment ID Front",
+        validators=[validate_file_size]
     )
     id_back = models.ImageField(
         upload_to=get_passport_path,
         null=True,
         blank=True,
         verbose_name="Goverment ID Back",
+        validators=[validate_file_size]
+
     )
     photo = models.ImageField(upload_to=get_passport_path)
     id_type = models.CharField(choices=ID_TYPE, max_length=50)
@@ -76,3 +79,6 @@ class AgentDetails(models.Model):
     agent = models.OneToOneField(
         User, on_delete=models.CASCADE, related_name="agent_details"
     )
+
+    class Meta:
+        verbose_name = "Agent Detail" # verbose_name_plural meta option will just add an 's' to this 

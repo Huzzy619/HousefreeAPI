@@ -72,6 +72,7 @@ class ApartmentSerializer(serializers.ModelSerializer):
     pictures = PictureSerializer(many=True)
     videos = MediaSerializer(many=True)
     clicks = serializers.SerializerMethodField()
+    verified = serializers.BooleanField(read_only=True)
 
     class Meta:
         model = Apartment
@@ -86,6 +87,7 @@ class ApartmentSerializer(serializers.ModelSerializer):
             "specifications",
             "descriptions",
             "is_available",
+            "verified",
             "clicks",
             "agent",
             "pictures",

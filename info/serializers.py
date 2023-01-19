@@ -22,4 +22,4 @@ class HelpDeskSerializer(serializers.ModelSerializer):
         fields = ['category', 'problem', 'message', 'date_created']
 
     def save(self, **kwargs):
-        return super().save(author = self.context['user'], **self.validated_data)
+        return super().save(user = self.context['user'], **self.validated_data)
