@@ -36,7 +36,7 @@ ALLOWED_HOSTS = ["*"]
 INSTALLED_APPS = [
     # Third Party
     "channels",
-    # "daphne",
+    "daphne",
     "rest_framework",
     "rest_framework.authtoken",
     "rest_framework_simplejwt",
