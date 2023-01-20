@@ -34,18 +34,31 @@ ALLOWED_HOSTS = ["*"]
 # Application definition
 
 INSTALLED_APPS = [
-    # Local
-    "apartments",
-    "core",
-    "chat",
-    # "transaction",
-    "info",
-    "blog",
-    
+    # Third Party
     "channels",
     # "daphne",
+    "rest_framework",
+    "rest_framework.authtoken",
+    "rest_framework_simplejwt",
+    "rest_framework_simplejwt.token_blacklist",
+    "dj_rest_auth",
+    "dj_rest_auth.registration",
+    "drf_spectacular",
+    "drf_spectacular_sidecar",
+    "debug_toolbar",
+    "allauth",
+    "allauth.account",
+    "allauth.socialaccount",
+    "allauth.socialaccount.providers.google",
+    "cloudinary",
+    "cloudinary_storage",
+    "corsheaders",
+    "phonenumber_field",
+    "django_filters",
+    "hitcount",
     "jazzmin",
 
+    #Django apps
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -53,34 +66,14 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "django.contrib.sites",
-
-    # Third Party
-    "rest_framework",
-    "rest_framework.authtoken",
-    "rest_framework_simplejwt",
-    "rest_framework_simplejwt.token_blacklist",
-
-    "dj_rest_auth",
-    "dj_rest_auth.registration",
-
-    "drf_spectacular",
-    "drf_spectacular_sidecar",
-    "debug_toolbar",
-
-    "allauth",
-    "allauth.account",
-    "allauth.socialaccount",
-    "allauth.socialaccount.providers.google",
-
-    "cloudinary",
-    "cloudinary_storage",
-
-    "corsheaders",
-    "phonenumber_field",
-    "django_filters",
-    "hitcount",
-    
+    # Local
+    "apartments",
+    "core",
+    "chat",
+    "info",
+    "blog",
 ]
+
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",

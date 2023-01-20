@@ -13,17 +13,24 @@ from channels.routing import ProtocolTypeRouter, URLRouter
 from channels.security.websocket import AllowedHostsOriginValidator
 from django.core.asgi import get_asgi_application
 
+
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "RentRite.settings")
 
-import chat.routing
+# Initialize Django ASGI application early to ensure the AppRegistry
+# is populated before importing code that may import ORM or models.
+
+django_asgi = get_asgi_application()
+
 from utils.auth.AuthMiddleware import JWTAuthMiddleWareStack
+import chat.routing
+
 
 
 application = ProtocolTypeRouter(
-    {
-        "http": get_asgi_application(),
-        "websocket": AllowedHostsOriginValidator(
-            JWTAuthMiddleWareStack(URLRouter(chat.routing.websocket_urlpatterns))
-        ),
-    }
-)
+        {
+            "http": get_asgi_application(),
+            "websocket": AllowedHostsOriginValidator(
+                JWTAuthMiddleWareStack(URLRouter(chat.routing.websocket_urlpatterns))
+            ),
+        }
+    )
