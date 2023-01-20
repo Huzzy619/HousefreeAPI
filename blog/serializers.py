@@ -13,7 +13,7 @@ class BlogImageSerializer(serializers.ModelSerializer):
 class CreateBlogSerializer(serializers.ModelSerializer):
     class Meta:
         model = Blog
-        fields = ['title','content' ,'category', 'featured']
+        fields = ['id','title','content' ,'category', 'featured']
     
     
     def save(self, **kwargs):
