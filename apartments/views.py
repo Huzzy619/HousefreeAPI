@@ -46,11 +46,11 @@ class ApartmentViewSet(ModelViewSet):
         Returns all the apartments owned by the currently logged in agent
 
         """
-        my_apartments = Apartment.objects.filter(agent=self.request.user)
+        my_apartments = Apartment.objects.filter(agent=self.request.user).prefetch_related("reviews", "pictures", "videos")
         # (
 
         #     # .order_by("-date_created")
-        #     # .select_related("reviews", "pictures", "videos")
+        #     # 
         # )
         
         serializer = ApartmentSerializer(my_apartments, many=True)
@@ -67,8 +67,8 @@ class ApartmentViewSet(ModelViewSet):
 
     def get_queryset(self):
         return (
-            Apartment.objects.all()
-        )  # .select_related("reviews", "pictures", "videos")
+            Apartment.objects.all().prefetch_related("reviews", "pictures", "videos").select_related('agent')
+        )  
 
     def retrieve(self, request, *args, **kwargs):
 
@@ -99,7 +99,7 @@ class PicturesViewSet(ModelViewSet):
 
     def get_queryset(self):
         if pk := self.kwargs.get("apartment_pk", ""):
-            return Picture.objects.filter(apartment_id=pk)
+            return Picture.objects.filter(apartment_id=pk).select_related('apartment')
         return super().get_queryset()
 
     def get_serializer_context(self):

@@ -51,7 +51,7 @@ class AgentDetailsView(CreateAPIView):
 
     permission_classes = [IsAgent]
     serializer_class = AgentDetailsSerializer
-    queryset = AgentDetails.objects.none()
+    queryset = AgentDetails.objects.none().select_related('user')
 
     @async_to_sync
     async def create(self, request, *args, **kwargs):

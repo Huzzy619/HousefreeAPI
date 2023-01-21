@@ -64,6 +64,10 @@ class Apartment(models.Model, HitCountMixin):
         self.property_ref = self.property_ref_generator()
         return super().save(**kwargs)
     
+    def cover_pic(self):
+        return self.pictures.order_by('date_created').first()
+
+
     def __str__(self) -> str:
         return self.title 
 

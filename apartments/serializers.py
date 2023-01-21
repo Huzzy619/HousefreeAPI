@@ -37,15 +37,17 @@ class PictureSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Picture
-        fields = ["id", "image"]
+        fields = ["id", "image"] #"cover_pic"
 
     def get_image(self, obj: Picture):
+        # obj.apartment.
         return self.context["request"].build_absolute_uri(obj.image.url)
 
     def save(self, **kwargs):
         _id = self.context["apartment_pk"]
         return super().save(apartment_id=_id, **self.validated_data)
 
+    
 
 class CreateApartmentSerializer(serializers.ModelSerializer):
     class Meta:
@@ -73,6 +75,7 @@ class ApartmentSerializer(serializers.ModelSerializer):
     videos = MediaSerializer(many=True)
     clicks = serializers.SerializerMethodField()
     verified = serializers.BooleanField(read_only=True)
+    # cover_pic = serializers.SerializerMethodField()
 
     class Meta:
         model = Apartment
@@ -91,10 +94,19 @@ class ApartmentSerializer(serializers.ModelSerializer):
             "clicks",
             "agent",
             "pictures",
+            # "cover_pic",
             "videos",
         ]
 
-    
+    # def get_cover_pic(self, apartment:Apartment):
+
+    #     obj = apartment.cover_pic()
+        
+    #     try:
+    #         return  obj.id # self.context['request'].build_absolute_uri(obj.image.url)
+    #     except:
+    #         return None
+        
     
     def get_clicks(self, apartment):
         return apartment.hit_count.hits 
