@@ -54,8 +54,16 @@ class ApartmentViewSet(ModelViewSet):
         # )
         
         serializer = ApartmentSerializer(my_apartments, many=True)
+    
+
+    
 
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+    @action(methods=["POST"], detail=False) 
+    def develop(self, request):
+        pass
+        
 
     def get_serializer_class(self):
         if self.request.method in permissions.SAFE_METHODS:
@@ -73,12 +81,12 @@ class ApartmentViewSet(ModelViewSet):
     def retrieve(self, request, *args, **kwargs):
 
         # simulate getting this endpoint so that it can trigger the views count.
-        domain = request.META["HTTP_HOST"]
-        id = kwargs["pk"]
-        tls = "http" if settings.DEBUG else "https"
-        requests.get(f"{tls}://{domain}/clicks/count/{id}", )
+        # domain = request.META["HTTP_HOST"]
+        # id = kwargs["pk"]
+        # tls = "http" if settings.DEBUG else "https"
+        # requests.get(f"{tls}://{domain}/clicks/count/{id}", )
 
-        # requests.get(f"http://{domain}/apartment/{id}")
+        # # requests.get(f"http://{domain}/apartment/{id}")
 
         return super().retrieve(request, *args, **kwargs)
 
@@ -106,6 +114,12 @@ class PicturesViewSet(ModelViewSet):
         if pk := self.kwargs.get("apartment_pk", ""):
             return {"apartment_pk": pk, "request": self.request}
         return super().get_serializer_context()
+
+    
+    def get_serializer_class(self):
+        if self.request.method == 'POST':
+            return CreatePictureSerializer
+        return PictureSerializer
 
 
 class MediaViewSet(ModelViewSet):

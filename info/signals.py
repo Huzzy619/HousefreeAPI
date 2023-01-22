@@ -7,10 +7,10 @@ from mailjet_rest import Client
 from .models import Contact, Newsletter
 
 
-@receiver(post_save, sender=get_user_model())
-def subscribe_user_to_newsletters(instance, created, **kwargs):
-    if created:
-        Newsletter.objects.create(email=instance.email)
+# @receiver(post_save, sender=get_user_model())
+# def subscribe_user_to_newsletters(instance, created, **kwargs):
+#     if created:
+#         Newsletter.objects.create(email=instance.email)
 
 
 @receiver(post_save, sender=Contact)

@@ -127,6 +127,7 @@ class CustomRegisterView(RegisterView):
         user = get_user_model().objects.get(id=user_pk)
         response["user"]["first_name"] = user.first_name
         response["user"]["last_name"] = user.last_name
+        response["user"]["id"] = user.id
 
         return response
 
