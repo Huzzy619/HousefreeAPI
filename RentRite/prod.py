@@ -12,7 +12,13 @@ ALLOWED_HOSTS = ["rentrite.up.railway.app", "rentrite.herokuapp.com"]
 
 CSRF_TRUSTED_ORIGINS = ["https://rentrite.up.railway.app", "https://rentrite.herokuapp.com"]
 
-DATABASES = {"default": dj_database_url.config()}
+# DATABASES = {"default": dj_database_url.config()}
+DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": BASE_DIR / "rentrite.sqlite3",
+    },
+}
 
 DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
 
