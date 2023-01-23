@@ -6,10 +6,10 @@ from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.fields import GenericRelation
 from django.core.validators import FileExtensionValidator
 from django.db import models
-# from hitcount.models import (  # This will add a reverse lookup from HitCount Model
-#     HitCount,
-#     HitCountMixin,
-# )
+from hitcount.models import (  # This will add a reverse lookup from HitCount Model
+    HitCount,
+    HitCountMixin,
+)
 
 TYPE_CHOICES = [
     ("Rent", "Rent"),
@@ -26,7 +26,7 @@ CATEGORY_TYPE = [
 ]
 
 
-class Apartment(models.Model): #HitCountMixin
+class Apartment(models.Model, HitCountMixin):
 
     guid = models.UUIDField(
         default=uuid.uuid4,
@@ -46,9 +46,9 @@ class Apartment(models.Model): #HitCountMixin
     descriptions = models.TextField(blank=True, null=True)
     specifications = models.JSONField(null=True, blank=True)
     is_available = models.BooleanField(default=True)
-    # clicks = GenericRelation(
-    #     HitCount, object_id_field="object_pk", related_query_name="clicks_relation"
-    # )
+    clicks = GenericRelation(
+        HitCount, object_id_field="object_pk", related_query_name="clicks_relation"
+    )
 
     agent = models.ForeignKey(get_user_model(), on_delete=models.DO_NOTHING)
     verified = models.BooleanField(default=False)

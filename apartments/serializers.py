@@ -150,8 +150,8 @@ class ApartmentSerializer(serializers.ModelSerializer):
     #     except:
     #         return None
 
-    # def get_clicks(self, apartment):
-    #     return apartment.hit_count.hits
+    def get_clicks(self, apartment):
+        return apartment.hit_count.hits
 
 
 class TestCreateApartment(serializers.ModelSerializer):

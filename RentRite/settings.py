@@ -36,6 +36,16 @@ ALLOWED_HOSTS = ["*"]
 INSTALLED_APPS = [
     # Third Party
     "channels",
+    "jazzmin",
+
+    "django.contrib.admin",
+    "django.contrib.auth",
+    "django.contrib.contenttypes",
+    "django.contrib.sessions",
+    "django.contrib.messages",
+    # "whitenoise.runserver_nostatic",
+    "django.contrib.staticfiles",
+    "django.contrib.sites",
     # "daphne",
     "rest_framework",
     "rest_framework.authtoken",
@@ -55,18 +65,9 @@ INSTALLED_APPS = [
     "corsheaders",
     "phonenumber_field",
     "django_filters",
-    # "hitcount",
-    # "jazzmin",
+    "hitcount",
 
     #Django apps
-    "django.contrib.admin",
-    "django.contrib.auth",
-    "django.contrib.contenttypes",
-    "django.contrib.sessions",
-    "django.contrib.messages",
-    # "whitenoise.runserver_nostatic",
-    "django.contrib.staticfiles",
-    "django.contrib.sites",
     # Local
     "apartments",
     "core",
@@ -180,7 +181,7 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
-STATIC_ROOT = BASE_DIR / "staticfiles"
+STATIC_ROOT = BASE_DIR / "staticfiles2"
 STATICFILES_DIRS = [BASE_DIR / "static"]
 STATICFILES_STORAGE = "whitenoise.storage.CompressedStaticFilesStorage"
 
