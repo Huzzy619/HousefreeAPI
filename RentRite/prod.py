@@ -16,7 +16,7 @@ CSRF_TRUSTED_ORIGINS = ["https://rentrite.up.railway.app", "https://rentrite.her
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "rentrite.sqlite3",
+        "NAME": BASE_DIR / "Rentrite.sqlite3",
     },
 }
 
