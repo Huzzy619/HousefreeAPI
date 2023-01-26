@@ -69,8 +69,8 @@ INSTALLED_APPS = [
 
     #Django apps
     # Local
-    "apartments",
     "core",
+    "apartments",
     "chat",
     "info",
     "blog",
