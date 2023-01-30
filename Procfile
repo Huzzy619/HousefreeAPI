@@ -1,2 +1,2 @@
 release: python manage.py migrate
-web: daphne RentRite.asgi:application
+web: gunicorn RentRite.asgi:application -k uvicorn.workers.UvicornWorker
