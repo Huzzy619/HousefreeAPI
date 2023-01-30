@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 import os
 from datetime import timedelta
 from pathlib import Path
+
 from decouple import config
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -37,7 +38,6 @@ INSTALLED_APPS = [
     # Third Party
     "channels",
     "jazzmin",
-
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -45,19 +45,21 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     # "whitenoise.runserver_nostatic",
     "django.contrib.staticfiles",
-    "django.contrib.sites",
     # "daphne",
     "rest_framework",
     "rest_framework.authtoken",
+    "dj_rest_auth",
     "rest_framework_simplejwt",
     "rest_framework_simplejwt.token_blacklist",
-    "dj_rest_auth",
-    "dj_rest_auth.registration",
     "drf_spectacular",
     "drf_spectacular_sidecar",
     "debug_toolbar",
+
+    "django.contrib.sites",
     "allauth",
     "allauth.account",
+    "dj_rest_auth.registration",
+    
     "allauth.socialaccount",
     "allauth.socialaccount.providers.google",
     "cloudinary",
@@ -66,8 +68,7 @@ INSTALLED_APPS = [
     "phonenumber_field",
     "django_filters",
     "hitcount",
-
-    #Django apps
+    # Django apps
     # Local
     "core",
     "apartments",
@@ -142,7 +143,6 @@ DATABASES = {
 }
 
 
-
 # DATABASE_ROUTERS = ['routers.db_routers.InfoRouter']
 
 # Password validation
@@ -179,7 +179,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = "static/"
 
 STATIC_ROOT = BASE_DIR / "staticfiles"
 STATICFILES_DIRS = [BASE_DIR / "static"]
@@ -291,9 +291,10 @@ SOCIALACCOUNT_PROVIDERS = {
     }
 }
 
-MJ_API_KEY = os.environ.get('MJ_API_KEY', config("MJ_API_KEY", default = ""))
-MJ_API_SECRET = os.environ.get('MJ_API_SECRET', config("MJ_API_SECRET", default = ""))
-REDIS_URL = 'redis://JHKLKLKLJJKJK'
-FLUTTERWAVE_KEY = os.environ.get('FLUTTERWAVE_KEY', config("FLUTTERWAVE_KEY", default = ""))
+MJ_API_KEY = os.environ.get("MJ_API_KEY", config("MJ_API_KEY", default=""))
+MJ_API_SECRET = os.environ.get("MJ_API_SECRET", config("MJ_API_SECRET", default=""))
+REDIS_URL = "redis://JHKLKLKLJJKJK"
+FLUTTERWAVE_KEY = os.environ.get(
+    "FLUTTERWAVE_KEY", config("FLUTTERWAVE_KEY", default="")
+)
 HITCOUNT_HITS_PER_IP_LIMIT = 1
-
