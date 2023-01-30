@@ -9,7 +9,7 @@ class ApartmentFilter(FilterSet):
         fields = {
             "category": ["exact"],
             "_type": ["exact"],
-            "location": ["exact"],
+            "locality": ["exact"],
             "price": ["gt", "lt"],
             "agent__first_name": ["icontains"],
             "agent__last_name": ["icontains"],

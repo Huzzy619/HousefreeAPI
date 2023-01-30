@@ -1,60 +1,67 @@
-from locust import HttpUser, task, between
-import random
 import json
-from django.contrib.auth import get_user_model
+import random
+import time
 import django
+from django.contrib.auth import get_user_model
+from locust import HttpUser, between, task
+
 
 class WebsiteUser(HttpUser):
     wait_time = between(1, 5)
 
-    # @task
+    @task(30)
     def view_apartments(self):
-        self.client.get('/apartment/', name = '/apartment/')
-        print(self.result)
+        self.client.get("/apartment/", name="/apartment/")
+        # print(self.result)
 
-
-    # @task
+    @task(20)
     def view_apartment(self):
-        apartment_id = random.randint(1,4)
-        self.client.get(f'/apartment/{apartment_id}', name = '/apartment/:id/')
-    
-    @task
+        apartment_id = 1 #random.randint(1, 4)
+        self.client.get(f"/apartment/{apartment_id}", name="/apartment/:id/")
+
+    @task(5)
     def create_apartments(self):
-        django.setup()
-        self.client.post('/apartment/', name = '/apartment/create', json={
-            
-        "title": "string",
-        "category": "Bungalow",
-        "price": random.randint(1000, 3000),
-        "location": "string",
-        "specifications": {
-            "additionalProp1": "string",
-            "additionalProp2": "string",
-            "additionalProp3": "string"
-        },
-        "descriptions": "string",
-        "is_available": True,
-         "agent": "25c4c886-77b6-49bf-b9e3-f6e9fd263819"
+        # django.setup()
+        self.client.post(
+            "/apartment/",
+            name="/apartment/create/",
+            json={
+                "title": "string",
+                "category": "Bungalow",
+                "price": random.randint(250, 400),
+                "locality": "string",
+                "state": "string",
+                "area": "string",
+                "street": "string",
+                "specifications": {
+                    "additionalProp1": "string",
+                    "additionalProp2": "string",
+                    "additionalProp3": "string",
+                },
+                "descriptions": "string",
+                "is_available": True,
+            },
+            headers={
+                'Authorization': f'JWT {random.choice(self.access_tokens)}'
+            }
+        )
 
-        })
-
-
-    def make_booking(self):
-        self.client.post('/bookmark/', json={
-
-        })
+    @task(10)
+    def login(self):
+        resp = self.client.post('/accounts/login/', json={'email':f'testuser{random.randint(1,3)}@gmail.com', 'password':'@Huzkid619'}, name = '/login/additional/')
+        self.access_tokens.append(resp.json()['access_token'])
     
-    # def on_start(self):
-    #     response = self.client.post('/accounts/login/', json={
-    #         "email": "school@django.com",
-    #         "password": "@Huzkid619",
-    #         # "password2": "@Huzkid619",
-    #         # "first_name": "string",
-    #         # "last_name": "string",
-    #         # "is_agent": True
-    #     })
-    #     self.result = response.json()
-    #     # for _ in range(10):
-    #     #     print(result)
-    #     # self.user_id = result["user"]["pk"]
-    #     # print(self.user_id)
+    @task(5)
+    def make_booking(self):
+        self.client.post("/bookmark/", json={"apartment_id": 1}, headers={
+                'Authorization': f'JWT {random.choice(self.access_tokens)}'
+            })
+
+    def on_start(self):
+        # First log in all the agents so they can create apartments
+
+        self.access_tokens = list()
+
+        resp = self.client.post('/accounts/login/', json={'email':'admin@django.com', 'password':123}, name = '/login/')
+        self.access_tokens.append(resp.json()['access_token'])
+        # self.access_tokens.append(resp.json()['access_token'])

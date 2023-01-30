@@ -42,7 +42,10 @@ class Apartment(models.Model, HitCountMixin):
         max_length=255, choices=TYPE_CHOICES, default="Rent", verbose_name="type"
     )
     price = models.DecimalField(max_digits=10, decimal_places=2)
-    location = models.CharField(max_length=550)
+    locality = models.CharField(max_length=550)
+    state = models.CharField(max_length=500)
+    area = models.CharField(max_length=500)
+    street = models.CharField(max_length=500)
     descriptions = models.TextField(blank=True, null=True)
     specifications = models.JSONField(null=True, blank=True)
     is_available = models.BooleanField(default=True)
@@ -100,6 +103,9 @@ class Media(models.Model):
 
     date_created = models.DateTimeField(auto_now_add=True)
     date_updated = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name_plural = "Media"
 
 
 class Review(models.Model):

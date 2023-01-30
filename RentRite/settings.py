@@ -37,7 +37,7 @@ ALLOWED_HOSTS = ["*"]
 INSTALLED_APPS = [
     # Third Party
     "channels",
-    "daphne",
+    # "daphne",
     "jazzmin",
     "django.contrib.admin",
     "django.contrib.auth",

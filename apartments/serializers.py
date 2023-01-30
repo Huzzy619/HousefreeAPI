@@ -100,7 +100,10 @@ class CreateApartmentSerializer(serializers.ModelSerializer):
             "title",
             "category",
             "price",
-            "location",
+            "locality",
+            "state",
+            "area",
+            "street",
             "specifications",
             "descriptions",
             "is_available",
@@ -129,7 +132,10 @@ class ApartmentSerializer(serializers.ModelSerializer):
             "category",
             "_type",
             "price",
-            "location",
+            "locality",
+            "state",
+            "area",
+            "street",
             "specifications",
             "descriptions",
             "is_available",
@@ -153,18 +159,3 @@ class ApartmentSerializer(serializers.ModelSerializer):
     def get_clicks(self, apartment):
         return apartment.hit_count.hits
 
-
-class TestCreateApartment(serializers.ModelSerializer):
-    class Meta:
-        model = Apartment
-        fields = [
-            "title",
-            "category",
-            "apartment_type",
-            "price",
-            "location",
-            "specifications",
-            "descriptions",
-            "is_available",
-            "agent",
-        ]

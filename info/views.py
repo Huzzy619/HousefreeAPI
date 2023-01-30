@@ -6,8 +6,33 @@ from rest_framework.generics import CreateAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from .models import Contact, HelpDesk, Newsletter
-from .serializers import ContactSerializer, HelpDeskSerializer, NewsletterSerializer
+from .models import Contact, HelpDesk, Newsletter, Report
+from .serializers import ContactSerializer, HelpDeskSerializer, NewsletterSerializer, ReportListingSerializer
+
+
+class ReportListingView(CreateAPIView):
+    """
+    The apartment field represents the `id` of the current apartment being reported.
+
+    Example data:
+
+        {
+            "problem":"Other problems",
+            "description":"Love and War", 
+            "apartment": 1
+        }
+
+    Returns:
+
+        An instance of the newly created report for a listing
+
+    """
+    queryset = Report.objects.none()
+    permission_classes = [IsAuthenticated]
+    serializer_class = ReportListingSerializer
+
+    def get_serializer_context(self):
+        return {"user": self.request.user}
 
 
 class ContactView(CreateAPIView):

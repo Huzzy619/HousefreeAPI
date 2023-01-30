@@ -1,6 +1,7 @@
 from django.db import models
 from django.core.exceptions import ValidationError
 from django.contrib.auth import get_user_model
+from apartments.models import Apartment
 # Create your models here.
 
 def validate_newsletter_instance(email):
@@ -34,3 +35,9 @@ class HelpDesk(models.Model):
     message = models.TextField()
     date_created = models.DateTimeField(auto_now_add=True)
     user = models.ForeignKey(get_user_model(), on_delete=models.SET_NULL, null=True)
+
+class Report(models.Model):
+    problem = models.CharField(max_length=500)
+    description = models.TextField()
+    apartment = models.ForeignKey(Apartment, on_delete=models.CASCADE, related_name='reports')
+    user = models.ForeignKey(get_user_model(), on_delete=models.DO_NOTHING)

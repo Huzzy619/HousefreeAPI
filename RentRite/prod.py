@@ -15,11 +15,13 @@ CSRF_TRUSTED_ORIGINS = ["https://rentrite.up.railway.app", "https://rentrite.her
 # DATABASES = {"default": dj_database_url.config()}
 DATABASES = {
     'default': dj_database_url.parse(
-        'postgres://pujezkdc:LrHQ-XVycluUDSEeFboc6DLPdVVlv88v@kashin.db.elephantsql.com/pujezkdc',
+        os.environ.get("ELEPHANT_SQL", config("ELEPHANT_SQL", "")),
         conn_max_age=600,
         conn_health_checks=True,
     )
 }
+
+
 
 DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
 
