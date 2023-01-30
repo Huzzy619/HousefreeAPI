@@ -37,6 +37,7 @@ ALLOWED_HOSTS = ["*"]
 INSTALLED_APPS = [
     # Third Party
     "channels",
+    "daphne",
     "jazzmin",
     "django.contrib.admin",
     "django.contrib.auth",
@@ -45,7 +46,6 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     # "whitenoise.runserver_nostatic",
     "django.contrib.staticfiles",
-    # "daphne",
     "rest_framework",
     "rest_framework.authtoken",
     "dj_rest_auth",
@@ -59,7 +59,7 @@ INSTALLED_APPS = [
     "allauth",
     "allauth.account",
     "dj_rest_auth.registration",
-    
+
     "allauth.socialaccount",
     "allauth.socialaccount.providers.google",
     "cloudinary",
