@@ -6,7 +6,7 @@ from .settings import *
 
 SECRET_KEY = os.environ.get("SECRET_KEY", config("SECRET_KEY", SECRET_KEY))
 
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ["rentrite.up.railway.app", "rentrite.herokuapp.com"]
 
@@ -16,7 +16,7 @@ CSRF_TRUSTED_ORIGINS = ["https://rentrite.up.railway.app", "https://rentrite.her
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+        "NAME": BASE_DIR / "prodb.sqlite3",
     },
 }
 
