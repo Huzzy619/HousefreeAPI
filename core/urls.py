@@ -10,7 +10,7 @@ from .views import (
     SendVerificationTokenView,
     TokenVerificationView,
 )
-from dj_rest_auth.views import PasswordResetConfirmView
+# from dj_rest_auth.views import PasswordResetConfirmView
 
 router = DefaultRouter()
 router.register("profile", ProfileViewSet, basename="profile")

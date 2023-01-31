@@ -134,7 +134,7 @@ class CustomRegisterView(RegisterView):
 
 # if you want to use Authorization Code Grant, use this
 class GoogleLogin(CustomSocialLoginView):
-    #http://127.0.0.1:8000/accounts/google/login/callback/
+    #Local Development link
     #https://accounts.google.com/o/oauth2/v2/auth?redirect_uri=http://127.0.0.1:8000/accounts/google/login/callback/&prompt=consent&response_type=code&client_id=878674025478-e8s4rf34md8h4n7qobb6mog43nfhfb7r.apps.googleusercontent.com&scope=openid%20email%20profile&access_type=offline
     """
     # Visit this [`link`](https://accounts.google.com/o/oauth2/v2/auth?redirect_uri=https://rentrite.herokuapp.com/accounts/google/login/callback/&prompt=consent&response_type=code&client_id=878674025478-e8s4rf34md8h4n7qobb6mog43nfhfb7r.apps.googleusercontent.com&scope=openid%20email%20profile&access_type=offline) for users to see the google account select modal.
@@ -145,8 +145,9 @@ class GoogleLogin(CustomSocialLoginView):
     extract the `code` query parameter passed in the redirected url and send to this endpoint to get access and refresh tokens
 
     Example data:
-
+    {
         code : "4%2F0AWgavdfDkbD_aCXtaruulCuVFpZSEpImEuZouGFZACGO1hxoDwqCV1znzazpn7ev5FmH2w"
+    }
     """
 
     # CALLBACK_URL_YOU_SET_ON_GOOGLE
