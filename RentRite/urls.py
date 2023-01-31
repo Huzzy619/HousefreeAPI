@@ -48,8 +48,8 @@ urlpatterns = [
     #     TemplateView.as_view(),
     #     name="account_email_verification_sent",
     # ),
-    # path("accounts/", include("core.urls")),
-    path("core/", include("core.urls")),
+    path("accounts/", include("core.urls")),
+    # path("core/", include("core.urls")),
 
     path("", include('apartments.urls')),
     # path("transaction/", include("transaction.urls")), 
