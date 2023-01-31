@@ -73,7 +73,7 @@ INSTALLED_APPS = [
     "chat",
     "info",
     "blog",
-    "playground",
+    # "playground",
 ]
 
 

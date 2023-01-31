@@ -59,7 +59,7 @@ urlpatterns = [
     path("", include("blog.urls")),
 
     path('__debug__/', include('debug_toolbar.urls')),
-    path("", include('playground.urls'))
+    # path("", include('playground.urls'))
 ]
 
 # # Documentation paths
