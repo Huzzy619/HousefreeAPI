@@ -8,14 +8,14 @@ SECRET_KEY = os.environ.get("SECRET_KEY", config("SECRET_KEY", SECRET_KEY))
 
 DEBUG = False
 
-ALLOWED_HOSTS = ["rentrite.up.railway.app", "rentrite.herokuapp.com"]
+ALLOWED_HOSTS = ["rentrite.herokuapp.com","rentrite.up.railway.app"]
 
-CSRF_TRUSTED_ORIGINS = ["https://rentrite.up.railway.app", "https://rentrite.herokuapp.com"]
+CSRF_TRUSTED_ORIGINS = ["https://rentrite.herokuapp.com","https://rentrite.up.railway.app"]
 
 # DATABASES = {"default": dj_database_url.config()}
 DATABASES = {
     'default': dj_database_url.parse(
-        os.environ.get("ELEPHANT_SQL", config("ELEPHANT_SQL", "")),
+        os.getenv("ELEPHANT_SQL", config("ELEPHANT_SQL", "")),
         conn_max_age=600,
         conn_health_checks=True,
     )

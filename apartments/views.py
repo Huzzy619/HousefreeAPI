@@ -36,7 +36,7 @@ class ApartmentViewSet(ModelViewSet):
     filter_backends = [DjangoFilterBackend, OrderingFilter, SearchFilter]
     filterset_class = ApartmentFilter
     http_method_names = ["get", "post", "put", "delete"]
-    # permission_classes = [IsOwner, IsAgent]
+    permission_classes = [IsOwner, IsAgent]
     search_fields = ["location", "price", "category", "title"]
     ordering_fields = ["category"]
 

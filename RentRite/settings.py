@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     "channels",
     # "daphne",
     "jazzmin",
+    # Django apps
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -54,12 +55,10 @@ INSTALLED_APPS = [
     "drf_spectacular",
     "drf_spectacular_sidecar",
     "debug_toolbar",
-
     "django.contrib.sites",
     "allauth",
     "allauth.account",
     "dj_rest_auth.registration",
-
     "allauth.socialaccount",
     "allauth.socialaccount.providers.google",
     "cloudinary",
@@ -68,7 +67,6 @@ INSTALLED_APPS = [
     "phonenumber_field",
     "django_filters",
     "hitcount",
-    # Django apps
     # Local
     "core",
     "apartments",
@@ -298,3 +296,38 @@ FLUTTERWAVE_KEY = os.environ.get(
     "FLUTTERWAVE_KEY", config("FLUTTERWAVE_KEY", default="")
 )
 HITCOUNT_HITS_PER_IP_LIMIT = 1
+
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {
+        "console": {"class": "logging.StreamHandler", 
+        "formatter": "simple"
+        },
+
+        "file": {
+            "class": "logging.FileHandler",
+            "filename": "general.log",
+            "formatter": "verbose",
+            "level": os.getenv("DJANGO_LOG_LEVEL", "WARNING"),
+        },
+    },
+    "loggers": {
+        "": {  # The empty string indicates ~ All Apps including installed apps
+            "handlers": ["file"],
+            "propagate": True,
+        },
+    },
+    "formatters": {
+        "verbose": {
+            "format": "{asctime} ({levelname}) -  {module} {name} {process:d} {thread:d} {message}",
+            "style": "{",
+        },
+        "simple": {
+            "format": "{asctime} ({levelname}) -  {message}",
+            "style": "{",
+        },
+    },
+}
+
