@@ -134,6 +134,8 @@ class CustomRegisterView(RegisterView):
 
 # if you want to use Authorization Code Grant, use this
 class GoogleLogin(CustomSocialLoginView):
+    #http://127.0.0.1:8000/accounts/google/login/callback/
+    #https://accounts.google.com/o/oauth2/v2/auth?redirect_uri=http://127.0.0.1:8000/accounts/google/login/callback/&prompt=consent&response_type=code&client_id=878674025478-e8s4rf34md8h4n7qobb6mog43nfhfb7r.apps.googleusercontent.com&scope=openid%20email%20profile&access_type=offline
     """
     # Visit this [`link`](https://accounts.google.com/o/oauth2/v2/auth?redirect_uri=https://rentrite.herokuapp.com/accounts/google/login/callback/&prompt=consent&response_type=code&client_id=878674025478-e8s4rf34md8h4n7qobb6mog43nfhfb7r.apps.googleusercontent.com&scope=openid%20email%20profile&access_type=offline) for users to see the google account select modal.
 
@@ -151,12 +153,13 @@ class GoogleLogin(CustomSocialLoginView):
     if settings.DEBUG:
         _call_back_url = "http://127.0.0.1:8000/accounts/google/login/callback/"
     else:
-        _call_back_url = settings.ALLOWED_HOSTS[0] + "/accounts/google/login/callback/"
+        _call_back_url = settings.CSRF_TRUSTED_ORIGINS[0] + "/accounts/google/login/callback/"
 
     adapter_class = GoogleOAuth2Adapter
     callback_url = os.environ.get(
         "CALLBACK_URL", config("CALLBACK_URL", default=_call_back_url)
     )
+    
     client_class = OAuth2Client
 
 

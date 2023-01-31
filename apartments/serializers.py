@@ -99,6 +99,7 @@ class CreateApartmentSerializer(serializers.ModelSerializer):
             "id",
             "title",
             "category",
+            "_type",
             "price",
             "locality",
             "state",
