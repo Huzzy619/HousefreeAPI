@@ -6,7 +6,7 @@ from .settings import *
 
 SECRET_KEY = os.environ.get("SECRET_KEY", config("SECRET_KEY", SECRET_KEY))
 
-DEBUG = False
+DEBUG = os.getenv('DEBUG', False) 
 
 ALLOWED_HOSTS = ["rentrite.herokuapp.com","rentrite.up.railway.app"]
 

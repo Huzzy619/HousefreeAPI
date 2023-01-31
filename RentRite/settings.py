@@ -73,12 +73,13 @@ INSTALLED_APPS = [
     "chat",
     "info",
     "blog",
+    "playground",
 ]
 
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
-    "corsheaders.middleware.CorsMiddleware", 
+    "corsheaders.middleware.CorsMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
     "debug_toolbar.middleware.DebugToolbarMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
@@ -303,10 +304,7 @@ LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
     "handlers": {
-        "console": {"class": "logging.StreamHandler", 
-        "formatter": "simple"
-        },
-
+        "console": {"class": "logging.StreamHandler", "formatter": "simple"},
         "file": {
             "class": "logging.FileHandler",
             "filename": "general.log",
@@ -331,4 +329,3 @@ LOGGING = {
         },
     },
 }
-
