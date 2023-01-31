@@ -8,6 +8,7 @@ from allauth.socialaccount.providers.oauth2.client import OAuth2Client
 from asgiref.sync import async_to_sync
 from decouple import config
 from dj_rest_auth.registration.views import RegisterView, SocialLoginView
+from dj_rest_auth.views import PasswordResetView
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
@@ -32,7 +33,6 @@ from .serializers import (
     OTPSerializer,
     ProfileSerializer,
 )
-from dj_rest_auth.views import PasswordResetView
 
 
 class AgentDetailsView(CreateAPIView):
@@ -51,7 +51,7 @@ class AgentDetailsView(CreateAPIView):
 
     permission_classes = [IsAgent]
     serializer_class = AgentDetailsSerializer
-    queryset = AgentDetails.objects.none().select_related('user')
+    queryset = AgentDetails.objects.none().select_related("user")
 
     @async_to_sync
     async def create(self, request, *args, **kwargs):
@@ -134,8 +134,9 @@ class CustomRegisterView(RegisterView):
 
 # if you want to use Authorization Code Grant, use this
 class GoogleLogin(CustomSocialLoginView):
-    #Local Development link
-    #https://accounts.google.com/o/oauth2/v2/auth?redirect_uri=http://127.0.0.1:8000/accounts/google/login/callback/&prompt=consent&response_type=code&client_id=878674025478-e8s4rf34md8h4n7qobb6mog43nfhfb7r.apps.googleusercontent.com&scope=openid%20email%20profile&access_type=offline
+    # Local Development link
+    # https://accounts.google.com/o/oauth2/v2/auth?redirect_uri=http://127.0.0.1:8000/accounts/google/login/callback/&prompt=consent&response_type=code&client_id=878674025478-e8s4rf34md8h4n7qobb6mog43nfhfb7r.apps.googleusercontent.com&scope=openid%20email%20profile&access_type=offline
+
     """
     # Visit this [`link`](https://accounts.google.com/o/oauth2/v2/auth?redirect_uri=https://rentrite.herokuapp.com/accounts/google/login/callback/&prompt=consent&response_type=code&client_id=878674025478-e8s4rf34md8h4n7qobb6mog43nfhfb7r.apps.googleusercontent.com&scope=openid%20email%20profile&access_type=offline) for users to see the google account select modal.
 
@@ -145,24 +146,23 @@ class GoogleLogin(CustomSocialLoginView):
     extract the `code` query parameter passed in the redirected url and send to this endpoint to get access and refresh tokens
 
     Example data:
+
     {
+
         code : "4%2F0AWgavdfDkbD_aCXtaruulCuVFpZSEpImEuZouGFZACGO1hxoDwqCV1znzazpn7ev5FmH2w"
+
     }
     """
 
     # CALLBACK_URL_YOU_SET_ON_GOOGLE
-    if settings.DEBUG:
-        _call_back_url = "http://127.0.0.1:8000/accounts/google/login/callback/"
-    else:
-        _call_back_url = settings.CSRF_TRUSTED_ORIGINS[0] + "/accounts/google/login/callback/"
+    default_call_back_url = "http://127.0.0.1:8000/accounts/google/login/callback/"
+    
 
     adapter_class = GoogleOAuth2Adapter
-    callback_url = os.environ.get(
-        "CALLBACK_URL", config("CALLBACK_URL", default=_call_back_url)
-    )
-    
-    client_class = OAuth2Client
+    callback_url = os.environ.get("CALLBACK_URL", default_call_back_url)
 
+    client_class = OAuth2Client
+ 
 
 class SendVerificationTokenView(APIView):
     """

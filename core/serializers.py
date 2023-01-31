@@ -40,6 +40,9 @@ class ProfileSerializer(serializers.ModelSerializer):
 
 
 class CustomSocialLoginSerializer(SocialLoginSerializer):
+    access_token = None
+    id_token = None
+    
     def validate(self, attrs):
         # update the received code to a proper format. so it doesn't throw error.
 
