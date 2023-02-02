@@ -15,7 +15,7 @@ CSRF_TRUSTED_ORIGINS = ["https://rentrite.herokuapp.com","https://rentrite.up.ra
 # DATABASES = {"default": dj_database_url.config()}
 DATABASES = {
     'default': dj_database_url.parse(
-        os.getenv("ELEPHANT_SQL", config("ELEPHANT_SQL", "")),
+        os.getenv("RAILWAY_DB_URL", config("RAILWAY_DB_URL", "")),
         conn_max_age=600,
         conn_health_checks=True,
     )
