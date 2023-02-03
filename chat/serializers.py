@@ -3,6 +3,8 @@ from rest_framework import serializers
 from .models import Message, Conversation, Attachment
 from core.serializers import UserSerializer
 from django.contrib.auth import get_user_model
+from drf_spectacular.utils import extend_schema_field
+from drf_spectacular.types import OpenApiTypes
 
 User = get_user_model()
 class CreateAttachmentSerializer(serializers.ModelSerializer):
@@ -35,6 +37,7 @@ class MessageSerializer(serializers.ModelSerializer):
             "read",
         )
 
+    @extend_schema_field(OpenApiTypes.STR)
     def get_conversation(self, obj: Message):
         return str(obj.conversation.id)
 
@@ -52,13 +55,15 @@ class ConversationSerializer(serializers.ModelSerializer):
         model = Conversation
         fields = ("id", "name", "other_user", "last_message")
 
+    @extend_schema_field(OpenApiTypes.OBJECT)
     def get_last_message(self, obj):
         messages = obj.messages.all().order_by("-timestamp")
         if not messages.exists():
             return None
         message = messages[0]
         return MessageSerializer(message).data
-
+        
+    @extend_schema_field(OpenApiTypes.OBJECT)
     def get_other_user(self, obj):
         User = get_user_model()
 

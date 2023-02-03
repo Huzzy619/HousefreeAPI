@@ -3,7 +3,8 @@ from rest_framework import serializers
 from core.serializers import UserSerializer
 
 from .models import Apartment, Bookmark, Media, Picture, Review
-
+from drf_spectacular.utils import extend_schema_field
+from drf_spectacular.types import OpenApiTypes
 
 class CreateBookmarkSerializer(serializers.ModelSerializer):
     class Meta:
@@ -157,6 +158,7 @@ class ApartmentSerializer(serializers.ModelSerializer):
     #     except:
     #         return None
 
+    @extend_schema_field(OpenApiTypes.INT)
     def get_clicks(self, apartment):
         return apartment.hit_count.hits
 

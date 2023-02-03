@@ -82,3 +82,15 @@ class AgentDetails(models.Model):
 
     class Meta:
         verbose_name = "Agent Detail" # verbose_name_plural meta option will just add an 's' to this 
+
+
+class UserSettings(models.Model):
+    THEME = [
+        ('light', 'light'),
+        ('dark', 'dark')
+    ]
+
+    language = models.CharField(default="English", max_length=200)
+    theme = models.CharField(max_length=200, default='light', choices=THEME)
+    notification = models.BooleanField(default=False)
+    user = models.OneToOneField(User, on_delete=models.CASCADE)

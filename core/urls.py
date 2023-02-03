@@ -9,11 +9,14 @@ from .views import (
     ProfileViewSet,
     SendVerificationTokenView,
     TokenVerificationView,
+    UserSettingsViewSet,
 )
+
 # from dj_rest_auth.views import PasswordResetConfirmView
 
 router = DefaultRouter()
 router.register("profile", ProfileViewSet, basename="profile")
+router.register("settings", UserSettingsViewSet, basename='settings') 
 
 urlpatterns = [
     path("register/", CustomRegisterView.as_view()),
@@ -28,6 +31,6 @@ urlpatterns = [
         TokenVerificationView.as_view(),
         name="token-verification",
     ),
+    # path("settings/", UserSettingsViewSet.as_view(), name='settings')
     # path('password/reset/confirm/', PasswordResetConfirmView.as_view(), name='password_reset_confirm'),
-
 ] + router.urls

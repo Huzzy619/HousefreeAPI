@@ -15,23 +15,27 @@ from django.shortcuts import get_object_or_404
 from jose import JWTError, jwt
 from pyotp import HOTP, random_base32
 from rest_framework import status
-from rest_framework.generics import CreateAPIView
-from rest_framework.permissions import AllowAny
+from rest_framework.generics import CreateAPIView, GenericAPIView
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework.viewsets import ModelViewSet
+from rest_framework.viewsets import ModelViewSet, GenericViewSet
+from rest_framework.mixins import ListModelMixin, UpdateModelMixin
 
 from utils.auth.agent_verification import agent_identity_verification
 from utils.permissions import IsAgent
 
-from .models import AgentDetails, Profile, User
+from .models import AgentDetails, Profile, User, UserSettings
 from .permissions import IsOwner
 from .serializers import (
     AgentDetailsSerializer,
     CustomRegisterSerializer,
     CustomSocialLoginSerializer,
+    EmailSerializer,
     OTPSerializer,
     ProfileSerializer,
+    TokenSerializer,
+    UserSettingsSerializer,
 )
 
 
@@ -156,14 +160,25 @@ class GoogleLogin(CustomSocialLoginView):
 
     # CALLBACK_URL_YOU_SET_ON_GOOGLE
     default_call_back_url = "http://127.0.0.1:8000/accounts/google/login/callback/"
-    
 
     adapter_class = GoogleOAuth2Adapter
     callback_url = os.environ.get("CALLBACK_URL", default_call_back_url)
 
     client_class = OAuth2Client
- 
 
+
+# @extend_schema(
+#      description="Get an APRS-IS passcode for a given callsign",
+#     responses={
+#        200: inline_serializer(
+#            name='PasscodeResponse',
+#            fields={
+#                'passcode': serializers.CharField(),
+#            }
+#        ),
+#     #    400: OpenApiResponse(description='Missing callsign'),
+#     }
+# )
 class SendVerificationTokenView(APIView):
     """
     An endpoint that encodes user data and generate JWT token
@@ -182,6 +197,7 @@ class SendVerificationTokenView(APIView):
     """
 
     permission_classes = [AllowAny]
+    serializer_class = EmailSerializer
 
     def post(self, request, email):
 
@@ -214,6 +230,7 @@ class TokenVerificationView(APIView):
     """
 
     permission_classes = [AllowAny]
+    serializer_class = TokenSerializer
 
     def post(self, request, token):
 
@@ -258,6 +275,8 @@ class TokenVerificationView(APIView):
 # I will be back
 class OTPView(APIView):
 
+    serializer_class = OTPSerializer
+
     # permission_classes = [IsAuthenticated]
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
@@ -293,3 +312,22 @@ class OTPView(APIView):
             return Response({"error": "invalid otp"})
 
         return Response({"no value"})
+
+
+class UserSettingsViewSet(ListModelMixin, UpdateModelMixin, GenericViewSet):
+    """
+    Users can see and update their settings
+
+    Args:
+        ModelViewSet (_type_): _description_
+
+    Returns:
+        _type_: _description_
+    """
+
+    permission_classes = [IsAuthenticated]
+    http_method_names = ["get", "patch"]
+    serializer_class = UserSettingsSerializer
+
+    def get_queryset(self):
+        return UserSettings.objects.filter(user=self.request.user)

@@ -16,9 +16,9 @@ router.register("apartment", ApartmentViewSet, basename="apartments")
 
 nested_router = NestedDefaultRouter(router, "apartment", lookup="apartment")
 
-nested_router.register("media", MediaViewSet, basename="apartment_media")
-nested_router.register("pictures", PicturesViewSet, basename="apartment_pictures")
-nested_router.register("reviews", ReviewViewSet, basename="apartments_reviews")
+nested_router.register("media", MediaViewSet, basename="apartment-media")
+nested_router.register("pictures", PicturesViewSet, basename="apartment-pictures")
+nested_router.register("reviews", ReviewViewSet, basename="apartments-reviews")
 
 
 from django.urls import path

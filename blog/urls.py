@@ -5,7 +5,7 @@ from .views import BlogViewSet, ImageViewSet
 
 router = DefaultRouter()
 
-router.register('blogs', BlogViewSet)
+router.register('blogs', BlogViewSet, basename='blogs')
 
 nested_router = NestedDefaultRouter(router,'blogs', lookup = "blog")
 nested_router.register('images', ImageViewSet, basename="blog-images")
