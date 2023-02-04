@@ -31,6 +31,5 @@ urlpatterns = [
         TokenVerificationView.as_view(),
         name="token-verification",
     ),
-    # path("settings/", UserSettingsViewSet.as_view(), name='settings')
     # path('password/reset/confirm/', PasswordResetConfirmView.as_view(), name='password_reset_confirm'),
 ] + router.urls

@@ -15,12 +15,12 @@ from django.shortcuts import get_object_or_404
 from jose import JWTError, jwt
 from pyotp import HOTP, random_base32
 from rest_framework import status
-from rest_framework.generics import CreateAPIView, GenericAPIView
+from rest_framework.generics import CreateAPIView
+from rest_framework.mixins import ListModelMixin, UpdateModelMixin
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework.viewsets import ModelViewSet, GenericViewSet
-from rest_framework.mixins import ListModelMixin, UpdateModelMixin
+from rest_framework.viewsets import GenericViewSet, ModelViewSet
 
 from utils.auth.agent_verification import agent_identity_verification
 from utils.permissions import IsAgent
@@ -37,6 +37,25 @@ from .serializers import (
     TokenSerializer,
     UserSettingsSerializer,
 )
+
+
+class UserSettingsViewSet(
+    ListModelMixin, UpdateModelMixin, GenericViewSet
+):  # GenericViewSet
+    """
+    Users can see and update their settings
+
+    The PATCH endpoint requires that the settings_id is sent as a path parameter
+
+
+    """
+
+    http_method_names = ["get", "patch"]
+    permission_classes = [IsAuthenticated]
+    serializer_class = UserSettingsSerializer
+
+    def get_queryset(self):
+        return UserSettings.objects.filter(user=self.request.user)
 
 
 class AgentDetailsView(CreateAPIView):
@@ -312,22 +331,3 @@ class OTPView(APIView):
             return Response({"error": "invalid otp"})
 
         return Response({"no value"})
-
-
-class UserSettingsViewSet(ListModelMixin, UpdateModelMixin, GenericViewSet):
-    """
-    Users can see and update their settings
-
-    Args:
-        ModelViewSet (_type_): _description_
-
-    Returns:
-        _type_: _description_
-    """
-
-    permission_classes = [IsAuthenticated]
-    http_method_names = ["get", "patch"]
-    serializer_class = UserSettingsSerializer
-
-    def get_queryset(self):
-        return UserSettings.objects.filter(user=self.request.user)

@@ -1,20 +1,24 @@
 import requests
+from django.conf import settings
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import permissions, status
+from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.filters import OrderingFilter, SearchFilter
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import (
+    SAFE_METHODS,
+    IsAuthenticated,
+    IsAuthenticatedOrReadOnly,
+)
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 
-from core.permissions import IsOwner
+from core.permissions import IsFileOwner, IsOwner
 from utils.permissions import IsAgent
 
 from .filters import ApartmentFilter
 from .models import Apartment, Bookmark, Media, Picture, Review
 from .serializers import *
-from django.conf import settings
 
 
 class ApartmentViewSet(ModelViewSet):
@@ -46,27 +50,25 @@ class ApartmentViewSet(ModelViewSet):
         Returns all the apartments owned by the currently logged in agent
 
         """
-        my_apartments = Apartment.objects.filter(agent=self.request.user).prefetch_related("reviews", "pictures", "videos")
+        my_apartments = Apartment.objects.filter(
+            agent=self.request.user
+        ).prefetch_related("reviews", "pictures", "videos")
         # (
 
         #     # .order_by("-date_created")
-        #     # 
+        #     #
         # )
-        
-        serializer = ApartmentSerializer(my_apartments, many=True)
-    
 
-    
+        serializer = ApartmentSerializer(my_apartments, many=True)
 
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    @action(methods=["POST"], detail=False) 
+    @action(methods=["POST"], detail=False)
     def develop(self, request):
         pass
-        
 
     def get_serializer_class(self):
-        if self.request.method in permissions.SAFE_METHODS:
+        if self.request.method in SAFE_METHODS:
             return ApartmentSerializer
         return CreateApartmentSerializer
 
@@ -75,8 +77,10 @@ class ApartmentViewSet(ModelViewSet):
 
     def get_queryset(self):
         return (
-            Apartment.objects.all().prefetch_related("reviews", "pictures", "videos").select_related('agent')
-        )  
+            Apartment.objects.all()
+            .prefetch_related("reviews", "pictures", "videos")
+            .select_related("agent")
+        )
 
     def retrieve(self, request, *args, **kwargs):
 
@@ -101,13 +105,13 @@ class PicturesViewSet(ModelViewSet):
     """
 
     http_method_names = ["get", "post", "put", "delete"]
-    queryset = Picture.objects.all()
-    permission_classes = [IsAgent]
+    queryset = Picture.objects.none()
+    permission_classes = [IsFileOwner, IsAgent]
     serializer_class = PictureSerializer
 
     def get_queryset(self):
         if pk := self.kwargs.get("apartment_pk", ""):
-            return Picture.objects.filter(apartment_id=pk).select_related('apartment')
+            return Picture.objects.filter(apartment_id=pk).select_related("apartment")
         return super().get_queryset()
 
     def get_serializer_context(self):
@@ -115,9 +119,8 @@ class PicturesViewSet(ModelViewSet):
             return {"apartment_pk": pk, "request": self.request}
         return super().get_serializer_context()
 
-    
     def get_serializer_class(self):
-        if self.request.method == 'POST':
+        if self.request.method == "POST":
             return CreatePictureSerializer
         return PictureSerializer
 
@@ -136,8 +139,8 @@ class MediaViewSet(ModelViewSet):
     """
 
     http_method_names = ["get", "post", "put", "delete"]
-    queryset = Media.objects.all()
-    permission_classes = [IsOwner, IsAgent]
+    queryset = Media.objects.none()
+    permission_classes = [IsFileOwner, IsAgent]
     serializer_class = MediaSerializer
 
     def get_queryset(self):
@@ -162,7 +165,7 @@ class ReviewViewSet(ModelViewSet):
 
     http_method_names = ["get", "post", "put", "delete"]
     queryset = Review.objects.none()
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    permission_classes = [IsAuthenticatedOrReadOnly]
     serializer_class = ReviewSerializer
 
     def get_queryset(self):
