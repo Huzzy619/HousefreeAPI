@@ -72,7 +72,7 @@ class Apartment(models.Model, HitCountMixin):
 
 
     def __str__(self) -> str:
-        return self.title 
+        return f"{self.title}-- {self.id}" 
 
 
     class Meta:
@@ -89,6 +89,7 @@ class Picture(models.Model):
 
     date_created = models.DateTimeField(auto_now_add=True)
     date_updated = models.DateTimeField(auto_now=True)
+    
 
 
 class Media(models.Model):

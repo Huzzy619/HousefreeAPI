@@ -1,10 +1,11 @@
+from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
 from core.serializers import UserSerializer
 
 from .models import Apartment, Bookmark, Media, Picture, Review
-from drf_spectacular.utils import extend_schema_field
-from drf_spectacular.types import OpenApiTypes
+
 
 class CreateBookmarkSerializer(serializers.ModelSerializer):
     class Meta:
@@ -34,23 +35,25 @@ class MediaSerializer(serializers.ModelSerializer):
     def get_video(self, obj: Media):
         return self.context["request"].build_absolute_uri(obj.video.url)
 
-class MediaSerializer(serializers.Serializer):
-    video0 = serializers.FileField(required=False)
-    video1 = serializers.FileField(required=False)
-    video2 = serializers.FileField(required=False)
+
+class CreateMediaSerializer(serializers.Serializer):
+    video = serializers.ListField(child=serializers.FileField(), allow_empty = False)
+
 
     def create(self, validated_data):
-        
-        media = self.context["request"].FILES
 
-        pics = [
-            Media(
-                video=media[f"video{i}"], apartment_id=self.context["apartment_pk"]
-            )
-            for i in range(len(media))
+        videos = validated_data.pop("video")
+
+        vids = [
+            Media(video=vid, apartment_id=self.context["apartment_pk"])
+            for vid in videos
         ]
 
-        return Media.objects.bulk_create(pics)
+        instance = Media.objects.bulk_create(vids)
+
+        # Since the `instance` is a list, a key has to be assigned to the instance so it can be accessed in the View Response
+
+        return {"video": instance}
 
 
 class PictureSerializer(serializers.ModelSerializer):
@@ -64,34 +67,37 @@ class PictureSerializer(serializers.ModelSerializer):
         # obj.apartment.
         return self.context["request"].build_absolute_uri(obj.image.url)
 
-    
-
 
 class CreatePictureSerializer(serializers.Serializer):
-    image0 = serializers.ImageField(required=False)
-    image1 = serializers.ImageField(required=False)
-    image2 = serializers.ImageField(required=False)
-    image3 = serializers.ImageField(required=False)
-    image4 = serializers.ImageField(required=False)
-    image5 = serializers.ImageField(required=False)
-    image6 = serializers.ImageField(required=False)
-    image7 = serializers.ImageField(required=False)
-    image8 = serializers.ImageField(required=False)
-    image9 = serializers.ImageField(required=False)
+    """
+    ListField -- A field class that validates a list of objects.
 
+    Signature: ListField(child=<A_FIELD_INSTANCE>, allow_empty=True, min_length=None, max_length=None)
+
+        child - A field instance that should be used for validating the objects in the list. If this argument is not provided then objects in the list will not be validated.
+        allow_empty - Designates if empty lists are allowed.
+        min_length - Validates that the list contains no fewer than this number of elements.
+        max_length - Validates that the list contains no more than this number of elements.
+    
+    """
+
+    image = serializers.ListField(child=serializers.ImageField(), allow_empty = False)
 
     def create(self, validated_data):
-        
-        pictures = self.context["request"].FILES
+
+        images = validated_data.pop("image")
 
         pics = [
-            Picture(
-                image=pictures[f"image{i}"], apartment_id=self.context["apartment_pk"]
-            )
-            for i in range(len(pictures))
+            Picture(image=img, apartment_id=self.context["apartment_pk"])
+            for img in images
         ]
 
-        return Picture.objects.bulk_create(pics)
+        instance = Picture.objects.bulk_create(pics)
+
+        # Since the `instance` is a list, a key has to be assigned to the instance so it can be accessed in the View Response
+
+        return {"image": instance}
+
 
 class CreateApartmentSerializer(serializers.ModelSerializer):
     class Meta:
@@ -161,4 +167,3 @@ class ApartmentSerializer(serializers.ModelSerializer):
     @extend_schema_field(OpenApiTypes.INT)
     def get_clicks(self, apartment):
         return apartment.hit_count.hits
-

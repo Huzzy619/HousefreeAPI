@@ -63,10 +63,6 @@ class ApartmentViewSet(ModelViewSet):
 
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    @action(methods=["POST"], detail=False)
-    def develop(self, request):
-        pass
-
     def get_serializer_class(self):
         if self.request.method in SAFE_METHODS:
             return ApartmentSerializer
@@ -85,10 +81,10 @@ class ApartmentViewSet(ModelViewSet):
     def retrieve(self, request, *args, **kwargs):
 
         # simulate getting this endpoint so that it can trigger the views count.
-        # domain = request.META["HTTP_HOST"]
-        # id = kwargs["pk"]
-        # tls = "http" if settings.DEBUG else "https"
-        # requests.get(f"{tls}://{domain}/clicks/count/{id}", )
+        domain = request.META["HTTP_HOST"]
+        id = kwargs["pk"]
+        tls = "http" if settings.DEBUG else "https"
+        requests.get(f"{tls}://{domain}/clicks/count/{id}")
 
         # # requests.get(f"http://{domain}/apartment/{id}")
 
@@ -101,10 +97,12 @@ class PicturesViewSet(ModelViewSet):
 
     Args:
         The apartment_id
+    
+    To post pictures, gather the images files in a form data Array
 
     """
 
-    http_method_names = ["get", "post", "put", "delete"]
+    http_method_names = ["get", "post", "delete"]
     queryset = Picture.objects.none()
     permission_classes = [IsFileOwner, IsAgent]
     serializer_class = PictureSerializer
@@ -124,6 +122,12 @@ class PicturesViewSet(ModelViewSet):
             return CreatePictureSerializer
         return PictureSerializer
 
+    def create(self, request, *args, **kwargs):
+        super().create(request, *args, **kwargs)
+        # Since the images are returning null values in Response due to bulk_create, 
+        # a nice success message should suffice instead of instances of the newly uploaded images
+        return Response({"detail": "Images uploaded successfully"}, status=status.HTTP_201_CREATED)
+
 
 class MediaViewSet(ModelViewSet):
 
@@ -138,7 +142,7 @@ class MediaViewSet(ModelViewSet):
 
     """
 
-    http_method_names = ["get", "post", "put", "delete"]
+    http_method_names = ["get", "post", "delete"]
     queryset = Media.objects.none()
     permission_classes = [IsFileOwner, IsAgent]
     serializer_class = MediaSerializer
@@ -152,6 +156,18 @@ class MediaViewSet(ModelViewSet):
         if pk := self.kwargs.get("apartment_pk", ""):
             return {"apartment_pk": pk, "request": self.request}
         return super().get_serializer_context()
+    
+    def get_serializer_class(self):
+        if self.request.method == "POST":
+            return CreateMediaSerializer
+        return MediaSerializer
+
+    
+    def create(self, request, *args, **kwargs):
+        super().create(request, *args, **kwargs)
+        # Since the videos are returning null values in Response due to bulk_create, 
+        # a nice success message should suffice instead of instances of the newly uploaded images
+        return Response({"detail": "Videos uploaded successfully"}, status=status.HTTP_201_CREATED)
 
 
 class ReviewViewSet(ModelViewSet):
