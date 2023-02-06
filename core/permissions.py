@@ -6,7 +6,11 @@ class IsOwner(permissions.BasePermission):
     message = "Only apartment owners/agents can make changes to their apartments"
 
     def has_permission(self, request, view):
-        return bool(request.user.is_authenticated)
+        return bool(
+            request.method in permissions.SAFE_METHODS
+            or request.user
+            and request.user.is_authenticated
+        ) # Equivalent to IsAuthenticated or ReadOnly
 
     def has_object_permission(self, request, view, obj):
         if request.method in permissions.SAFE_METHODS:
@@ -14,7 +18,7 @@ class IsOwner(permissions.BasePermission):
         try:
             return obj.agent == request.user
         except:
-            # In a case when a user object is the instance to be checked 
+            # In a case when a user object is the instance to be checked
             return obj == request.user
 
 
@@ -32,4 +36,3 @@ class IsFileOwner(permissions.BasePermission):
         if request.method in permissions.SAFE_METHODS:
             return True
         return obj.apartment.agent == request.user
-       
