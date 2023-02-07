@@ -14,12 +14,12 @@ class WebsiteUser(HttpUser):
         self.client.get("/apartment/", name="/apartment/")
         # print(self.result)
 
-    @task(20)
+    @task()
     def view_apartment(self):
-        apartment_id = 1 #random.randint(1, 4)
-        self.client.get(f"/apartment/{apartment_id}", name="/apartment/:id/")
+        apartment_id = random.randrange(1, 15)
+        self.client.get(f"/apartment/{apartment_id}/", name="/apartment/:id/")
 
-    @task(5)
+    # @task(5)
     def create_apartments(self):
         # django.setup()
         self.client.post(
@@ -46,22 +46,22 @@ class WebsiteUser(HttpUser):
             }
         )
 
-    @task(10)
+    # @task(10)
     def login(self):
         resp = self.client.post('/accounts/login/', json={'email':f'testuser{random.randint(1,3)}@gmail.com', 'password':'@Huzkid619'}, name = '/login/additional/')
         self.access_tokens.append(resp.json()['access_token'])
     
-    @task(5)
+    # @task(5)
     def make_booking(self):
         self.client.post("/bookmark/", json={"apartment_id": 1}, headers={
                 'Authorization': f'JWT {random.choice(self.access_tokens)}'
             })
 
-    def on_start(self):
-        # First log in all the agents so they can create apartments
+    # def on_start(self):
+    #     # First log in all the agents so they can create apartments
 
-        self.access_tokens = list()
+    #     self.access_tokens = list()
 
-        resp = self.client.post('/accounts/login/', json={'email':'admin@django.com', 'password':123}, name = '/login/')
-        self.access_tokens.append(resp.json()['access_token'])
-        # self.access_tokens.append(resp.json()['access_token'])
+    #     resp = self.client.post('/accounts/login/', json={'email':'admin@django.com', 'password':123}, name = '/login/')
+    #     self.access_tokens.append(resp.json()['access_token'])
+    #     # self.access_tokens.append(resp.json()['access_token'])

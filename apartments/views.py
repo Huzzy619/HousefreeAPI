@@ -1,5 +1,7 @@
+import httpx
 import requests
 from django.conf import settings
+from django.http.request import HttpRequest
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status
 from rest_framework.decorators import action
@@ -19,7 +21,8 @@ from utils.permissions import IsAgent
 from .filters import ApartmentFilter
 from .models import Apartment, Bookmark, Media, Picture, Review
 from .serializers import *
-
+from asgiref.sync import async_to_sync
+from .tasks import perform_click
 
 class ApartmentViewSet(ModelViewSet):
     """
@@ -78,17 +81,22 @@ class ApartmentViewSet(ModelViewSet):
             .select_related("agent")
         )
 
-    def retrieve(self, request, *args, **kwargs):
+    # @async_to_sync
+    def retrieve(self, request: HttpRequest, *args, **kwargs):
 
         # simulate getting this endpoint so that it can trigger the views count.
-        domain = request.META["HTTP_HOST"]
+        domain = request.get_host()
         id = kwargs["pk"]
-        tls = "http" if settings.DEBUG else "https"
-        requests.get(f"{tls}://{domain}/clicks/count/{id}")
+        scheme = request.scheme
 
-        # # requests.get(f"http://{domain}/apartment/{id}")
+        # async with httpx.AsyncClient() as client:
+            
+        # requests.get(f"{scheme}://{domain}/clicks/count/{id}")
 
-        return super().retrieve(request, *args, **kwargs)
+        perform_click.delay(scheme, domain, id)
+
+
+        return super().retrieve(request, *args, **kwargs) 
 
 
 class PicturesViewSet(ModelViewSet):
@@ -97,7 +105,7 @@ class PicturesViewSet(ModelViewSet):
 
     Args:
         The apartment_id
-    
+
     To post pictures, gather the images files in a form data Array
 
     """
@@ -124,9 +132,11 @@ class PicturesViewSet(ModelViewSet):
 
     def create(self, request, *args, **kwargs):
         super().create(request, *args, **kwargs)
-        # Since the images are returning null values in Response due to bulk_create, 
+        # Since the images are returning null values in Response due to bulk_create,
         # a nice success message should suffice instead of instances of the newly uploaded images
-        return Response({"detail": "Images uploaded successfully"}, status=status.HTTP_201_CREATED)
+        return Response(
+            {"detail": "Images uploaded successfully"}, status=status.HTTP_201_CREATED
+        )
 
 
 class MediaViewSet(ModelViewSet):
@@ -156,18 +166,19 @@ class MediaViewSet(ModelViewSet):
         if pk := self.kwargs.get("apartment_pk", ""):
             return {"apartment_pk": pk, "request": self.request}
         return super().get_serializer_context()
-    
+
     def get_serializer_class(self):
         if self.request.method == "POST":
             return CreateMediaSerializer
         return MediaSerializer
 
-    
     def create(self, request, *args, **kwargs):
         super().create(request, *args, **kwargs)
-        # Since the videos are returning null values in Response due to bulk_create, 
+        # Since the videos are returning null values in Response due to bulk_create,
         # a nice success message should suffice instead of instances of the newly uploaded images
-        return Response({"detail": "Videos uploaded successfully"}, status=status.HTTP_201_CREATED)
+        return Response(
+            {"detail": "Videos uploaded successfully"}, status=status.HTTP_201_CREATED
+        )
 
 
 class ReviewViewSet(ModelViewSet):

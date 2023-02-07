@@ -59,3 +59,5 @@ CHANNEL_LAYERS = {
     },
 }
 
+
+CELERY_BROKER_URL = 'redis://default:fGpbEzbm8H9FgwSnwUCX@containers-us-west-47.railway.app:6965'

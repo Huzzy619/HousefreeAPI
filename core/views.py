@@ -186,18 +186,7 @@ class GoogleLogin(CustomSocialLoginView):
     client_class = OAuth2Client
 
 
-# @extend_schema(
-#      description="Get an APRS-IS passcode for a given callsign",
-#     responses={
-#        200: inline_serializer(
-#            name='PasscodeResponse',
-#            fields={
-#                'passcode': serializers.CharField(),
-#            }
-#        ),
-#     #    400: OpenApiResponse(description='Missing callsign'),
-#     }
-# )
+
 class SendVerificationTokenView(APIView):
     """
     An endpoint that encodes user data and generate JWT token

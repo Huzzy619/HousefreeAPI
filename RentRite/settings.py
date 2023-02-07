@@ -290,7 +290,7 @@ REDIS_URL = "redis://JHKLKLKLJJKJK"
 FLUTTERWAVE_KEY = os.environ.get(
     "FLUTTERWAVE_KEY", config("FLUTTERWAVE_KEY", default="")
 )
-HITCOUNT_HITS_PER_IP_LIMIT = 1
+# HITCOUNT_HITS_PER_IP_LIMIT = 1
 
 
 LOGGING = {
@@ -322,3 +322,7 @@ LOGGING = {
         },
     },
 }
+
+
+
+CELERY_BROKER_URL ='redis://localhost:6379/1'
