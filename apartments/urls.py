@@ -26,7 +26,7 @@ from django.urls import path
 urlpatterns = (
     [
         path("bookmark/", BookmarkView.as_view()),
-        path("clicks/count/<int:pk>", ApartmentClicks.as_view()),
+        path("clicks/count/<int:pk>/", ApartmentClicks.as_view()),
     ]
     + router.urls
     + nested_router.urls

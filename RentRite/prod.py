@@ -53,11 +53,11 @@ CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "channels_redis.core.RedisChannelLayer",
         "CONFIG": {
-            "hosts": [('redis://default:TNaDnuIKgr4PjTCrPZwB@containers-us-west-47.railway.app:6965', 6379)]#[('redis-14998.c9.us-east-1-4.ec2.cloud.redislabs.com', 14998)],
+            "hosts": [(os.getenv('REDIS_URL'), 6379)]#[('redis-14998.c9.us-east-1-4.ec2.cloud.redislabs.com', 14998)],
             # 'password':'@Huzkid619'
         },
     },
 }
 
 
-CELERY_BROKER_URL = 'redis://default:fGpbEzbm8H9FgwSnwUCX@containers-us-west-47.railway.app:6965'
+CELERY_BROKER_URL = os.getenv('REDIS_URL')
