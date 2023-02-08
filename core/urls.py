@@ -5,7 +5,6 @@ from .views import (
     AgentDetailsView,
     CustomRegisterView,
     GoogleLogin,
-    OTPView,
     ProfileViewSet,
     SendVerificationTokenView,
     TokenVerificationView,
