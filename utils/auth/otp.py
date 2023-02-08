@@ -16,7 +16,7 @@ class OTPView:
 
         # request.session["value"] = otp
 
-        return ""
+        return "hey"
 
     # def check_otp(self, request):
 
