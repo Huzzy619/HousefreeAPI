@@ -61,3 +61,4 @@ CHANNEL_LAYERS = {
 
 
 CELERY_BROKER_URL = os.getenv('REDIS_URL')
+

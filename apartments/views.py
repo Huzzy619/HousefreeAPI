@@ -1,6 +1,4 @@
-import httpx
 import requests
-from django.conf import settings
 from django.http.request import HttpRequest
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status
@@ -21,8 +19,8 @@ from utils.permissions import IsAgent
 from .filters import ApartmentFilter
 from .models import Apartment, Bookmark, Media, Picture, Review
 from .serializers import *
-from asgiref.sync import async_to_sync
 from .tasks import perform_click
+
 
 class ApartmentViewSet(ModelViewSet):
     """
@@ -56,11 +54,6 @@ class ApartmentViewSet(ModelViewSet):
         my_apartments = Apartment.objects.filter(
             agent=self.request.user
         ).prefetch_related("reviews", "pictures", "videos")
-        # (
-
-        #     # .order_by("-date_created")
-        #     #
-        # )
 
         serializer = ApartmentSerializer(my_apartments, many=True)
 
@@ -81,7 +74,6 @@ class ApartmentViewSet(ModelViewSet):
             .select_related("agent")
         )
 
-    # @async_to_sync
     def retrieve(self, request: HttpRequest, *args, **kwargs):
 
         # simulate getting this endpoint so that it can trigger the views count.
@@ -89,14 +81,12 @@ class ApartmentViewSet(ModelViewSet):
         id = kwargs["pk"]
         scheme = request.scheme
 
-        # async with httpx.AsyncClient() as client:
-            
-        # requests.get(f"{scheme}://{domain}/clicks/count/{id}")
+        requests.get(f"{scheme}://{domain}/clicks/count/{id}/")
 
-        perform_click.delay(scheme, domain, id)
+        # to make it a background task
+        # perform_click.delay(scheme, domain, id)
 
-
-        return super().retrieve(request, *args, **kwargs) 
+        return super().retrieve(request, *args, **kwargs)
 
 
 class PicturesViewSet(ModelViewSet):

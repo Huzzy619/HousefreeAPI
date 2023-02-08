@@ -1,7 +1,8 @@
 import asyncio
 import os
 from datetime import datetime, timedelta, timezone
-
+from dj_rest_auth.utils import jwt_encode
+from allauth.account import app_settings as allauth_settings
 from allauth.account.models import EmailAddress
 from allauth.socialaccount.providers.google.views import GoogleOAuth2Adapter
 from allauth.socialaccount.providers.oauth2.client import OAuth2Client
@@ -38,6 +39,7 @@ from .serializers import (
     UserSettingsSerializer,
 )
 
+from .signals import new_user_signal
 
 class UserSettingsViewSet(
     ListModelMixin, UpdateModelMixin, GenericViewSet
@@ -141,18 +143,37 @@ class CustomRegisterView(RegisterView):
 
     serializer_class = CustomRegisterSerializer
 
-    def get_response_data(self, user):
+    # def get_response_data(self, user):
 
-        response = super().get_response_data(user)
+    #     response = super().get_response_data(user)
 
-        # Update response to include user's name
-        user_pk = response["user"]["pk"]
-        user = get_user_model().objects.get(id=user_pk)
-        response["user"]["first_name"] = user.first_name
-        response["user"]["last_name"] = user.last_name
-        response["user"]["id"] = user.id
+    #     # Update response to include user's name
+    #     user_pk = response["user"]["pk"]
+    #     user = get_user_model().objects.get(id=user_pk)
+    #     response["user"]["first_name"] = user.first_name
+    #     response["user"]["last_name"] = user.last_name
+    #     response["user"]["id"] = user.id
 
-        return response
+    #     return response
+
+    def perform_create(self, serializer):
+        user = serializer.save(self.request)
+
+        #Whether to send email after registration
+        send_email_check = getattr(settings, 'SEND_EMAIL', False)
+        new_user_signal.send_robust(__class__, send_email=send_email_check , user=user)
+
+        if allauth_settings.EMAIL_VERIFICATION != \
+                allauth_settings.EmailVerificationMethod.MANDATORY:
+            if getattr(settings, 'REST_USE_JWT', False):
+                self.access_token, self.refresh_token = jwt_encode(user)
+            elif not getattr(settings, 'REST_SESSION_LOGIN', False):
+                # Session authentication isn't active either, so this has to be
+                #  token authentication
+                # create_token(self.token_model, user, serializer)
+                pass
+
+        return user
 
 
 # if you want to use Authorization Code Grant, use this
@@ -280,43 +301,3 @@ class TokenVerificationView(APIView):
         return Response("verification successful", status=status.HTTP_200_OK)
 
 
-# I will be back
-class OTPView(APIView):
-
-    serializer_class = OTPSerializer
-
-    # permission_classes = [IsAuthenticated]
-    def __init__(self, **kwargs) -> None:
-        super().__init__(**kwargs)
-        # self.hotp = HOTP('Hussein')
-
-    def get(self, request):
-        # global hotp
-
-        hotp = HOTP(random_base32())
-
-        otp = hotp.at(1)
-
-        request.session["value"] = otp
-
-        return Response({"detail": int(otp)})
-
-    def post(self, request):
-        serializer = OTPSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-
-        otp = serializer.validated_data["otp"]
-        hotp = request.session.get("value", "")
-        if hotp:
-            if hotp.verify(otp, 1):
-
-                # user = request.user
-                # user.is_verified = True
-                # user.save()
-                return Response(
-                    {"success": "2FA successful"}, status=status.HTTP_202_ACCEPTED
-                )
-
-            return Response({"error": "invalid otp"})
-
-        return Response({"no value"})

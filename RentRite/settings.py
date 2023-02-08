@@ -35,18 +35,19 @@ ALLOWED_HOSTS = ["*"]
 # Application definition
 
 INSTALLED_APPS = [
-    # Third Party
     "channels",
     # "daphne",
     "jazzmin",
+
     # Django apps
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
-    # "whitenoise.runserver_nostatic",
     "django.contrib.staticfiles",
+    
+    # Third Party
     "rest_framework",
     "rest_framework.authtoken",
     "dj_rest_auth",
@@ -249,7 +250,7 @@ OLD_PASSWORD_FIELD_ENABLED = True
 # In order to verify an email address a key is mailed identifying the email address to be verified.
 # In previous versions, a record was stored in the database for each ongoing email confirmation, keeping track of these keys.
 # Current versions use HMAC based keys that do not require server side state.
-ACCOUNT_EMAIL_CONFIRMATION_HMAC = False
+# ACCOUNT_EMAIL_CONFIRMATION_HMAC = True
 
 # Determines the e-mail verification method during signup – choose one of "mandatory", "optional", or "none".
 
@@ -259,7 +260,7 @@ ACCOUNT_EMAIL_CONFIRMATION_HMAC = False
 # Choose “optional” or “none” to allow logins with an unverified e-mail address.
 # In case of “optional”, the e-mail verification mail is still sent, whereas in case of “none” no e-mail verification mails are sent.
 
-ACCOUNT_EMAIL_VERIFICATION = "none"
+ACCOUNT_EMAIL_VERIFICATION = 'mandatory' #os.getenv('ACCOUNT_EMAIL_VERIFICATION', config('ACCOUNT_EMAIL_VERIFICATION', 'none'))
 
 SITE_ID = 1
 
@@ -284,8 +285,8 @@ SOCIALACCOUNT_PROVIDERS = {
     }
 }
 
-MJ_API_KEY = os.environ.get("MJ_API_KEY", config("MJ_API_KEY", default=""))
-MJ_API_SECRET = os.environ.get("MJ_API_SECRET", config("MJ_API_SECRET", default=""))
+MJ_API_KEY = os.environ.get("MJ_API_KEY", config("MJ_API_KEY", default="f2a5342ed960f5f9e5d164e68cc53c0c"))
+MJ_API_SECRET = os.environ.get("MJ_API_SECRET", config("MJ_API_SECRET", default="9d8a18fa8ca82da86afeeaee21037c3a"))
 REDIS_URL = "redis://JHKLKLKLJJKJK"
 FLUTTERWAVE_KEY = os.environ.get(
     "FLUTTERWAVE_KEY", config("FLUTTERWAVE_KEY", default="")
@@ -326,3 +327,5 @@ LOGGING = {
 
 
 CELERY_BROKER_URL ='redis://localhost:6379/1'
+
+SEND_EMAIL = bool(int((os.getenv('SEND_MAIL', config('SEND_EMAIL',False))))) # VALUE has to be 0 or 1
