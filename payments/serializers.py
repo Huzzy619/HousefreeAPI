@@ -1,12 +1,17 @@
 from rest_framework import serializers
 from .models import Payment
-from django.contrib.auth.models import User
+# from django.contrib.auth.models import User
+from core.models import User
 from django.conf import settings
 import requests
 
 class PaystackPaymentSerializer(serializers.ModelSerializer):
 	amount = serializers.IntegerField()
 	email = serializers.EmailField()
+
+	class Meta:
+		model = Payment
+		fields = ['amount', 'email', 'metadata']
 
 	def validate_email(self, value):
 		if User.objects.filter(email=value).exists():
@@ -21,17 +26,20 @@ class PaystackPaymentSerializer(serializers.ModelSerializer):
 			"Authorization": f"Bearer {settings.PAYSTACK_SECRET_KEY}",
 			"Content-Type": "application/json"
 		}
+		metadata = data.get('metadata', {"empty":"empty"})
 		response = requests.post(url, headers=headers, json=data)
 		response_data = response.json()
+		payment_link = response_data['data']['authorization_url']
 		if response.status_code != 200:
 			raise Exception(response_data['message'])
 		Payment.objects.create(
 			user=user,
 			amount=data['amount'],
 			email=user.email,
-			verified=False
+			verified=False,
+			metadata=metadata,
 		)
-		return response_data
+		return payment_link
 
 class CreateCardDepositFlutterwaveSerializer(serializers.Serializer):
 	amount = serializers.IntegerField()

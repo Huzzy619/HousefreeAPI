@@ -1,4 +1,3 @@
-import json
 from rest_framework import generics
 from rest_framework.response import Response
 from rest_framework import status
@@ -123,7 +122,7 @@ class PaystackPaymentView(CreateAPIView):
 	permission_classes = (IsAuthenticated,)
 
 	def perform_create(self, serializer):
-		serializer.save(user=self.request.user)
+		serializer.save()
 
 paystack_card_deposit = PaystackPaymentView.as_view()
 class VerifyPaystackPayment(APIView):
