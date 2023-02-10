@@ -18,29 +18,6 @@ class PaystackPaymentSerializer(serializers.ModelSerializer):
 			return value
 		raise serializers.ValidationError({"detail": "Email not found"})
 
-	def save(self):
-		user = self.context['request'].user
-		data = self.validated_data
-		url = 'https://api.paystack.co/transaction/initialize'
-		headers = {
-			"Authorization": f"Bearer {settings.PAYSTACK_SECRET_KEY}",
-			"Content-Type": "application/json"
-		}
-		metadata = data.get('metadata', {"empty":"empty"})
-		response = requests.post(url, headers=headers, json=data)
-		response_data = response.json()
-		payment_link = response_data['data']['authorization_url']
-		if response.status_code != 200:
-			raise Exception(response_data['message'])
-		Payment.objects.create(
-			user=user,
-			amount=data['amount'],
-			email=user.email,
-			verified=False,
-			metadata=metadata,
-		)
-		return payment_link
-
 class CreateCardDepositFlutterwaveSerializer(serializers.Serializer):
 	amount = serializers.IntegerField()
 	email = serializers.EmailField()

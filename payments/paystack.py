@@ -33,4 +33,5 @@ class Paystack:
             if response.status_code == 200:
                 return response_data['status'], response_data['data']
             else:
+                print(response_data)
                 return response_data['status'], response_data['message']

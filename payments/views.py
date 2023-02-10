@@ -117,18 +117,40 @@ class ConfirmCardDepositFlutterwave(generics.GenericAPIView):
 flutterwave_confirm_card_deposit = ConfirmCardDepositFlutterwave.as_view()
 
 
-class PaystackPaymentView(CreateAPIView):
-	serializer_class = PaystackPaymentSerializer
-	permission_classes = (IsAuthenticated,)
+class PaystackPaymentView(APIView):
+	# serializer_class = PaystackPaymentSerializer
+	permission_classes = [IsAuthenticated,]
 
-	def perform_create(self, serializer):
-		serializer.save()
+	def post(self, request, *args, **kwargs):
+		user = request.user
+		data = request.data
+		url = 'https://api.paystack.co/transaction/initialize'
+		headers = {
+			"Authorization": f"Bearer {settings.PAYSTACK_SECRET_KEY}",
+			"Content-Type": "application/json"
+		}
+		metadata = data.get('metadata', {"empty":"empty"})
+		response = requests.post(url, headers=headers, json=data)
+		response_data = response.json()
+		payment_link = response_data['data']['authorization_url']
+		if response.status_code != 200:
+			raise Exception(response_data['message'])
+		Payment.objects.create(
+			user=user,
+			amount=data['amount'],
+			email=user.email,
+			verified=False,
+			metadata=metadata,
+		)
+		return Response({"success": payment_link}, status=status.HTTP_200_OK)
 
+	
 paystack_card_deposit = PaystackPaymentView.as_view()
+
 class VerifyPaystackPayment(APIView):
 	def get(self, request, reference):
 		payment = Payment.objects.get(txn_ref=reference)
-		verified = payment.verify_payment()
+		verified = payment.verify_paystack_payment()
 		if verified:
 			# do some things
 			recipient = payment.user
