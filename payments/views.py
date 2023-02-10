@@ -101,6 +101,7 @@ class ConfirmCardDepositFlutterwave(generics.GenericAPIView):
 			transactionDetails = Payment.objects.filter(txn_ref=tx_ref).first()		
 			if response['data']['amount'] == transactionDetails.amount and response['data']['currency'] == "NGN":
 				transactionDetails.verified = True
+				transactionDetails.save()
 				print("txn verified now increase user wallet balance")
 				recipient = transactionDetails.user
 				user_wallet = Wallet.objects.filter(user=recipient).first()
