@@ -40,7 +40,7 @@ class CreateCardDepositFlutterwaveAPIView(generics.GenericAPIView):
 		)
 		endpoint = "https://api.flutterwave.com/v3/payments"
 		scheme = request.is_secure() and "https" or "http"
-		full_url = scheme +"://"+ str(get_current_site(request).domain) + "/flw-deposit/verify/"
+		full_url = scheme +"://"+ str(get_current_site(request).domain) + "/payments/flw-deposit/verify/"
 		headers = {
 			"Authorization": f"Bearer {settings.FLW_SECRET_KEY}"
 		}
