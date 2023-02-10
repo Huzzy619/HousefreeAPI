@@ -1,20 +1,19 @@
 import asyncio
 import os
 from datetime import datetime, timedelta, timezone
-from dj_rest_auth.utils import jwt_encode
+
 from allauth.account import app_settings as allauth_settings
 from allauth.account.models import EmailAddress
 from allauth.socialaccount.providers.google.views import GoogleOAuth2Adapter
 from allauth.socialaccount.providers.oauth2.client import OAuth2Client
 from asgiref.sync import async_to_sync
-from decouple import config
 from dj_rest_auth.registration.views import RegisterView, SocialLoginView
+from dj_rest_auth.utils import jwt_encode
 from dj_rest_auth.views import PasswordResetView
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
 from jose import JWTError, jwt
-from pyotp import HOTP, random_base32
 from rest_framework import status
 from rest_framework.generics import CreateAPIView
 from rest_framework.mixins import ListModelMixin, UpdateModelMixin
@@ -27,19 +26,51 @@ from utils.auth.agent_verification import agent_identity_verification
 from utils.permissions import IsAgent
 
 from .models import AgentDetails, Profile, User, UserSettings
+from .otp import OTPGenerator
 from .permissions import IsOwner
-from .serializers import (
-    AgentDetailsSerializer,
-    CustomRegisterSerializer,
-    CustomSocialLoginSerializer,
-    EmailSerializer,
-    OTPSerializer,
-    ProfileSerializer,
-    TokenSerializer,
-    UserSettingsSerializer,
-)
-
+from .serializers import *
 from .signals import new_user_signal
+
+
+class GetOTPView(APIView):
+    def get(self, request, email):
+        user = get_object_or_404(get_user_model(), email=email)
+        otp_gen = OTPGenerator(user_id=user.id)
+
+        otp = otp_gen.get_otp()
+
+        return Response({"detail": f"success otp- {otp}"}, status=status.HTTP_200_OK)
+
+
+class VerifyOTPView(APIView):
+    serializer_class = OTPSerializer
+
+    def post(self, request):
+        serializer = OTPSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = get_object_or_404(
+            get_user_model(), email=serializer.validated_data["email"]
+        )
+        otp_gen = OTPGenerator(user_id=user.id)
+
+        check = otp_gen.check_otp(serializer.validated_data["otp"])
+
+        if check:
+            # Mark user as verified 
+            user_obj = get_object_or_404(EmailAddress, user=user)
+
+            user_obj.verified = True
+            user_obj.save()
+
+
+
+            return Response(
+                {"detail": "2FA successfully completed"},
+                status=status.HTTP_202_ACCEPTED,
+            )
+
+        return Response({"detail": "Invalid otp"}, status=status.HTTP_403_FORBIDDEN)
+
 
 class UserSettingsViewSet(
     ListModelMixin, UpdateModelMixin, GenericViewSet
@@ -159,15 +190,17 @@ class CustomRegisterView(RegisterView):
     def perform_create(self, serializer):
         user = serializer.save(self.request)
 
-        #Whether to send email after registration
-        send_email_check = getattr(settings, 'SEND_EMAIL', False)
-        new_user_signal.send_robust(__class__, send_email=send_email_check , user=user)
+        # Whether to send email after registration
+        send_email_check = getattr(settings, "SEND_EMAIL", False)
+        new_user_signal.send_robust(__class__, send_email=send_email_check, user=user)
 
-        if allauth_settings.EMAIL_VERIFICATION != \
-                allauth_settings.EmailVerificationMethod.MANDATORY:
-            if getattr(settings, 'REST_USE_JWT', False):
+        if (
+            allauth_settings.EMAIL_VERIFICATION
+            != allauth_settings.EmailVerificationMethod.MANDATORY
+        ):
+            if getattr(settings, "REST_USE_JWT", False):
                 self.access_token, self.refresh_token = jwt_encode(user)
-            elif not getattr(settings, 'REST_SESSION_LOGIN', False):
+            elif not getattr(settings, "REST_SESSION_LOGIN", False):
                 # Session authentication isn't active either, so this has to be
                 #  token authentication
                 # create_token(self.token_model, user, serializer)
@@ -182,7 +215,7 @@ class GoogleLogin(CustomSocialLoginView):
     # https://accounts.google.com/o/oauth2/v2/auth?redirect_uri=http://127.0.0.1:8000/accounts/google/login/callback/&prompt=consent&response_type=code&client_id=878674025478-e8s4rf34md8h4n7qobb6mog43nfhfb7r.apps.googleusercontent.com&scope=openid%20email%20profile&access_type=offline
 
     """
-    # Visit this [`link`](https://accounts.google.com/o/oauth2/v2/auth?redirect_uri=https://rentrite.herokuapp.com/accounts/google/login/callback/&prompt=consent&response_type=code&client_id=878674025478-e8s4rf34md8h4n7qobb6mog43nfhfb7r.apps.googleusercontent.com&scope=openid%20email%20profile&access_type=offline) for users to see the google account select modal.
+    # Visit this [`link`](https://accounts.google.com/o/oauth2/v2/auth?redirect_uri=https://rentrite.up.railway.app/accounts/google/login/callback/&prompt=consent&response_type=code&client_id=878674025478-e8s4rf34md8h4n7qobb6mog43nfhfb7r.apps.googleusercontent.com&scope=openid%20email%20profile&access_type=offline) for users to see the google account select modal.
 
 
     After Users select account for login, they will be redirected to a new url.
@@ -205,7 +238,6 @@ class GoogleLogin(CustomSocialLoginView):
     callback_url = os.environ.get("CALLBACK_URL", default_call_back_url)
 
     client_class = OAuth2Client
-
 
 
 class SendVerificationTokenView(APIView):
@@ -299,5 +331,3 @@ class TokenVerificationView(APIView):
         get_allauth.verified = True
         get_allauth.save()
         return Response("verification successful", status=status.HTTP_200_OK)
-
-

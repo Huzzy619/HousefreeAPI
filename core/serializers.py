@@ -104,7 +104,9 @@ class UserSerializer(serializers.ModelSerializer):
             return None
 
 class OTPSerializer(serializers.Serializer):
+    email = serializers.EmailField()
     otp = serializers.CharField(max_length=6)
+
 
 
 class EmailSerializer(serializers.Serializer):

@@ -1,3 +1,4 @@
+from decouple import config
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.mail import EmailMessage
@@ -6,11 +7,12 @@ from django.dispatch import receiver
 from mailjet_rest import Client
 
 from ..models import Profile, UserSettings
+from ..otp import OTPGenerator
 from . import new_user_signal
 
 
 @receiver(post_save, sender=get_user_model())
-def create_user_profile(instance, created, **kwargs):
+def create_user_profile_and_settings(instance, created, **kwargs):
     if created:
         Profile.objects.create(user=instance)
         UserSettings.objects.create(user=instance)
@@ -20,7 +22,7 @@ def create_user_profile(instance, created, **kwargs):
 def send_verification_email(*args, **kwargs):
     if kwargs["send_email"]:
         user = kwargs["user"]
-        code = "get_otp_code()"
+        code = OTPGenerator(user_id=user.id).get_otp()
 
         # localhost email
         # EmailMessage(
@@ -36,12 +38,11 @@ def send_verification_email(*args, **kwargs):
                 "Messages": [
                     {
                         "From": {
-                            "Email": "blazingkrane@gmail.com",
+                            "Email": config("OFFICIAL_EMAIL", "blazingkrane@gmail.com"),
                             "Name": "Mailjet Pilot",
                         },
                         "To": [
                             {
-                                # "Email": "hussein.ibrahim6196@gmail.com",
                                 "Email": user.email,
                                 "Name": user.get_full_name(),
                             }
@@ -56,28 +57,8 @@ def send_verification_email(*args, **kwargs):
             }
 
             result = mailjet.send.create(data=data)
-            print(result.status_code)
+            print({'status':result.status_code})
             print(result.json())
         except:
 
             print("Something went wrong with email messaging")
-    #     data = {
-    #   'Messages': [
-    # 				{
-    # 						"From": {
-    # 								"Email": "blazingkrane@gmail.com",
-
-    # 								"Name": "Mailjet Pilot"
-    # 						},
-    # 						"To": [
-    # 								{
-    # 										"Email": "hussein.ibrahim6196@gmail.com",
-    # 										"Name": "passenger 1"
-    # 								}
-    # 						],
-    # 						"TemplateID": 4568001,
-    # 						"TemplateLanguage": True,
-    # 						"Subject": "Your email flight plan22!"
-    # 				}
-    # 		]
-    # }

@@ -94,3 +94,8 @@ class UserSettings(models.Model):
     theme = models.CharField(max_length=200, default='light', choices=THEME)
     notification = models.BooleanField(default=False)
     user = models.OneToOneField(User, on_delete=models.CASCADE)
+
+class OTP(models.Model):
+    counter = models.IntegerField(default=1)
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    

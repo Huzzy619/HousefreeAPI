@@ -38,7 +38,6 @@ INSTALLED_APPS = [
     "channels",
     # "daphne",
     "jazzmin",
-
     # Django apps
     "django.contrib.admin",
     "django.contrib.auth",
@@ -46,7 +45,6 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    
     # Third Party
     "rest_framework",
     "rest_framework.authtoken",
@@ -196,12 +194,13 @@ MEDIA_ROOT = BASE_DIR / "media"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-AUTH_USER_MODEL = "core.User"
-CORS_ALLOW_ALL_ORIGINS = True
 
+# Debug Toolbar
 INTERNAL_IPS = [
     "127.0.0.1",
 ]
+
+# Documentation Settings
 SPECTACULAR_SETTINGS = {
     "TITLE": "RentRite API",
     "DESCRIPTION": "A better Home makes a beter Family",
@@ -214,6 +213,10 @@ SPECTACULAR_SETTINGS = {
     # OTHER SETTINGS
 }
 
+
+# Authentication Settings
+
+AUTH_USER_MODEL = "core.User"
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "dj_rest_auth.jwt_auth.JWTCookieAuthentication",
@@ -231,8 +234,6 @@ REST_USE_JWT = True
 JWT_AUTH_COOKIE = "my-app-auth"
 JWT_AUTH_REFRESH_COOKIE = "my-refresh-token"
 
-EMAIL_PORT = 2525
-EMAIL_HOST = "localhost"
 
 SIMPLE_JWT = {
     "AUTH_HEADER_TYPES": ("JWT",),
@@ -245,7 +246,7 @@ ACCOUNT_USER_MODEL_USERNAME_FIELD = None
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_USERNAME_REQUIRED = False
 ACCOUNT_AUTHENTICATION_METHOD = "email"
-OLD_PASSWORD_FIELD_ENABLED = True
+# OLD_PASSWORD_FIELD_ENABLED = True
 
 # In order to verify an email address a key is mailed identifying the email address to be verified.
 # In previous versions, a record was stored in the database for each ongoing email confirmation, keeping track of these keys.
@@ -260,9 +261,10 @@ OLD_PASSWORD_FIELD_ENABLED = True
 # Choose “optional” or “none” to allow logins with an unverified e-mail address.
 # In case of “optional”, the e-mail verification mail is still sent, whereas in case of “none” no e-mail verification mails are sent.
 
-ACCOUNT_EMAIL_VERIFICATION = 'mandatory' #os.getenv('ACCOUNT_EMAIL_VERIFICATION', config('ACCOUNT_EMAIL_VERIFICATION', 'none'))
+ACCOUNT_EMAIL_VERIFICATION = config("ACCOUNT_EMAIL_VERIFICATION", "none")
 
 SITE_ID = 1
+CORS_ALLOW_ALL_ORIGINS = True
 
 # Provider specific settings
 SOCIALACCOUNT_PROVIDERS = {
@@ -285,14 +287,18 @@ SOCIALACCOUNT_PROVIDERS = {
     }
 }
 
-MJ_API_KEY = os.environ.get("MJ_API_KEY", config("MJ_API_KEY", default="f2a5342ed960f5f9e5d164e68cc53c0c"))
-MJ_API_SECRET = os.environ.get("MJ_API_SECRET", config("MJ_API_SECRET", default="9d8a18fa8ca82da86afeeaee21037c3a"))
-REDIS_URL = "redis://JHKLKLKLJJKJK"
-FLUTTERWAVE_KEY = os.environ.get(
-    "FLUTTERWAVE_KEY", config("FLUTTERWAVE_KEY", default="")
-)
-# HITCOUNT_HITS_PER_IP_LIMIT = 1
+MJ_API_KEY = config("MJ_API_KEY", "")
+MJ_API_SECRET = config("MJ_API_SECRET", "")
+REDIS_URL = config("REDIS_URL", "redis://localhost:6379/1")
+FLUTTERWAVE_KEY = config("FLUTTERWAVE_KEY", "")
+HITCOUNT_HITS_PER_IP_LIMIT = 1
+CELERY_BROKER_URL = REDIS_URL
 
+SEND_EMAIL = config("SEND_EMAIL", default=False, cast=bool)
+
+# local email settings
+EMAIL_PORT = 2525
+EMAIL_HOST = "localhost"
 
 LOGGING = {
     "version": 1,
@@ -303,7 +309,7 @@ LOGGING = {
             "class": "logging.FileHandler",
             "filename": "general.log",
             "formatter": "verbose",
-            "level": os.getenv("DJANGO_LOG_LEVEL", "WARNING"),
+            "level": config("DJANGO_LOG_LEVEL", "WARNING"),
         },
     },
     "loggers": {
@@ -324,8 +330,58 @@ LOGGING = {
     },
 }
 
+JAZZMIN_SETTINGS = {
+    # title of the window (Will default to current_admin_site.site_title if absent or None)
+    "site_title": "RentRite Ltd",
+    # Title on the login screen (19 chars max) (defaults to current_admin_site.site_header if absent or None)
+    "site_header": "RENTRITE",
+    # Title on the brand (19 chars max) (defaults to current_admin_site.site_header if absent or None)
+    "site_brand": "RENTRITE",
+    # Logo to use for your site, must be present in static files, used for brand on top left
+    "site_logo": "images/Logo3.png",
+    # Logo to use for your site, must be present in static files, used for login form logo (defaults to site_logo)
+    "login_logo": "images/Logo2.png",
+    # Logo to use for login form in dark themes (defaults to login_logo)
+    # "login_logo_dark": "images/Logo4.png",
+    # CSS classes that are applied to the logo above
+    "site_logo_classes": "img-circle",
+    # Relative path to a favicon for your site, will default to site_logo if absent (ideally 32x32 px)
+    "site_icon": "images/Logo3.png",
+    # Welcome text on the login screen
+    "welcome_sign": "Welcome to RentRite Admin Site",
+    # Copyright on the footer
+    "copyright": "RENTRITE",
+    "show_ui_builder": True,
+}
 
-
-CELERY_BROKER_URL ='redis://localhost:6379/1'
-
-SEND_EMAIL = bool(int((os.getenv('SEND_MAIL', config('SEND_EMAIL',False))))) # VALUE has to be 0 or 1
+JAZZMIN_UI_TWEAKS = {
+    "navbar_small_text": False,
+    "footer_small_text": False,
+    "body_small_text": False,
+    "brand_small_text": False,
+    "brand_colour": "navbar-purple",
+    "accent": "accent-lightblue",
+    "navbar": "navbar-dark",
+    "no_navbar_border": False,
+    "navbar_fixed": True,
+    "layout_boxed": False,
+    "footer_fixed": True,
+    "sidebar_fixed": True,
+    "sidebar": "sidebar-dark-purple",
+    "sidebar_nav_small_text": False,
+    "sidebar_disable_expand": False,
+    "sidebar_nav_child_indent": False,
+    "sidebar_nav_compact_style": False,
+    "sidebar_nav_legacy_style": False,
+    "sidebar_nav_flat_style": False,
+    "theme": "pulse",
+    # "dark_mode_theme": "cyborg",
+    "button_classes": {
+        "primary": "btn-primary",
+        "secondary": "btn-secondary",
+        "info": "btn-info",
+        "warning": "btn-warning",
+        "danger": "btn-danger",
+        "success": "btn-success",
+    },
+}

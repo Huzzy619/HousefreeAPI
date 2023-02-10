@@ -1,15 +1,7 @@
 from django.urls import path
 from rest_framework.routers import DefaultRouter
 
-from .views import (
-    AgentDetailsView,
-    CustomRegisterView,
-    GoogleLogin,
-    ProfileViewSet,
-    SendVerificationTokenView,
-    TokenVerificationView,
-    UserSettingsViewSet,
-)
+from .views import *
 
 # from dj_rest_auth.views import PasswordResetConfirmView
 
@@ -21,7 +13,9 @@ urlpatterns = [
     path("register/", CustomRegisterView.as_view()),
     path("login/google/", GoogleLogin.as_view(), name="google-rest"),
     path("agent/verification/", AgentDetailsView.as_view(), name="agent-verification"),
-    # path("otp/", OTPView.as_view()),
+    path("otp/send/<str:email>/", GetOTPView.as_view()),
+    path("otp/verify/", VerifyOTPView.as_view()),
+
     path(
         "get-token/<str:email>/", SendVerificationTokenView.as_view(), name="send-token"
     ),
@@ -39,7 +33,7 @@ urlpatterns = [
 from dj_rest_auth.views import (
     LoginView,
     LogoutView,
-    # PasswordChangeView,
+    PasswordChangeView,
     # PasswordResetConfirmView,
     # PasswordResetView,
     # UserDetailsView,
@@ -54,7 +48,7 @@ urlpatterns += [
     # URLs that require a user to be logged in with a valid session / token.
     path("logout/", LogoutView.as_view(), name="rest_logout"),
     # path('user/', UserDetailsView.as_view(), name='rest_user_details'),
-    # path('password/change/', PasswordChangeView.as_view(), name='rest_password_change'),
+    path('password/change/', PasswordChangeView.as_view(), name='rest_password_change'),
 ]
 
 if getattr(settings, "REST_USE_JWT", False):
