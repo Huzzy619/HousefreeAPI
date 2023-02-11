@@ -9,7 +9,7 @@ from allauth.socialaccount.providers.oauth2.client import OAuth2Client
 from asgiref.sync import async_to_sync
 from dj_rest_auth.registration.views import RegisterView, SocialLoginView
 from dj_rest_auth.utils import jwt_encode
-from dj_rest_auth.views import PasswordResetView
+from dj_rest_auth.views import PasswordChangeView, PasswordResetView
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
@@ -22,6 +22,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import GenericViewSet, ModelViewSet
 
+from core.signals import reset_password_signal
 from utils.auth.agent_verification import agent_identity_verification
 from utils.permissions import IsAgent
 
@@ -56,13 +57,11 @@ class VerifyOTPView(APIView):
         check = otp_gen.check_otp(serializer.validated_data["otp"])
 
         if check:
-            # Mark user as verified 
+            # Mark user as verified
             user_obj = get_object_or_404(EmailAddress, user=user)
 
             user_obj.verified = True
             user_obj.save()
-
-
 
             return Response(
                 {"detail": "2FA successfully completed"},
@@ -70,6 +69,41 @@ class VerifyOTPView(APIView):
             )
 
         return Response({"detail": "Invalid otp"}, status=status.HTTP_403_FORBIDDEN)
+
+
+class PasswordResetView(APIView):
+    serializer_class = PasswordResetSerializer
+
+    def post(self, request):
+        serializer = PasswordResetSerializer(data=request.data)
+        if serializer.is_valid():
+            email = serializer.validated_data["email"]
+
+            reset_password_signal.send(__class__, email=email)
+
+        return Response(
+            {"detail": "otp to reset password has been sent to the provided email"},
+            status=status.HTTP_200_OK,
+        )
+
+
+class CustomPasswordResetConfirmView(PasswordChangeView):
+    serializer_class = CPasswordChangeSerializer
+    permission_classes = [AllowAny]
+
+    def get_serializer_context(self):
+
+        data = super().get_serializer_context()
+        if self.request.method == "POST":
+
+            email = self.request.data["email"]
+            user = get_object_or_404(get_user_model(), email=email)
+            data["user"] = user
+            return data
+        return super().get_serializer_context()
+
+    def get_queryset(self):
+        return super().get_queryset()
 
 
 class UserSettingsViewSet(
@@ -240,94 +274,101 @@ class GoogleLogin(CustomSocialLoginView):
     client_class = OAuth2Client
 
 
-class SendVerificationTokenView(APIView):
-    """
-    An endpoint that encodes user data and generate JWT token
-
-    Args:
-
-        Email- a path parameter
-
-    Response:
-
-        HTTP_201_CREATED- if token for user is generated successfully
-
-    Raise:
-
-        HTTP_404_NOT_FOUND- if a user with supplied email does not exist
-    """
-
-    permission_classes = [AllowAny]
-    serializer_class = EmailSerializer
-
-    def post(self, request, email):
-
-        user = get_object_or_404(User, email=email)
-        expiration_time = datetime.now(timezone.utc) + timedelta(seconds=600)
-        encode_user_data = {"user_id": str(user.id), "expire": str(expiration_time)}
-        encoded_jwt = jwt.encode(
-            encode_user_data, settings.SECRET_KEY, algorithm="HS256"
-        )
-        return Response(status=status.HTTP_201_CREATED, data=encoded_jwt)
+# I dont think we need this for now
 
 
-class TokenVerificationView(APIView):
-    """
-    An email verification endpoint
+# class SendVerificationTokenView(APIView):
+#     """
+#     An endpoint that encodes user data and generate JWT token
 
-    Args:
+#     Args:
 
-        token- a path parameter
+#         Email
 
-    Response:
+#     Response:
 
-        HTTP_200_OK- if email verification is successful
+#         HTTP_201_CREATED- if token for user is generated successfully
 
-    Raise:
+#     Raise:
 
-        HTTP_404_NOT_FOUND- if a user with supplied ID does not exist
+#         HTTP_404_NOT_FOUND- if a user with supplied email does not exist
+#     """
 
-        HTTP_400_BAD_REQUEST- if credential validation is unsuccessful or token has expired
-    """
+#     permission_classes = [AllowAny]
+#     serializer_class = EmailSerializer
 
-    permission_classes = [AllowAny]
-    serializer_class = TokenSerializer
+#     def post(self, request):
 
-    def post(self, request, token):
+#         serializer = EmailSerializer(data=request.data)
+#         serializer.is_valid(raise_exception=True)
+#         user = get_object_or_404(User, email=serializer.validated_data["email"])
+#         expiration_time = datetime.now(timezone.utc) + timedelta(seconds=600)
+#         encode_user_data = {"user_id": str(user.id), "expire": str(expiration_time)}
+#         encoded_jwt = jwt.encode(
+#             encode_user_data, settings.SECRET_KEY, algorithm="HS256"
+#         )
+#         return Response(data=encoded_jwt, status=status.HTTP_201_CREATED)
 
-        if not token:
-            return Response("token cannot be empty", status=status.HTTP_404_NOT_FOUND)
 
-        credentials_exception = Response(
-            status=status.HTTP_400_BAD_REQUEST,
-            data="Could not validate credentials",
-        )
+# class TokenVerificationView(APIView):
+#     """
+#     An email verification endpoint
 
-        try:
-            # Decodes token
-            payload = jwt.decode(token, settings.SECRET_KEY, algorithms="HS256")
-            user_id: str = payload.get("user_id")
-            expire = payload.get("expire")
-            if user_id is None or expire is None:
-                raise credentials_exception
-        except JWTError as e:
-            msg = {"error": e, "time": datetime.now().strftime("%m/%d/%Y, %H:%M:%S")}
+#     Args:
 
-            return credentials_exception
+#         token
 
-        # Check token expiration
-        if str(datetime.now(timezone.utc)) > expire:
-            return Response(
-                status=status.HTTP_401_UNAUTHORIZED,
-                data="Token expired or invalid!",
-            )
+#     Response:
 
-        user = get_object_or_404(User, id=user_id)
-        get_allauth = get_object_or_404(EmailAddress, user=user)
+#         HTTP_200_OK- if email verification is successful
 
-        if get_allauth.verified == True:
-            return Response("email already verified", status=status.HTTP_403_FORBIDDEN)
+#     Raise:
 
-        get_allauth.verified = True
-        get_allauth.save()
-        return Response("verification successful", status=status.HTTP_200_OK)
+#         HTTP_404_NOT_FOUND- if a user with supplied ID does not exist
+
+#         HTTP_400_BAD_REQUEST- if credential validation is unsuccessful or token has expired
+#     """
+
+#     permission_classes = [AllowAny]
+#     serializer_class = TokenSerializer
+
+#     def post(self, request):
+
+#         serializer = TokenSerializer(data=request.data)
+#         serializer.is_valid(raise_exception=True)
+
+#         token = serializer.validated_data["token"]
+
+#         credentials_exception = Response(
+#             status=status.HTTP_400_BAD_REQUEST,
+#             data="Could not validate credentials",
+#         )
+
+#         try:
+#             # Decodes token
+#             payload = jwt.decode(token, settings.SECRET_KEY, algorithms="HS256")
+#             user_id: str = payload.get("user_id")
+#             expire = payload.get("expire")
+#             if user_id is None or expire is None:
+#                 raise credentials_exception
+#         except JWTError as e:
+#             msg = {"error": e, "time": datetime.now().strftime("%m/%d/%Y, %H:%M:%S")}
+
+#             return credentials_exception
+
+#         # Check token expiration
+#         if str(datetime.now(timezone.utc)) > expire:
+#             return Response(
+#                 status=status.HTTP_401_UNAUTHORIZED,
+#                 data="Token expired or invalid!",
+#             )
+
+#         user = get_object_or_404(User, id=user_id)
+#         get_allauth = get_object_or_404(EmailAddress, user=user)
+
+#         if get_allauth.verified == True:
+#             return Response("email already verified", status=status.HTTP_403_FORBIDDEN)
+
+#         get_allauth.verified = True
+#         get_allauth.save()
+#         return Response("verification successful", status=status.HTTP_200_OK)

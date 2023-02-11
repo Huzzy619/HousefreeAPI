@@ -45,7 +45,7 @@ class ApartmentViewSet(ModelViewSet):
     search_fields = ["location", "price", "category", "title"]
     ordering_fields = ["category"]
 
-    @action(methods=["GET"], permission_classes=[IsOwner], detail=False)
+    @action(methods=["GET"], permission_classes=[IsAuthenticated], detail=False)
     def mine(self, request):
         """
         Returns all the apartments owned by the currently logged in agent

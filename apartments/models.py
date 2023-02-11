@@ -13,16 +13,17 @@ from hitcount.models import (  # This will add a reverse lookup from HitCount Mo
 
 TYPE_CHOICES = [
     ("Rent", "Rent"),
-    ("Buy", "Buy"),
-    ("Event Center", "Event Center"),
+    ("Sale", "Sale"),
 ]
 
 CATEGORY_TYPE = [
-    ("Bungalow", "Bungalow"),
-    ("Duplex", "Duplex"),
-    ("Flats", "Flats"),
-    ("Self Contain", "Self Contain"),
+    ("Apartments", "Apartments"),
     ("Hostels", "Hostels"),
+    ("Flats", "Flats"),
+    ("Commercial Properties", "Commercial Properties"),
+    ("Event Centers", "Event Centers"),
+    ("Self Contain", "Self Contain"),
+    ("Houses", "Houses")
 ]
 
 
@@ -37,15 +38,14 @@ class Apartment(models.Model, HitCountMixin):
         max_length=100, null=False, blank=True, verbose_name="Apartment Title"
     )
     property_ref = models.CharField(max_length=10, editable=False)
-    category = models.CharField(choices=CATEGORY_TYPE, max_length=20)
+    category = models.CharField(choices=CATEGORY_TYPE, max_length=50)
     _type = models.CharField(
         max_length=255, choices=TYPE_CHOICES, default="Rent", verbose_name="type"
     )
     price = models.DecimalField(max_digits=10, decimal_places=2)
-    locality = models.CharField(max_length=550)
     state = models.CharField(max_length=500)
-    area = models.CharField(max_length=500)
-    street = models.CharField(max_length=500)
+    address = models.CharField(max_length=1000)
+    map_link = models.URLField(null=True, blank=True)
     descriptions = models.TextField(blank=True, null=True)
     specifications = models.JSONField(null=True, blank=True)
     is_available = models.BooleanField(default=True)

@@ -9,8 +9,9 @@ class ApartmentFilter(FilterSet):
         fields = {
             "category": ["exact"],
             "_type": ["exact"],
-            "locality": ["exact"],
+            "address": ["icontains"],
             "price": ["gt", "lt"],
             "agent__first_name": ["icontains"],
             "agent__last_name": ["icontains"],
         }
+ 
