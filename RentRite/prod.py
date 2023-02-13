@@ -6,27 +6,32 @@ from .settings import *
 
 SECRET_KEY = os.environ.get("SECRET_KEY", config("SECRET_KEY", SECRET_KEY))
 
-DEBUG = config('DEBUG', False) 
+DEBUG = config("DEBUG", False)
 
-ALLOWED_HOSTS = ["rentrite.herokuapp.com","rentrite.up.railway.app"]
+ALLOWED_HOSTS = [
+    "rentrite.herokuapp.com",
+    "rentrite.up.railway.app",
+    "rentrite.cleverapps.io",
+]
 
-CSRF_TRUSTED_ORIGINS = ["https://rentrite.herokuapp.com","https://rentrite.up.railway.app"]
+CSRF_TRUSTED_ORIGINS = ["https://" + host for host in ALLOWED_HOSTS]
 
 # DATABASES = {"default": dj_database_url.config()}
 DATABASES = {
-    'default': dj_database_url.parse(
+    "default": dj_database_url.parse(
         config("RAILWAY_DB_URL", ""),
         conn_max_age=600,
         conn_health_checks=True,
     )
 }
 
-
+INSTALLED_APPS.remove("debug_toolbar")
+MIDDLEWARE.remove("debug_toolbar.middleware.DebugToolbarMiddleware")
 
 DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
 
 CLOUDINARY_STORAGE = {
-    "CLOUD_NAME":  config("CLOUD_NAME", ""),
+    "CLOUD_NAME": config("CLOUD_NAME", ""),
     "API_KEY": config("CLOUD_API_KEY", ""),
     "API_SECRET": config("CLOUD_API_SECRET", ""),
 }
@@ -37,9 +42,6 @@ EMAIL_HOST = "smtp.mailtrap.io"
 EMAIL_HOST_USER = "617e747e2afc2c"
 EMAIL_HOST_PASSWORD = "e99890b04db43b"
 EMAIL_PORT = "2525"
-
-
-
 
 
 SIMPLE_JWT = {
@@ -60,6 +62,4 @@ CHANNEL_LAYERS = {
 }
 
 
-
 CELERY_BROKER_URL = REDIS_URL
-

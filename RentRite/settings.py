@@ -89,6 +89,8 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
+
+
 ROOT_URLCONF = "RentRite.urls"
 
 TEMPLATES = [
