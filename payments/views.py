@@ -36,6 +36,7 @@ class CreateCardDepositFlutterwaveAPIView(generics.GenericAPIView):
 			email=serializer.validated_data['email'],
 			verified=False,
 			payment_options='flutterwave',
+			payment_plan=serializer.validated_data['payment_plan'],
 			metadata=serializer.validated_data['metadata']
 		)
 		endpoint = "https://api.flutterwave.com/v3/payments"
@@ -49,6 +50,7 @@ class CreateCardDepositFlutterwaveAPIView(generics.GenericAPIView):
 			"amount": payment.amount,
 			"currency": "NGN",
 			"redirect_url": full_url,
+			"payment_plan": serializer.validated_data['payment_plan'],
 			"meta": {
 				"customer_id": 'fefef',
 			},
@@ -96,13 +98,11 @@ class ConfirmCardDepositFlutterwave(generics.GenericAPIView):
 				"Authorization": f"Bearer {settings.FLW_SECRET_KEY}"
 			}
 			response = requests.get(url, headers=headers)
-			print(response.status_code, response.text)
 			response = response.json()
 			transactionDetails = Payment.objects.filter(txn_ref=tx_ref).first()		
 			if response['data']['amount'] == transactionDetails.amount and response['data']['currency'] == "NGN":
 				transactionDetails.verified = True
 				transactionDetails.save()
-				print("txn verified now increase user wallet balance")
 				recipient = transactionDetails.user
 				user_wallet = Wallet.objects.filter(user=recipient).first()
 				user_wallet.balance += transactionDetails.amount
@@ -110,7 +110,6 @@ class ConfirmCardDepositFlutterwave(generics.GenericAPIView):
 				return Response({"success": "successful deposit"}, status=status.HTTP_200_OK)
 			else:
 				# Inform the customer their payment was unsuccessful
-				print("unsuccessful payment")
 				return Response({"error": {"something went wrong": "unsuccessful payment"}}, status=status.HTTP_400_BAD_REQUEST)	
 
 		return Response({"error": {"something went wrong": "payment could not be verified, contact the admin"}}, status=status.HTTP_400_BAD_REQUEST)	
