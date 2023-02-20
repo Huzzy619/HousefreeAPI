@@ -162,7 +162,7 @@ class PaystackPaymentView(APIView):
 			'amount': "100",
 			'callback_url': "https://example.com",
 			'reference': payment.txn_ref,
-			metadata: metadata,
+			"metadata": metadata,
 		}
 		
 		response = requests.post(url, headers=headers, json=data)
