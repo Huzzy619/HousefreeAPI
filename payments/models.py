@@ -44,6 +44,7 @@ class Payment(models.Model):
 		if not status:
 			return False
 		if result['amount'] / 100 != self.amount:
+			print(result['amount'], self.amount)
 			return False
 		self.verified = True
 		self.save()
