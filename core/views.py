@@ -245,30 +245,31 @@ class CustomRegisterView(RegisterView):
         return user
 
 
-from django.contrib.sites.models import Site
-
-site = Site.objects.get(id=getattr(settings, "SITE_ID"))
-
-
-@extend_schema(
-    description=f"# Visit this [`link`](https://accounts.google.com/o/oauth2/v2/auth?redirect_uri=https://{site.domain}/accounts/google/login/callback/&prompt=consent&response_type=code&client_id=878674025478-e8s4rf34md8h4n7qobb6mog43nfhfb7r.apps.googleusercontent.com&scope=openid%20email%20profile&access_type=offline) for users to see the google account select modal."
-    + """
-    After Users select account for login, they will be redirected to a new url.
-
-    extract the `code` query parameter passed in the redirected url and send to this endpoint to get access and refresh tokens
-
-    Example data:
-
-    {
-
-        code : "4%2F0AWgavdfDkbD_aCXtaruulCuVFpZSEpImEuZouGFZACGO1hxoDwqCV1znzazpn7ev5FmH2w"
-
-    }
-    """
-)
-
 # if you want to use Authorization Code Grant, use this
 class GoogleLogin(CustomSocialLoginView):
+
+    site = config('CALLBACK_URL', "")
+    domain = site.split('/')[2] if site else ""
+
+    @extend_schema(
+        description=f"# Visit this [`link`](https://accounts.google.com/o/oauth2/v2/auth?redirect_uri=https://{domain}/accounts/google/login/callback/&prompt=consent&response_type=code&client_id=878674025478-e8s4rf34md8h4n7qobb6mog43nfhfb7r.apps.googleusercontent.com&scope=openid%20email%20profile&access_type=offline) for users to see the google account select modal."
+        + """
+        After Users select account for login, they will be redirected to a new url.
+
+        extract the `code` query parameter passed in the redirected url and send to this endpoint to get access and refresh tokens
+
+        Example data:
+
+        {
+
+            code : "4%2F0AWgavdfDkbD_aCXtaruulCuVFpZSEpImEuZouGFZACGO1hxoDwqCV1znzazpn7ev5FmH2w"
+
+        }
+        """
+    )
+    def post(self, request, *args, **kwargs):
+        return super().post(request, *args, **kwargs)
+
     # * Local Development link
     # ? https://accounts.google.com/o/oauth2/v2/auth?redirect_uri=http://127.0.0.1:8000/accounts/google/login/callback/&prompt=consent&response_type=code&client_id=878674025478-e8s4rf34md8h4n7qobb6mog43nfhfb7r.apps.googleusercontent.com&scope=openid%20email%20profile&access_type=offline
 
@@ -279,9 +280,6 @@ class GoogleLogin(CustomSocialLoginView):
     callback_url = config("CALLBACK_URL", default_call_back_url)
 
     client_class = OAuth2Client
-
-    def post(self, request, *args, **kwargs):
-        return super().post(request, *args, **kwargs)
 
 
 #! I dont think we need this for now
