@@ -7,12 +7,14 @@ from allauth.account.models import EmailAddress
 from allauth.socialaccount.providers.google.views import GoogleOAuth2Adapter
 from allauth.socialaccount.providers.oauth2.client import OAuth2Client
 from asgiref.sync import async_to_sync
+from decouple import config
 from dj_rest_auth.registration.views import RegisterView, SocialLoginView
 from dj_rest_auth.utils import jwt_encode
 from dj_rest_auth.views import PasswordChangeView, PasswordResetView
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
+from drf_spectacular.utils import extend_schema
 from jose import JWTError, jwt
 from rest_framework import status
 from rest_framework.generics import CreateAPIView
@@ -243,15 +245,14 @@ class CustomRegisterView(RegisterView):
         return user
 
 
-# if you want to use Authorization Code Grant, use this
-class GoogleLogin(CustomSocialLoginView):
-    # Local Development link
-    # https://accounts.google.com/o/oauth2/v2/auth?redirect_uri=http://127.0.0.1:8000/accounts/google/login/callback/&prompt=consent&response_type=code&client_id=878674025478-e8s4rf34md8h4n7qobb6mog43nfhfb7r.apps.googleusercontent.com&scope=openid%20email%20profile&access_type=offline
+from django.contrib.sites.models import Site
 
-    """
-    # Visit this [`link`](https://accounts.google.com/o/oauth2/v2/auth?redirect_uri=https://rentrite.up.railway.app/accounts/google/login/callback/&prompt=consent&response_type=code&client_id=878674025478-e8s4rf34md8h4n7qobb6mog43nfhfb7r.apps.googleusercontent.com&scope=openid%20email%20profile&access_type=offline) for users to see the google account select modal.
+site = Site.objects.get(id=getattr(settings, "SITE_ID"))
 
 
+@extend_schema(
+    description=f"# Visit this [`link`](https://accounts.google.com/o/oauth2/v2/auth?redirect_uri=https://{site.domain}/accounts/google/login/callback/&prompt=consent&response_type=code&client_id=878674025478-e8s4rf34md8h4n7qobb6mog43nfhfb7r.apps.googleusercontent.com&scope=openid%20email%20profile&access_type=offline) for users to see the google account select modal."
+    + """
     After Users select account for login, they will be redirected to a new url.
 
     extract the `code` query parameter passed in the redirected url and send to this endpoint to get access and refresh tokens
@@ -264,17 +265,26 @@ class GoogleLogin(CustomSocialLoginView):
 
     }
     """
+)
+
+# if you want to use Authorization Code Grant, use this
+class GoogleLogin(CustomSocialLoginView):
+    # * Local Development link
+    # ? https://accounts.google.com/o/oauth2/v2/auth?redirect_uri=http://127.0.0.1:8000/accounts/google/login/callback/&prompt=consent&response_type=code&client_id=878674025478-e8s4rf34md8h4n7qobb6mog43nfhfb7r.apps.googleusercontent.com&scope=openid%20email%20profile&access_type=offline
 
     # CALLBACK_URL_YOU_SET_ON_GOOGLE
     default_call_back_url = "http://127.0.0.1:8000/accounts/google/login/callback/"
 
     adapter_class = GoogleOAuth2Adapter
-    callback_url = os.environ.get("CALLBACK_URL", default_call_back_url)
+    callback_url = config("CALLBACK_URL", default_call_back_url)
 
     client_class = OAuth2Client
 
+    def post(self, request, *args, **kwargs):
+        return super().post(request, *args, **kwargs)
 
-# I dont think we need this for now
+
+#! I dont think we need this for now
 
 
 # class SendVerificationTokenView(APIView):

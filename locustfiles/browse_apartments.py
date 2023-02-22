@@ -56,7 +56,10 @@ class WebsiteUser(HttpUser):
         self.client.post("/bookmark/", json={"apartment_id": 1}, headers={
                 'Authorization': f'JWT {random.choice(self.access_tokens)}'
             })
+        
+    #  TODO
 
+    # ? i have to come rewrite the tests
     # def on_start(self):
     #     # First log in all the agents so they can create apartments
 
@@ -64,4 +67,4 @@ class WebsiteUser(HttpUser):
 
     #     resp = self.client.post('/accounts/login/', json={'email':'admin@django.com', 'password':123}, name = '/login/')
     #     self.access_tokens.append(resp.json()['access_token'])
-    #     # self.access_tokens.append(resp.json()['access_token'])
+    #     # self.access_tokens.append(resp.json()['access_token']) 

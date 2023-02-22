@@ -90,7 +90,6 @@ MIDDLEWARE = [
 ]
 
 
-
 ROOT_URLCONF = "RentRite.urls"
 
 TEMPLATES = [
@@ -205,7 +204,7 @@ INTERNAL_IPS = [
 # Documentation Settings
 SPECTACULAR_SETTINGS = {
     "TITLE": "RentRite API",
-    "DESCRIPTION": "A better Home makes a beter Family",
+    "DESCRIPTION": "A better Home makes a better Family",
     "VERSION": "1.0",
     "SERVE_INCLUDE_SCHEMA": False,
     "SWAGGER_UI_DIST": "SIDECAR",  # shorthand to use the sidecar instead
@@ -225,6 +224,7 @@ REST_FRAMEWORK = {
     ),
     "COERCE_DECIMAL_TO_STRING": False,
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+    "NON_FIELD_ERRORS_KEY": "error",
 }
 REST_AUTH_SERIALIZERS = {
     "LOGIN_SERIALIZER": "core.serializers.CustomLoginSerializer",
@@ -266,8 +266,9 @@ ACCOUNT_AUTHENTICATION_METHOD = "email"
 
 ACCOUNT_EMAIL_VERIFICATION = config("ACCOUNT_EMAIL_VERIFICATION", "none")
 
-SITE_ID = 1
+SITE_ID = config("SITE_ID", 1, cast=int)
 CORS_ALLOW_ALL_ORIGINS = True
+
 
 # Provider specific settings
 SOCIALACCOUNT_PROVIDERS = {

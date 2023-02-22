@@ -20,6 +20,7 @@ def mailjet_email_backend(
     name: str = None,
     html_part: str = None,
     template_id: int = None,
+    variables: dict = {},
     **kwargs
 ):
     try:
@@ -40,11 +41,10 @@ def mailjet_email_backend(
                             "Name": name,
                         }
                     ],
-                    "Subject": subject,
-                    "TextPart": text,
-                    "HTMLPart": html_part,
-                    "CustomCampaign": "SendAPI_campaign",
-                    # "DeduplicateCampaign": True
+                    "TemplateID": template_id,
+                    "TemplateLanguage": True,
+                    "Subject": "Comfy Home Receipt",
+                    "Variables": variables,
                 }
             ]
         }
