@@ -72,6 +72,7 @@ INSTALLED_APPS = [
     "chat",
     "info",
     "blog",
+    "payments",
     # "playground",
 ]
 
@@ -295,6 +296,10 @@ MJ_API_KEY = config("MJ_API_KEY", "")
 MJ_API_SECRET = config("MJ_API_SECRET", "")
 REDIS_URL = config("REDIS_URL", "redis://localhost:6379/1")
 FLUTTERWAVE_KEY = config("FLUTTERWAVE_KEY", "")
+FLW_SECRET_KEY = config("FLW_SECRET_KEY", default ="")
+RAVE_PUBLIC_KEY = config("RAVE_PUBLIC_KEY", default ="")
+RAVE_SECRET_KEY = config("RAVE_SECRET_KEY", default ="")
+PAYSTACK_SECRET_KEY = config("PAYSTACK_SECRET_KEY", default ="")
 HITCOUNT_HITS_PER_IP_LIMIT = 1
 CELERY_BROKER_URL = REDIS_URL
 

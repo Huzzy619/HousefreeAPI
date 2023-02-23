@@ -17,6 +17,7 @@ def create_user_profile_and_settings(instance, created, **kwargs):
         UserSettings.objects.create(user=instance)
 
 
+
 @receiver(new_user_signal)
 def send_verification_email(*args, **kwargs):
     if kwargs["send_email"]:

@@ -8,20 +8,17 @@ from drf_spectacular.views import (
     SpectacularRedocView,
     SpectacularSwaggerView,
 )
+
 urlpatterns = [
-    path("", TemplateView.as_view(template_name = 'index.html'), name = "index"),
+    path("", TemplateView.as_view(template_name="index.html"), name="index"),
     path("admin/", admin.site.urls),
-    
     path("accounts/", include("core.urls")),
-
-    path("", include('apartments.urls')),
-    # path("transaction/", include("transaction.urls")), 
-    path('chat/', include('chat.urls')),
-
+    path("", include("apartments.urls")),
+    path("payments/", include("payments.urls")),
+    path("chat/", include("chat.urls")),
     path("info/", include("info.urls")),
     path("", include("blog.urls")),
-
-    path('__debug__/', include('debug_toolbar.urls')),
+    path("__debug__/", include("debug_toolbar.urls")),
     # path("", include('playground.urls'))
 ]
 
