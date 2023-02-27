@@ -300,7 +300,12 @@ FLW_SECRET_KEY = config("FLW_SECRET_KEY", default ="")
 RAVE_PUBLIC_KEY = config("RAVE_PUBLIC_KEY", default ="")
 RAVE_SECRET_KEY = config("RAVE_SECRET_KEY", default ="")
 PAYSTACK_SECRET_KEY = config("PAYSTACK_SECRET_KEY", default ="")
+
+
+# HITCOUNT SETTINGS
 HITCOUNT_HITS_PER_IP_LIMIT = 1
+HITCOUNT_KEEP_HIT_ACTIVE = { 'days': 2 }
+
 CELERY_BROKER_URL = REDIS_URL
 
 SEND_EMAIL = config("SEND_EMAIL", default=False, cast=bool)

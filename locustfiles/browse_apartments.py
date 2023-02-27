@@ -9,12 +9,12 @@ from locust import HttpUser, between, task
 class WebsiteUser(HttpUser):
     wait_time = between(1, 5)
 
-    @task(30)
+    @task(10)
     def view_apartments(self):
         self.client.get("/apartment/", name="/apartment/")
         # print(self.result)
 
-    @task()
+    @task(5)
     def view_apartment(self):
         apartment_id = random.randrange(1, 15)
         self.client.get(f"/apartment/{apartment_id}/", name="/apartment/:id/")

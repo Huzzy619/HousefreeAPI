@@ -1,6 +1,8 @@
 import requests
 from django.http.request import HttpRequest
 from django_filters.rest_framework import DjangoFilterBackend
+from hitcount.models import HitCount
+from hitcount.views import HitCountMixin
 from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.filters import OrderingFilter, SearchFilter
@@ -76,14 +78,20 @@ class ApartmentViewSet(ModelViewSet):
 
     def retrieve(self, request: HttpRequest, *args, **kwargs):
 
-        # simulate getting this endpoint so that it can trigger the views count.
-        domain = request.get_host()
-        id = kwargs["pk"]
-        scheme = request.scheme
-
-        requests.get(f"{scheme}://{domain}/clicks/count/{id}/")
+        hit_count = HitCount.objects.get_for_object(self.get_object())
+        hit_count_response = HitCountMixin.hit_count(request, hit_count)
 
         # to make it a background task
+        # simulate getting this endpoint so that it can trigger the views count.
+
+        #! since Object of type Request is not JSON serializable
+        # ? We would have to go through this method
+
+        # domain = request.get_host()
+        # id = kwargs["pk"]
+        # scheme = request.scheme
+        # requests.get(f"{scheme}://{domain}/clicks/count/{id}/")
+
         # perform_click.delay(scheme, domain, id)
 
         return super().retrieve(request, *args, **kwargs)
@@ -262,8 +270,8 @@ class BookmarkView(APIView):
 
         """
 
-        aparment_id_list = request.data["items"]
+        apartment_id_list = request.data["items"]
 
-        Bookmark.objects.filter(apartment_id__in=aparment_id_list).delete()
+        Bookmark.objects.filter(apartment_id__in=apartment_id_list).delete()
 
         return Response(status=status.HTTP_204_NO_CONTENT)
