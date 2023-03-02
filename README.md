@@ -4,7 +4,7 @@
 
 This is a platform that provides a one-stop solution for all your housing needs. With HousefreeAPI, you no longer have to worry about searching for apartments, inspection, logistics, and interior decoration. Our platform takes care of all these for you.
 
-This repo contains the source code for our API. Our API is built using Python and Django, and it connects to a PostgreSQL database. The API handles all the necessary functionality for the platform, including user authentication, apartment listing, and payment processing.
+This repo contains the source code for our API. Our API is built using Python, Django and DjangoRestFramework, and it connects to a PostgreSQL database. The API handles all the necessary functionality for the platform, including user authentication, apartment listing, and payment processing.
 
 To get started with the API, you will need to have Python and Django installed on your machine. You can install these by following the instructions on their respective websites. Once you have these installed, you can clone the repo and run the following commands:
 
