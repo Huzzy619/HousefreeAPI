@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     "core",
     "chat",
     "payments",
+    "notifications",
     # "transaction",
     "info",
     "blog",
