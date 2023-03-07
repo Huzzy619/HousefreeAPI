@@ -314,6 +314,13 @@ SEND_EMAIL = config("SEND_EMAIL", default=False, cast=bool)
 EMAIL_PORT = 2525
 EMAIL_HOST = "localhost"
 
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.redis.RedisCache',
+        'LOCATION': 'redis://localhost:6379/2',
+    }
+}
+
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
@@ -366,6 +373,8 @@ JAZZMIN_SETTINGS = {
     # Copyright on the footer
     "copyright": "RENTRITE",
     "show_ui_builder": True,
+
+    "changeform_format": "collapsible",
 }
 
 JAZZMIN_UI_TWEAKS = {

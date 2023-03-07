@@ -23,6 +23,10 @@ from .models import Apartment, Bookmark, Media, Picture, Review
 from .serializers import *
 from .tasks import perform_click
 
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
+from django.views.decorators.vary import vary_on_cookie, vary_on_headers
+from datetime import timedelta
 
 class ApartmentViewSet(ModelViewSet):
     """
@@ -31,8 +35,10 @@ class ApartmentViewSet(ModelViewSet):
     Apartments can be searched by its location, price, category and title.
 
 
-    It can also be filtered based on any these attributes.
+    It can be filtered based on any of these attributes.
 
+    Apartments can be ordered by category
+    
     Args:
         ModelViewSet (_type_): _description_
 
@@ -48,6 +54,8 @@ class ApartmentViewSet(ModelViewSet):
     ordering_fields = ["category"]
 
     @action(methods=["GET"], permission_classes=[IsAuthenticated], detail=False)
+    # @method_decorator(cache_page(timedelta(hours=1).total_seconds()))
+    # @method_decorator(vary_on_headers)
     def mine(self, request):
         """
         Returns all the apartments owned by the currently logged in agent
@@ -95,6 +103,10 @@ class ApartmentViewSet(ModelViewSet):
         # perform_click.delay(scheme, domain, id)
 
         return super().retrieve(request, *args, **kwargs)
+    
+    # @method_decorator(cache_page(timedelta(minutes=30).total_seconds()))
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
 
 
 class PicturesViewSet(ModelViewSet):

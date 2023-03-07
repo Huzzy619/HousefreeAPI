@@ -8,7 +8,7 @@ from .models import Blog, Image
 from .serializers import (BlogImageSerializer, BlogSerializer,
                           CreateBlogSerializer)
 
-
+from .permissions import IsMarketerOrReadOnly
 class BlogViewSet(ModelViewSet):
 
     queryset = Blog.objects.all()
@@ -20,7 +20,7 @@ class BlogViewSet(ModelViewSet):
     ]
     search_fields = ["title", "content", "category"]
     ordering_fields = ["date_published", "date_updated"]
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    permission_classes = [IsMarketerOrReadOnly]
 
     def get_serializer_class(self):
         if self.request.method in permissions.SAFE_METHODS:

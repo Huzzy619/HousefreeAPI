@@ -25,6 +25,11 @@ class Blog(models.Model):
 
     def __str__(self):
         return self.title
+    
+    @property
+    def author_name(self):
+        return self.author.get_full_name()
+
 
 class Image(models.Model):
     img = models.ImageField(upload_to=get_blogs_image_path, null=True, blank=True)
