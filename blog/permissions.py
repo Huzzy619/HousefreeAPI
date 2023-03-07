@@ -10,7 +10,7 @@ class IsMarketerOrReadOnly(BasePermission):
 
     def has_permission(self, request, view):
         """
-        Except the user is in a group (Marketers) or is a superuser, 
+        Except the user is in a group (Marketers and Content Writers) or is a superuser,
         They would not be able to make changes to the blog
 
         They would only have READ permission
@@ -26,6 +26,6 @@ class IsMarketerOrReadOnly(BasePermission):
             request.method in SAFE_METHODS
             or request.user
             and request.user.is_authenticated
-            and request.user.groups.filter(name="Marketers").exists()
+            and request.user.groups.filter(name="Marketers and Content Writers").exists()
             or request.user.is_superuser
         )

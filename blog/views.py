@@ -1,7 +1,8 @@
 from django_filters.rest_framework import DjangoFilterBackend
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiParameter, extend_schema
-from rest_framework import filters, pagination, permissions
+from rest_framework import filters, pagination, permissions, status
+from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
 from .models import Blog, Image
@@ -51,3 +52,11 @@ class ImageViewSet(ModelViewSet):
         if pk := self.kwargs.get("blog_pk", ""):
             context["blog_pk"] = pk
         return context
+    
+    def create(self, request, *args, **kwargs):
+        super().create(request, *args, **kwargs)
+        # Since the images are returning null values in Response due to bulk_create,
+        # a nice success message should suffice instead of instances of the newly uploaded images
+        return Response(
+            {"detail": " Blog Images uploaded successfully"}, status=status.HTTP_201_CREATED
+        )

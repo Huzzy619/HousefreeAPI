@@ -63,3 +63,10 @@ CHANNEL_LAYERS = {
 
 
 CELERY_BROKER_URL = REDIS_URL
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.redis.RedisCache',
+        'LOCATION': REDIS_URL,
+    }
+}
