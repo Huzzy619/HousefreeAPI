@@ -10,7 +10,7 @@ from decouple import config
 from django.http import HttpRequest
 
 from .models import Payment, Wallet
-from .serializers import CreateCardDepositFlutterwaveSerializer
+from .serializers import CreateCardDepositFlutterwaveSerializer, CreatePaystackPaymentSerializer
 
 User = get_user_model()
 
@@ -56,7 +56,7 @@ class CreateCardDepositFlutterwaveAPIView(generics.GenericAPIView):
             "redirect_url": request.scheme + "://" + config("FRONTEND_URL", ""),
             "payment_plan": serializer.validated_data["payment_plan"],
             "meta": {
-                "customer_id": "fefef",
+                "customer_id": request.user.profile.id or "xxxxxxxxxxxxxxxx",
             },
             "customer": {
                 "email": serializer.validated_data["email"],
@@ -65,7 +65,7 @@ class CreateCardDepositFlutterwaveAPIView(generics.GenericAPIView):
             },
             "customizations": {
                 "title": "RentRite NGN Card Deposit Payments",
-                "logo": "http://www.piedpiper.com/app/themes/joystick-v27/images/logo.png",
+                "logo": "https://images.unsplash.com/photo-1554995207-c18c203602cb?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1170&q=80",
             },
         }
         try:
@@ -107,9 +107,6 @@ class ConfirmCardDepositFlutterwave(generics.GenericAPIView):
         tx_status = self.request.query_params.get("status")
         tx_ref = self.request.query_params.get("tx_ref")
         transaction_id = request.query_params.get("transaction_id")
-        print(
-            f"tx ref is {tx_ref} and tx status is {tx_status} and transaction id is {transaction_id}"
-        )
 
         if tx_status == "successful":
             url = f"https://api.flutterwave.com/v3/transactions/verify_by_reference?tx_ref={tx_ref}"
@@ -151,34 +148,23 @@ flutterwave_confirm_card_deposit = ConfirmCardDepositFlutterwave.as_view()
 
 
 class PaystackPaymentView(APIView):
-    # serializer_class = PaystackPaymentSerializer
-    """
-    takes in
-
-    {
-
-            "email": "example@gmail.com",
-
-            "metadata": {},
-
-            "plan": "plan_id",
-
-    }
-    """
+    serializer_class = CreatePaystackPaymentSerializer
     permission_classes = [
         IsAuthenticated,
     ]
 
     def post(self, request: HttpRequest, *args, **kwargs):
+        serializer = CreatePaystackPaymentSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
         user = request.user
-        data = request.data
-        metadata = data.get("metadata", {"empty": "empty"})
+        metadata = serializer.validated_data["metadata"]
 
         payment = Payment.objects.create(
             user=user,
-            amount=data["amount"],
+            amount=serializer.validated_data["amount"],
             email=user.email,
             verified=False,
+            payment_options="paystack",
             metadata=metadata,
         )
 
@@ -196,8 +182,8 @@ class PaystackPaymentView(APIView):
         }
         data = {
             "email": user.email,
-            "plan": "PLN_zike0rxl18lgjlw",
-            "amount": "100",
+            "plan": serializer.validated_data['plan_id'],
+            "amount": serializer.validated_data['amount'],
             "callback_url":  request.scheme + "://" + config("FRONTEND_URL", ""),
             "reference": payment.txn_ref,
             "metadata": metadata,
