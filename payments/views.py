@@ -195,7 +195,7 @@ class PaystackPaymentView(APIView):
             "email": user.email,
             "plan": "PLN_zike0rxl18lgjlw",
             "amount": "100",
-            "callback_url": "https://example.com",
+            "callback_url": callback_url,
             "reference": payment.txn_ref,
             "metadata": metadata,
         }
