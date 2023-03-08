@@ -10,7 +10,7 @@ from asgiref.sync import async_to_sync
 from decouple import config
 from dj_rest_auth.registration.views import RegisterView, SocialLoginView
 from dj_rest_auth.utils import jwt_encode
-from dj_rest_auth.views import PasswordChangeView, PasswordResetView
+from dj_rest_auth.views import LoginView, PasswordChangeView, PasswordResetView
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
@@ -210,19 +210,6 @@ class CustomRegisterView(RegisterView):
 
     serializer_class = CustomRegisterSerializer
 
-    # def get_response_data(self, user):
-
-    #     response = super().get_response_data(user)
-
-    #     # Update response to include user's name
-    #     user_pk = response["user"]["pk"]
-    #     user = get_user_model().objects.get(id=user_pk)
-    #     response["user"]["first_name"] = user.first_name
-    #     response["user"]["last_name"] = user.last_name
-    #     response["user"]["id"] = user.id
-
-    #     return response
-
     def perform_create(self, serializer):
         user = serializer.save(self.request)
 
@@ -248,8 +235,8 @@ class CustomRegisterView(RegisterView):
 # if you want to use Authorization Code Grant, use this
 class GoogleLogin(CustomSocialLoginView):
 
-    site = config('CALLBACK_URL', "")
-    domain = site.split('/')[2] if site else ""
+    site = config("CALLBACK_URL", "")
+    domain = site.split("/")[2] if site else ""
 
     @extend_schema(
         description=f"# Visit this [`link`](https://accounts.google.com/o/oauth2/v2/auth?redirect_uri=https://{domain}/accounts/google/login/callback/&prompt=consent&response_type=code&client_id=878674025478-e8s4rf34md8h4n7qobb6mog43nfhfb7r.apps.googleusercontent.com&scope=openid%20email%20profile&access_type=offline) for users to see the google account select modal."

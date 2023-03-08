@@ -4,15 +4,32 @@ from dj_rest_auth.registration.serializers import (
     RegisterSerializer,
     SocialLoginSerializer,
 )
-from dj_rest_auth.serializers import LoginSerializer
+from dj_rest_auth.serializers import JWTSerializer, LoginSerializer
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import SetPasswordForm
+from django.utils.translation import gettext as _
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
 from .models import *
+
+
+class CustomJWTSerializer(JWTSerializer):
+    def get_user(self, obj):
+
+        user_data = super().get_user(obj)
+
+        user_data["is_marketer"] = (
+            obj["user"].groups.filter(name="Marketers and Content Writers").exists()
+            or obj["user"].is_staff
+            or obj["user"].is_superuser
+        )
+
+        user_data["is_agent"] = obj["user"].is_agent
+
+        return user_data
 
 
 class AgentDetailsSerializer(serializers.ModelSerializer):
