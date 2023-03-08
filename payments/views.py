@@ -6,6 +6,8 @@ from rest_framework import generics, permissions, status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from decouple import config
+from django.http import HttpRequest
 
 from .models import Payment, Wallet
 from .serializers import CreateCardDepositFlutterwaveSerializer
@@ -26,7 +28,7 @@ class CreateCardDepositFlutterwaveAPIView(generics.GenericAPIView):
         context["request"] = self.request
         return context
 
-    def post(self, request, *args, **kwargs):
+    def post(self, request: HttpRequest, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         payment = Payment.objects.create(
@@ -39,19 +41,19 @@ class CreateCardDepositFlutterwaveAPIView(generics.GenericAPIView):
             metadata=serializer.validated_data["metadata"],
         )
         endpoint = "https://api.flutterwave.com/v3/payments"
-        scheme = request.is_secure() and "https" or "http"
-        full_url = (
-            scheme
-            + "://"
-            + str(get_current_site(request).domain)
-            + "/payments/flw-deposit/verify/"
-        )
+        
+        # full_url = (
+        #     scheme
+        #     + "://"
+        #     + str(request.get_host())
+        #     + "/payments/flw-deposit/verify/"
+        # )
         headers = {"Authorization": f"Bearer {settings.FLW_SECRET_KEY}"}
         json_data = {
             "tx_ref": payment.txn_ref,
             "amount": payment.amount,
             "currency": "NGN",
-            "redirect_url": full_url,
+            "redirect_url": request.scheme + "://" + config("FRONTEND_URL", ""),
             "payment_plan": serializer.validated_data["payment_plan"],
             "meta": {
                 "customer_id": "fefef",
@@ -167,7 +169,7 @@ class PaystackPaymentView(APIView):
         IsAuthenticated,
     ]
 
-    def post(self, request, *args, **kwargs):
+    def post(self, request: HttpRequest, *args, **kwargs):
         user = request.user
         data = request.data
         metadata = data.get("metadata", {"empty": "empty"})
@@ -179,13 +181,14 @@ class PaystackPaymentView(APIView):
             verified=False,
             metadata=metadata,
         )
-        scheme = request.is_secure() and "https" or "http"
-        callback_url = (
-            scheme
-            + "://"
-            + str(get_current_site(request).domain)
-            + "/payments/paystack-deposit/verify/"
-        )
+
+        # callback_url = (
+        #     request.scheme
+        #     + "://"
+        #     + request.get_host()
+        #     + "/payments/paystack-deposit/verify/"
+        # )
+
         url = "https://api.paystack.co/transaction/initialize"
         headers = {
             "Authorization": f"Bearer {settings.PAYSTACK_SECRET_KEY}",
@@ -195,7 +198,7 @@ class PaystackPaymentView(APIView):
             "email": user.email,
             "plan": "PLN_zike0rxl18lgjlw",
             "amount": "100",
-            "callback_url": callback_url,
+            "callback_url":  request.scheme + "://" + config("FRONTEND_URL", ""),
             "reference": payment.txn_ref,
             "metadata": metadata,
         }

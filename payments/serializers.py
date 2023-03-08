@@ -25,23 +25,4 @@ class CreateCardDepositFlutterwaveSerializer(serializers.Serializer):
     email = serializers.EmailField()
     metadata = serializers.JSONField()
     payment_plan = serializers.CharField()
-
-    def validate(self, data):
-        amount = data.get("amount")
-        email = data.get("email")
-        metadata = data.get("metadata")
-        payment_plan = data.get("payment_plan")
-
-        if amount is None:
-            raise serializers.ValidationError("amount is required")
-
-        if email is None:
-            raise serializers.ValidationError("email is required")
-
-        if payment_plan is None:
-            raise serializers.ValidationError("payment plan is required")
-
-        if metadata is None:
-            raise serializers.ValidationError("metadata is required")
-
-        return data
+    
