@@ -1,31 +1,31 @@
 from django.contrib import admin
-from .models import Blog, Image
 from django.utils.html import format_html
 
-# Register your models here.
-
-class ImageInline(admin.TabularInline):
-    model = Image
-    readonly_fields = ['blog_img']
-    extra = 0
-
-    def blog_img(self, instance):
-        return format_html(f'<a href ="{instance.img.url}"><img src="{instance.img.url}" alt="{instance.blog.title}" class = "thumbnail" ></a>')
+from .models import Blog
 
 
 @admin.register(Blog)
 class BlogAdmin(admin.ModelAdmin):
-    list_display = ['title', 'category', 'featured', 'author_name']
+    list_display = ["title", "category", "featured", "author_name", "show_image"]
     list_filter = ["category", "featured"]
     list_per_page = 10
-    inlines = [ImageInline]
-    search_fields = ['title__icontains', 'content__icontains', 'category__istartswith', 'author__first_name__istartswith']
-    
+    # inlines = [ImageInline]
+    search_fields = [
+        "title__icontains",
+        "content__icontains",
+        "category__istartswith",
+        "author__first_name__istartswith",
+    ]
+
+    @admin.display(description="Blog Image")
+    def show_image(self, instance):
+        if instance.image:
+            return format_html(
+                f'<a href ="{instance.image.url}"><image src="{instance.image.url}" alt="{instance.title}" class = "thumbnail" ></a>'
+            )
+        return "no image"
 
     class Media:
-        css = {
-            'all': ['thumbnail/image.css']
-        }
+        css = {"all": ["thumbnail/image.css"]}
 
-# admin.site.register(Image)
 

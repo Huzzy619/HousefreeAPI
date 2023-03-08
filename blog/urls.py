@@ -1,14 +1,10 @@
 from rest_framework.routers import DefaultRouter
-from rest_framework_nested.routers import NestedDefaultRouter
 
-from .views import BlogViewSet, ImageViewSet
+from .views import BlogViewSet
 
 router = DefaultRouter()
 
-router.register('blogs', BlogViewSet, basename='blogs')
+router.register("blogs", BlogViewSet, basename="blogs")
 
-nested_router = NestedDefaultRouter(router,'blogs', lookup = "blog")
-nested_router.register('images', ImageViewSet, basename="blog-images")
 
-urlpatterns = router.urls + nested_router.urls
-
+urlpatterns = router.urls

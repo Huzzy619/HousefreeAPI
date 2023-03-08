@@ -16,9 +16,11 @@ class Blog(models.Model):
     content = models.TextField()
     category = models.CharField(max_length=200, choices=CATEGORY)
     featured = models.BooleanField(default=False)
+    image = models.ImageField(upload_to=get_blogs_image_path, null=True, blank=True)
     author = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
     date_published = models.DateTimeField(auto_now_add=True)
     date_updated = models.DateTimeField(auto_now=True)
+    
 
     class Meta:
         ordering = ["-date_published"]
@@ -30,7 +32,3 @@ class Blog(models.Model):
     def author_name(self):
         return self.author.get_full_name()
 
-
-class Image(models.Model):
-    img = models.ImageField(upload_to=get_blogs_image_path, null=True, blank=True)
-    blog = models.ForeignKey(Blog, on_delete=models.CASCADE, related_name='images')
