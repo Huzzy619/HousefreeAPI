@@ -26,3 +26,8 @@ class CreateCardDepositFlutterwaveSerializer(serializers.Serializer):
     metadata = serializers.JSONField()
     payment_plan = serializers.CharField()
     
+class CreatePaystackPaymentSerializer(serializers.Serializer):
+    amount = serializers.IntegerField()
+    email = serializers.EmailField()
+    plan_id = serializers.CharField()
+    metadata = serializers.JSONField()
