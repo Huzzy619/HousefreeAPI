@@ -25,6 +25,6 @@ class BlogViewSet(ModelViewSet):
         if self.request.method in permissions.SAFE_METHODS:
             return BlogSerializer
         return CreateBlogSerializer
-
-    def get_serializer_context(self):
-        return {"user": self.request.user, "request": self.request}
+    
+    def perform_create(self, serializer):
+        serializer.save(author = self.request.user)

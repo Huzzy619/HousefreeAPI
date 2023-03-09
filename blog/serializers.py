@@ -8,9 +8,6 @@ class CreateBlogSerializer(serializers.ModelSerializer):
         model = Blog
         fields = ["id", "title", "content", "category", "featured", "image"]
 
-    def save(self, **kwargs):
-        return super().save(author=self.context["user"], **self.validated_data)
-
 
 class BlogSerializer(serializers.ModelSerializer):
     class Meta:
@@ -19,7 +16,7 @@ class BlogSerializer(serializers.ModelSerializer):
             "id",
             "title",
             "content",
-            "author",
+            "author_name",
             "date_published",
             "image",
             "featured",

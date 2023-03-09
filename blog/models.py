@@ -24,6 +24,7 @@ class Blog(models.Model):
 
     class Meta:
         ordering = ["-date_published"]
+        verbose_name = "Post"
 
     def __str__(self):
         return self.title

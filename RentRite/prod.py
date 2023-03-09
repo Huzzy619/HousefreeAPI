@@ -38,10 +38,13 @@ CLOUDINARY_STORAGE = {
 
 
 # Test mailtrap email account.... till mail_jet is fully configured
-EMAIL_HOST = "smtp.mailtrap.io"
-EMAIL_HOST_USER = "617e747e2afc2c"
-EMAIL_HOST_PASSWORD = "e99890b04db43b"
-EMAIL_PORT = "2525"
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST= 'smtp.gmail.com'
+EMAIL_HOST_USER = 'blazingkrane@gmail.com'
+EMAIL_HOST_PASSWORD = 'xnrunctxebrjwohz'
+EMAIL_PORT = 587
+EMAIL_USE_SSL = False
+EMAIL_USE_TSL = True
 
 
 SIMPLE_JWT = {

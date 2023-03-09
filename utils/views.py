@@ -2,9 +2,18 @@ from decouple import config
 from django.conf import settings
 from hitcount.views import HitCountDetailView
 from mailjet_rest import Client
+import threading
 
 from apartments.models import Apartment
 
+
+class EmailThread(threading.Thread):
+    def __init__(self, email):
+        self.email = email
+        super().__init__(group=None)
+
+    def run(self):
+        self.email.send()
 
 # To make the hitcount work.
 class ApartmentClicks(HitCountDetailView):
