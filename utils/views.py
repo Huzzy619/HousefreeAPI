@@ -39,7 +39,7 @@ def send_email(
     try:
         EmailThread(email).start()
     except:
-        print("Something went wrong")
+        print("Something went wrong \nCouldn't send Email")
 
 
 def mailjet_email_backend(

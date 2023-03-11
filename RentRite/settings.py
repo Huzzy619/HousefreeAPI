@@ -74,7 +74,7 @@ INSTALLED_APPS = [
     "blog",
     "payments",
     "notifications",
-    "playground",
+    # "playground",
 ]
 
 

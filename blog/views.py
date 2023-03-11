@@ -17,7 +17,7 @@ class BlogViewSet(ModelViewSet):
     http_method_names = ["post", "get", "delete", "patch"]
     ordering_fields = ["date_published", "date_updated"]
     pagination_class = pagination.LimitOffsetPagination
-    permission_classes = [permissions.IsAdminUser] 
+    permission_classes = [IsMarketerOrReadOnly] 
     queryset = Blog.objects.all()
     search_fields = ["title", "content", "category"] 
 
