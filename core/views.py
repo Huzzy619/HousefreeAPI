@@ -32,7 +32,7 @@ from .models import AgentDetails, Profile, User, UserSettings
 from .otp import OTPGenerator
 from .permissions import IsOwner
 from .serializers import *
-from .signals import new_user_signal
+from .signals import new_user_signal, verification_signal
 
 
 class GetOTPView(APIView):
@@ -157,6 +157,8 @@ class AgentDetailsView(CreateAPIView):
         agent_verification = await agent_identity_verification(
             front_image, back_image, selfie_image
         )
+
+        verification_signal.send(__class__, status="pending", user=request.user)
         if agent_verification:
 
             # checks if the agent details from identity verification service provider API
@@ -169,13 +171,17 @@ class AgentDetailsView(CreateAPIView):
             ):
                 await asyncio.get_event_loop().run_in_executor(None, serializer.save)
                 headers = self.get_success_headers(serializer.data)
+                verification_signal.send(__class__, status="success", user=request.user)
+
                 return Response(
                     serializer.data, status=status.HTTP_201_CREATED, headers=headers
                 )
+            verification_signal.send(__class__, status="failed", user=request.user)
 
             return Response(
                 data="user details does not match", status=status.HTTP_400_BAD_REQUEST
             )
+        verification_signal.send(__class__, status="failed", user=request.user)
 
         return Response(
             data="agent verification failed",

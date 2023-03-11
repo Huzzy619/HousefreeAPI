@@ -15,6 +15,7 @@ from pathlib import Path
 
 from decouple import config
 
+# from utils.drf import JWTAuthenticationExtension
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -31,20 +32,20 @@ DEBUG = True
 ALLOWED_HOSTS = ["*"]
 
 
-#? Application definition
+# ? Application definition
 
 INSTALLED_APPS = [
     "channels",
     # "daphne",
     "jazzmin",
-    #? Django apps
+    # ? Django apps
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    #? Third Party
+    # ? Third Party
     "rest_framework",
     "rest_framework.authtoken",
     "dj_rest_auth",
@@ -65,7 +66,7 @@ INSTALLED_APPS = [
     "phonenumber_field",
     "django_filters",
     "hitcount",
-    #? Local
+    # ? Local
     "core",
     "apartments",
     "chat",
@@ -121,7 +122,7 @@ CHANNEL_LAYERS = {
     },
 }
 
-#? Database
+# ? Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
 DATABASES = {
@@ -146,7 +147,7 @@ DATABASES = {
 
 # DATABASE_ROUTERS = ['routers.db_routers.InfoRouter']
 
-#? Password validation
+# ? Password validation
 # https://docs.djangoproject.com/en/4.1/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
@@ -165,7 +166,7 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
-#? Internationalization
+# ? Internationalization
 # https://docs.djangoproject.com/en/4.1/topics/i18n/
 
 LANGUAGE_CODE = "en-us"
@@ -177,7 +178,7 @@ USE_I18N = True
 USE_TZ = True
 
 
-#? Static files (CSS, JavaScript, Images)
+# ? Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
 
 STATIC_URL = "static/"
@@ -197,12 +198,12 @@ MEDIA_ROOT = BASE_DIR / "media"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 
-#? Debug Toolbar
+# ? Debug Toolbar
 INTERNAL_IPS = [
     "127.0.0.1",
 ]
 
-#? Documentation Settings
+# ? Documentation Settings
 SPECTACULAR_SETTINGS = {
     "TITLE": "RentRite API",
     "DESCRIPTION": "A better Home makes a better Family",
@@ -213,10 +214,11 @@ SPECTACULAR_SETTINGS = {
     "REDOC_DIST": "SIDECAR",
     # "ENUM_NAME_OVERRIDES" :{"Category57aEnum": "CategoryEnum"}
     # OTHER SETTINGS
+
 }
 
 
-#? Authentication Settings
+# ? Authentication Settings
 
 AUTH_USER_MODEL = "core.User"
 REST_FRAMEWORK = {
@@ -232,7 +234,7 @@ REST_AUTH_SERIALIZERS = {
     "REGISTER_SERIALIZER": "core.serializers.CustomRegisterSerializer",
     # "PASSWORD_RESET_CONFIRM_SERIALIZER": ""
     # "PASSWORD_CHANGE_SERIALIZER":"core.serializers."
-    "JWT_SERIALIZER":"core.serializers.CustomJWTSerializer",
+    "JWT_SERIALIZER": "core.serializers.CustomJWTSerializer",
 }
 REST_USE_JWT = True
 
@@ -241,7 +243,7 @@ JWT_AUTH_REFRESH_COOKIE = "my-refresh-token"
 
 
 SIMPLE_JWT = {
-    "AUTH_HEADER_TYPES": ("JWT",),
+    "AUTH_HEADER_TYPES": ("Bearer",),
     "ACCESS_TOKEN_LIFETIME": timedelta(days=5),
     "AUTH_TOKEN_CLASSES": ("rest_framework_simplejwt.tokens.AccessToken",),
 }
@@ -272,7 +274,7 @@ SITE_ID = config("SITE_ID", 1, cast=int)
 CORS_ALLOW_ALL_ORIGINS = True
 
 
-#? Provider specific settings
+# ? Provider specific settings
 SOCIALACCOUNT_PROVIDERS = {
     "google": {
         # For each OAuth based provider, either add a ``SocialApp``
@@ -297,39 +299,39 @@ MJ_API_KEY = config("MJ_API_KEY", "")
 MJ_API_SECRET = config("MJ_API_SECRET", "")
 REDIS_URL = config("REDIS_URL", "redis://localhost:6379/1")
 FLUTTERWAVE_KEY = config("FLUTTERWAVE_KEY", "")
-FLW_SECRET_KEY = config("FLW_SECRET_KEY", default ="")
-RAVE_PUBLIC_KEY = config("RAVE_PUBLIC_KEY", default ="")
-RAVE_SECRET_KEY = config("RAVE_SECRET_KEY", default ="")
-PAYSTACK_SECRET_KEY = config("PAYSTACK_SECRET_KEY", default ="")
+FLW_SECRET_KEY = config("FLW_SECRET_KEY", default="")
+RAVE_PUBLIC_KEY = config("RAVE_PUBLIC_KEY", default="")
+RAVE_SECRET_KEY = config("RAVE_SECRET_KEY", default="")
+PAYSTACK_SECRET_KEY = config("PAYSTACK_SECRET_KEY", default="")
 
 
-#? HITCOUNT SETTINGS
+# ? HITCOUNT SETTINGS
 HITCOUNT_HITS_PER_IP_LIMIT = 1
-HITCOUNT_KEEP_HIT_ACTIVE = { 'days': 2 }
+HITCOUNT_KEEP_HIT_ACTIVE = {"days": 2}
 
 CELERY_BROKER_URL = REDIS_URL
 
 
-#? localhost email settings
+# ? localhost email settings
 # EMAIL_PORT = 2525
 # EMAIL_HOST = "localhost"
 SEND_EMAIL = config("SEND_EMAIL", default=False, cast=bool)
 
-#? Development Gmail settings
+# ? Development Gmail settings
 
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
-EMAIL_HOST= 'smtp.gmail.com'
-EMAIL_HOST_USER = 'blazingkrane@gmail.com'
-EMAIL_HOST_PASSWORD = 'xnrunctxebrjwohz'
+EMAIL_HOST = "smtp.gmail.com"
+EMAIL_HOST_USER = "blazingkrane@gmail.com"
+EMAIL_HOST_PASSWORD = "xnrunctxebrjwohz"
 EMAIL_PORT = 465
-EMAIL_USE_SSL = True 
+EMAIL_USE_SSL = True
 EMAIL_USE_TSL = False
 
 
 CACHES = {
-    'default': {
-        'BACKEND': 'django.core.cache.backends.redis.RedisCache',
-        'LOCATION': 'redis://localhost:6379/2',
+    "default": {
+        "BACKEND": "django.core.cache.backends.redis.RedisCache",
+        "LOCATION": "redis://localhost:6379/2",
     }
 }
 
@@ -363,7 +365,7 @@ LOGGING = {
     },
 }
 
-#? JAZZMIN_SETTINGS
+# ? JAZZMIN_SETTINGS
 
 JAZZMIN_SETTINGS = {
     # title of the window (Will default to current_admin_site.site_title if absent or None)
@@ -387,7 +389,6 @@ JAZZMIN_SETTINGS = {
     # Copyright on the footer
     "copyright": "RENTRITE",
     "show_ui_builder": True,
-
     "changeform_format": "collapsible",
 }
 

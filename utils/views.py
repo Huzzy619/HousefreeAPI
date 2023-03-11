@@ -1,8 +1,10 @@
+import threading
+
 from decouple import config
 from django.conf import settings
-from hitcount.views import HitCountDetailView
+from django.core.mail import EmailMultiAlternatives
+from django.template.loader import render_to_string
 from mailjet_rest import Client
-import threading
 
 from apartments.models import Apartment
 
@@ -15,11 +17,29 @@ class EmailThread(threading.Thread):
     def run(self):
         self.email.send()
 
-# To make the hitcount work.
-class ApartmentClicks(HitCountDetailView):
-    model = Apartment
-    count_hit = True
-    template_name = "apartment_detail.html"
+
+def send_email(
+    subject: str,
+    recipients: list,
+    message: str = None,
+    context: dict = {},
+    template: str = None,
+):
+    html_content = render_to_string(template, context)
+    email = EmailMultiAlternatives(
+        subject=subject,
+        body=message,
+        from_email=settings.EMAIL_HOST_USER,
+        to=[email for email in recipients],
+    )
+
+    email.attach_alternative(html_content, "text/html")
+
+    # start a thread for each email
+    try:
+        EmailThread(email).start()
+    except:
+        print("Something went wrong")
 
 
 def mailjet_email_backend(

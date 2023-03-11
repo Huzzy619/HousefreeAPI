@@ -1,5 +1,10 @@
+from datetime import timedelta
+
 import requests
 from django.http.request import HttpRequest
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
+from django.views.decorators.vary import vary_on_cookie, vary_on_headers
 from django_filters.rest_framework import DjangoFilterBackend
 from hitcount.models import HitCount
 from hitcount.views import HitCountMixin
@@ -23,10 +28,6 @@ from .models import Apartment, Bookmark, Media, Picture, Review
 from .serializers import *
 from .tasks import perform_click
 
-from django.utils.decorators import method_decorator
-from django.views.decorators.cache import cache_page
-from django.views.decorators.vary import vary_on_cookie, vary_on_headers
-from datetime import timedelta
 
 class ApartmentViewSet(ModelViewSet):
     """
@@ -38,7 +39,7 @@ class ApartmentViewSet(ModelViewSet):
     It can be filtered based on any of these attributes.
 
     Apartments can be ordered by category
-    
+
     Args:
         ModelViewSet (_type_): _description_
 
@@ -86,24 +87,14 @@ class ApartmentViewSet(ModelViewSet):
 
     def retrieve(self, request: HttpRequest, *args, **kwargs):
 
+        # Do a hit count
+        
         hit_count = HitCount.objects.get_for_object(self.get_object())
-        hit_count_response = HitCountMixin.hit_count(request, hit_count)
-
-        # to make it a background task
-        # simulate getting this endpoint so that it can trigger the views count.
-
-        #! since Object of type Request is not JSON serializable
-        # ? We would have to go through this method
-
-        # domain = request.get_host()
-        # id = kwargs["pk"]
-        # scheme = request.scheme
-        # requests.get(f"{scheme}://{domain}/clicks/count/{id}/")
-
-        # perform_click.delay(scheme, domain, id)
+        
+        HitCountMixin.hit_count(request, hit_count)
 
         return super().retrieve(request, *args, **kwargs)
-    
+
     # @method_decorator(cache_page(timedelta(minutes=30).total_seconds()))
     def list(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)

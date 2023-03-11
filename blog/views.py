@@ -17,14 +17,14 @@ class BlogViewSet(ModelViewSet):
     http_method_names = ["post", "get", "delete", "patch"]
     ordering_fields = ["date_published", "date_updated"]
     pagination_class = pagination.LimitOffsetPagination
-    permission_classes = [IsMarketerOrReadOnly]
+    permission_classes = [permissions.IsAdminUser] 
     queryset = Blog.objects.all()
-    search_fields = ["title", "content", "category"]
+    search_fields = ["title", "content", "category"] 
 
     def get_serializer_class(self):
         if self.request.method in permissions.SAFE_METHODS:
             return BlogSerializer
         return CreateBlogSerializer
-    
+
     def perform_create(self, serializer):
-        serializer.save(author = self.request.user)
+        serializer.save(author=self.request.user)
