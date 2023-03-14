@@ -6,17 +6,19 @@ orbs:
 jobs:
   build_and_test:
     executor: python/default
+
+    docker:
+      - image: cimg/python:3.10.2
    
     steps:
       - checkout
-      - python/load-cache
-      - python/install-deps
-      - python/save-cache
+      - python/install-packages:
+          pkg-manager: pip
       - run:
           name: Run tests
-          command: python manage.py test
+          command: ./manage.py test
 
 workflows:
-  say-hello-workflow:
+  run-build-test:
     jobs:
       - build_and_test
