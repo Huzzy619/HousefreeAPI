@@ -6,7 +6,6 @@ from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 from mailjet_rest import Client
 
-from apartments.models import Apartment
 
 
 class EmailThread(threading.Thread):

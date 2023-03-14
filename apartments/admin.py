@@ -1,5 +1,26 @@
 from django.contrib import admin
-from .models import Bookmark, Apartment, Picture, Media
+
+from .models import Apartment, Bookmark, Media, Picture
+
+admin.site.register([Bookmark, Picture, Media])
 
 
-admin.site.register([Bookmark, Apartment, Picture, Media])
+class PictureInline(admin.TabularInline):
+    # class Meta:
+    model = Picture
+    extra = 2
+
+
+class MediaInline(admin.TabularInline):
+    # class Meta:
+    model = Media
+    extra = 1
+
+
+@admin.register(Apartment)
+class ApartmentAdmin(admin.ModelAdmin):
+    list_display = ["property_ref", "title", "category", "_type", "clicks"]
+    inlines = [PictureInline, MediaInline]
+    
+    
+    

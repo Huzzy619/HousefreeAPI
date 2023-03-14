@@ -1,5 +1,6 @@
 import pytest
 from django.contrib.auth import get_user_model
+from django.contrib.auth.models import Group
 from model_bakery import baker
 from rest_framework.test import APIClient
 
@@ -12,9 +13,10 @@ def api_client():
 
 
 @pytest.fixture
-def authenticate(api_client):
-    def authenticate_user(is_agent=False):
-        user = baker.make(User, is_agent=is_agent)
-        return api_client.force_authenticate(user=user)
+def grouped_user():
+    group = baker.make(Group, name="Marketers and Content Writers")
+    user = baker.make(User)
 
-    return authenticate_user
+    user.groups.add(group)
+
+    return user

@@ -130,6 +130,7 @@ DATABASES = {
         "ENGINE": "django.db.backends.sqlite3",
         "NAME": BASE_DIR / "db.sqlite3",
     },
+    
     # The Multiple database system is not implemented yet
     # "info_db": {
     #     "ENGINE": "django.db.backends.sqlite3",
@@ -327,7 +328,7 @@ EMAIL_PORT = 465
 EMAIL_USE_SSL = True
 EMAIL_USE_TSL = False
 
-
+TEST_RUNNER = 'utils.test.PytestTestRunner'
 CACHES = {
     "default": {
         "BACKEND": "django.core.cache.backends.redis.RedisCache",

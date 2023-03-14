@@ -23,7 +23,7 @@ CATEGORY_TYPE = [
     ("Commercial Properties", "Commercial Properties"),
     ("Event Centers", "Event Centers"),
     ("Self Contain", "Self Contain"),
-    ("Houses", "Houses")
+    ("Houses", "Houses"),
 ]
 
 
@@ -55,7 +55,7 @@ class Apartment(models.Model, HitCountMixin):
 
     agent = models.ForeignKey(get_user_model(), on_delete=models.DO_NOTHING)
     verified = models.BooleanField(default=False)
-    
+
     def property_ref_generator(self, length=10, chars=string.digits):
         value = "".join(random.choice(chars) for _ in range(length))
         while self.__class__.objects.filter(property_ref=value).exists():
@@ -66,18 +66,19 @@ class Apartment(models.Model, HitCountMixin):
     def save(self, **kwargs) -> None:
         self.property_ref = self.property_ref_generator()
         return super().save(**kwargs)
-    
-    def cover_pic(self):
-        return self.pictures.order_by('date_created').first()
 
+    def cover_pic(self):
+        return self.pictures.order_by("date_created").first()
 
     def __str__(self) -> str:
-        return f"{self.title}-- {self.id}" 
+        return f"{self.title}-- {self.id}"
 
+    @property
+    def clicks(self):
+        return self.hit_count.hits
 
     class Meta:
         ordering = ["category"]
-        
 
 
 class Picture(models.Model):
@@ -89,7 +90,6 @@ class Picture(models.Model):
 
     date_created = models.DateTimeField(auto_now_add=True)
     date_updated = models.DateTimeField(auto_now=True)
-    
 
 
 class Media(models.Model):
@@ -106,7 +106,7 @@ class Media(models.Model):
     date_updated = models.DateTimeField(auto_now=True)
 
     class Meta:
-        verbose_name_plural = "Media"
+        verbose_name = "Video"
 
 
 class Review(models.Model):

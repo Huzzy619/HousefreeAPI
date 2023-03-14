@@ -126,7 +126,7 @@ class ApartmentSerializer(serializers.ModelSerializer):
     agent = UserSerializer(read_only=True)
     pictures = PictureSerializer(many=True)
     videos = MediaSerializer(many=True)
-    clicks = serializers.SerializerMethodField()
+    # clicks = serializers.SerializerMethodField()
     verified = serializers.BooleanField(read_only=True)
     # cover_pic = serializers.SerializerMethodField()
 
@@ -162,6 +162,6 @@ class ApartmentSerializer(serializers.ModelSerializer):
     #     except:
     #         return None
 
-    @extend_schema_field(OpenApiTypes.INT)
-    def get_clicks(self, apartment):
-        return apartment.hit_count.hits
+    # @extend_schema_field(OpenApiTypes.INT)
+    # def get_clicks(self, apartment):
+    #     return apartment.hit_count.hits

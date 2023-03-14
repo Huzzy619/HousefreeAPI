@@ -3,7 +3,7 @@ from django.contrib.auth.models import Group, Permission
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.core.management.base import BaseCommand, CommandError, CommandParser
-from django.core.validators import EmailValidator
+from django.core.validators import validate_email
 
 from blog.models import Blog, Image
 
@@ -39,8 +39,7 @@ class Command(BaseCommand):
 
             for email in emails:
                 try:
-                    validate = EmailValidator()
-                    validate(email)
+                    validate_email(email)
                 except ValidationError as e:
                     raise CommandError(e.message)
 
