@@ -9,14 +9,17 @@ jobs:
 
     docker:
       - image: cimg/python:3.10.2
-   
+
+    parallelism: 4
     steps:
       - checkout
       - python/install-packages:
           pkg-manager: pip
       - run:
           name: Run tests
-          command: python manage.py test
+          command: |
+              TEST=$(circleci tests glob "**/test/*.py" | circleci tests split --split-by=timings)
+              python manage.py test $TEST --noinput
 
 workflows:
   run-build-test:
