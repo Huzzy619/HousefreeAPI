@@ -18,7 +18,7 @@ jobs:
       - run:
           name: Run tests
           command: |
-              TEST=$(circleci tests glob "**/test/*.py" | circleci tests split --split-by=timings)
+              TEST=$(circleci tests glob "**/tests/*.py" | circleci tests split --split-by=timings)
               python manage.py test $TEST --noinput
 
 workflows:
