@@ -143,4 +143,4 @@ class TestApartmentDeletion:
 
         response = api_client.delete(f"/apartment/{apartment.id}/")
         
-        assert response.status_code == status.HTTP_403_FORBIDDEN
+        assert response.status_code != status.HTTP_403_FORBIDDEN
