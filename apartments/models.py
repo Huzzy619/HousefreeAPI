@@ -64,7 +64,8 @@ class Apartment(models.Model, HitCountMixin):
         return value
 
     def save(self, **kwargs) -> None:
-        self.property_ref = self.property_ref_generator()
+        if not self.property_ref: 
+            self.property_ref = self.property_ref_generator()
         return super().save(**kwargs)
 
     def cover_pic(self):

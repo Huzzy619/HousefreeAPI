@@ -183,6 +183,7 @@ class MediaViewSet(ModelViewSet):
 
 
 class ReviewViewSet(ModelViewSet):
+    
     """
     Agents and other users can leave reviews on apartments
 

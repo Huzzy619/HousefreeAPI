@@ -126,7 +126,7 @@ class ApartmentSerializer(serializers.ModelSerializer):
     agent = UserSerializer(read_only=True)
     pictures = PictureSerializer(many=True)
     videos = MediaSerializer(many=True)
-    # clicks = serializers.SerializerMethodField()
+    short_address = serializers.SerializerMethodField()
     verified = serializers.BooleanField(read_only=True)
     # cover_pic = serializers.SerializerMethodField()
 
@@ -141,6 +141,7 @@ class ApartmentSerializer(serializers.ModelSerializer):
             "price",
             "state",
             "address",
+            "short_address",
             "map_link",
             "specifications",
             "descriptions",
@@ -153,15 +154,17 @@ class ApartmentSerializer(serializers.ModelSerializer):
             "videos",
         ]
 
-    # def get_cover_pic(self, apartment:Apartment):
+    def get_short_address(self, apartment:Apartment):
+        if ',' in apartment.address:
+            short = apartment.address.split(',')
+            short = short[-1]
+        else:
+            try:
+                short = apartment.address.split()
+                short = f"{short[-2]} {short[-1]}"
+            except:
+                short = apartment.address
 
-    #     obj = apartment.cover_pic()
+        return f"{short}, {apartment.state}" if short else apartment.state
+    
 
-    #     try:
-    #         return  obj.id # self.context['request'].build_absolute_uri(obj.image.url)
-    #     except:
-    #         return None
-
-    # @extend_schema_field(OpenApiTypes.INT)
-    # def get_clicks(self, apartment):
-    #     return apartment.hit_count.hits
