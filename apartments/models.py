@@ -73,6 +73,7 @@ class Apartment(models.Model, HitCountMixin):
 
     def __str__(self) -> str:
         return f"{self.title}-- {self.id}"
+    
 
     @property
     def clicks(self):
@@ -80,7 +81,6 @@ class Apartment(models.Model, HitCountMixin):
 
     class Meta:
         ordering = ["category"]
-
 
 class Picture(models.Model):
 

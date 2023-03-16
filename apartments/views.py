@@ -79,6 +79,7 @@ class ApartmentViewSet(ModelViewSet):
         return {"user": self.request.user, "request": self.request}
 
     def get_queryset(self):
+
         return (
             Apartment.objects.all()
             .prefetch_related("reviews", "pictures", "videos")

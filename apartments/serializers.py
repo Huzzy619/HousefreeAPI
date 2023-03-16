@@ -88,8 +88,10 @@ class CreatePictureSerializer(serializers.Serializer):
             Picture(image=img, apartment_id=self.context["apartment_pk"])
             for img in images
         ]
-
+        # 
         instance = Picture.objects.bulk_create(pics)
+
+        # Picture.objects.abulk_create
 
         # Since the `instance` is a list, a key has to be assigned to the instance so it can be accessed in the View Response
 
@@ -154,15 +156,23 @@ class ApartmentSerializer(serializers.ModelSerializer):
     def get_short_address(self, apartment: Apartment):
 
         #? Shortening the Address so it would look better on the frontend
-        
-        if "," in apartment.address:
-            short = apartment.address.split(",")[-1].strip()
-        elif len(apartment.address.split()) >= 2:
-            short = f"{apartment.address.split()[-2]} {apartment.address.split()[-1]}".strip()
-        else:
-            short = apartment.address
 
-        if short and short != apartment.state:
+        address_parts = apartment.address.rsplit(",", 2)
+        if len(address_parts) > 1:
+            short = address_parts[-1].strip()
+            if short.lower() == apartment.state.lower():
+                short = address_parts[-2].strip()
+        else:
+            address_parts = apartment.address.split()
+            if len(address_parts) >= 2:
+                short = " ".join(address_parts[-2:]).strip()
+                if apartment.state.lower() in short.lower():
+                    short = short.replace(apartment.state, "").strip()
+            else:
+                short = apartment.address
+
+        if short is not None and short.lower() != apartment.state.lower():
             return f"{short}, {apartment.state}"
         else:
             return apartment.state
+

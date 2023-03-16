@@ -83,7 +83,7 @@ class CustomRegisterSerializer(RegisterSerializer):
     is_agent = serializers.BooleanField(required=False)
 
     def custom_signup(self, request, user):
-        user_obj = get_user_model().objects.get(email=user)
+        user_obj = get_user_model().objects.get(email=user.email)
 
         user_obj.first_name = request.data.get("first_name", "")
         user_obj.last_name = request.data.get("last_name", "")
