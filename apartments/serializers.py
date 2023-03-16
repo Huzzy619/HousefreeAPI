@@ -37,11 +37,9 @@ class MediaSerializer(serializers.ModelSerializer):
 
 
 class CreateMediaSerializer(serializers.Serializer):
-    video = serializers.ListField(child=serializers.FileField(), allow_empty = False)
-
+    video = serializers.ListField(child=serializers.FileField(), allow_empty=False)
 
     def create(self, validated_data):
-
         videos = validated_data.pop("video")
 
         vids = [
@@ -78,13 +76,12 @@ class CreatePictureSerializer(serializers.Serializer):
         allow_empty - Designates if empty lists are allowed.
         min_length - Validates that the list contains no fewer than this number of elements.
         max_length - Validates that the list contains no more than this number of elements.
-    
+
     """
 
-    image = serializers.ListField(child=serializers.ImageField(), allow_empty = False)
+    image = serializers.ListField(child=serializers.ImageField(), allow_empty=False)
 
     def create(self, validated_data):
-
         images = validated_data.pop("image")
 
         pics = [
@@ -154,17 +151,18 @@ class ApartmentSerializer(serializers.ModelSerializer):
             "videos",
         ]
 
-    def get_short_address(self, apartment:Apartment):
-        if ',' in apartment.address:
-            short = apartment.address.split(',')
-            short = short[-1]
+    def get_short_address(self, apartment: Apartment):
+
+        #? Shortening the Address so it would look better on the frontend
+        
+        if "," in apartment.address:
+            short = apartment.address.split(",")[-1].strip()
+        elif len(apartment.address.split()) >= 2:
+            short = f"{apartment.address.split()[-2]} {apartment.address.split()[-1]}".strip()
         else:
-            try:
-                short = apartment.address.split()
-                short = f"{short[-2]} {short[-1]}"
-            except:
-                short = apartment.address
+            short = apartment.address
 
-        return f"{short}, {apartment.state}" if short else apartment.state
-    
-
+        if short and short != apartment.state:
+            return f"{short}, {apartment.state}"
+        else:
+            return apartment.state
