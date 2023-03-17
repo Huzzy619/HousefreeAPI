@@ -16,6 +16,7 @@ class BlogSerializer(serializers.ModelSerializer):
             "id",
             "title",
             "content",
+            "category",
             "author_name",
             "date_published",
             "image",
