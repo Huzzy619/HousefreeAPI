@@ -28,7 +28,6 @@ from .models import Apartment, Bookmark, Media, Picture, Review
 from .serializers import *
 from .tasks import perform_click
 
-
 class ApartmentViewSet(ModelViewSet):
     """
     Agent can create apartment and also make edits to previously uploaded apartments

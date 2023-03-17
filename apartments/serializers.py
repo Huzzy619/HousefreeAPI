@@ -1,5 +1,4 @@
-from drf_spectacular.types import OpenApiTypes
-from drf_spectacular.utils import extend_schema_field
+from django.contrib.humanize.templatetags.humanize import intcomma
 from rest_framework import serializers
 
 from core.serializers import UserSerializer
@@ -88,7 +87,7 @@ class CreatePictureSerializer(serializers.Serializer):
             Picture(image=img, apartment_id=self.context["apartment_pk"])
             for img in images
         ]
-        # 
+        #
         instance = Picture.objects.bulk_create(pics)
 
         # Picture.objects.abulk_create
@@ -127,6 +126,7 @@ class ApartmentSerializer(serializers.ModelSerializer):
     videos = MediaSerializer(many=True)
     short_address = serializers.SerializerMethodField()
     verified = serializers.BooleanField(read_only=True)
+    price = serializers.SerializerMethodField()
     # cover_pic = serializers.SerializerMethodField()
 
     class Meta:
@@ -155,7 +155,7 @@ class ApartmentSerializer(serializers.ModelSerializer):
 
     def get_short_address(self, apartment: Apartment):
 
-        #? Shortening the Address so it would look better on the frontend
+        # ? Shortening the Address so it would look better on the frontend
 
         address_parts = apartment.address.rsplit(",", 2)
         if len(address_parts) > 1:
@@ -176,3 +176,5 @@ class ApartmentSerializer(serializers.ModelSerializer):
         else:
             return apartment.state
 
+    def get_price(self, apartment):
+        return intcomma(apartment.price)
