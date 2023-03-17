@@ -177,4 +177,7 @@ class ApartmentSerializer(serializers.ModelSerializer):
             return apartment.state
 
     def get_price(self, apartment):
-        return intcomma(apartment.price)
+        price = intcomma(apartment.price)
+        if price.endswith("00"):
+            price = price.replace(".00", "")
+        return price
