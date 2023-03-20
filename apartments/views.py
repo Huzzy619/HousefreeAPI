@@ -20,7 +20,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 
-from core.permissions import IsFileOwner, IsOwner
+from utils.permissions import IsFileOwner, IsOwner
 from utils.permissions import IsAgent
 
 from .filters import ApartmentFilter
@@ -50,7 +50,7 @@ class ApartmentViewSet(ModelViewSet):
     filterset_class = ApartmentFilter
     http_method_names = ["get", "post", "put", "delete"]
     permission_classes = [IsOwner, IsAgent]
-    search_fields = ["location", "price", "category", "title"]
+    search_fields = ["address", "price", "category", "title"]
     ordering_fields = ["category"]
 
     @action(methods=["GET"], permission_classes=[IsAuthenticated], detail=False)

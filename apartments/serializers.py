@@ -19,6 +19,11 @@ class ReviewSerializer(serializers.ModelSerializer):
 
     def save(self, **kwargs):
         user = self.context["user"]
+        apartment_pk = self.context.get("apartment_pk", "")
+
+        if not Apartment.objects.filter(pk = apartment_pk ).exists():
+            raise serializers.ValidationError("No Apartment with the given ID")
+        
         return super().save(user=user, **self.validated_data)
 
 
@@ -41,8 +46,13 @@ class CreateMediaSerializer(serializers.Serializer):
     def create(self, validated_data):
         videos = validated_data.pop("video")
 
+        apartment_pk = self.context["apartment_pk"]
+
+        if not Apartment.objects.filter(pk = apartment_pk ).exists():
+            raise serializers.ValidationError("No Apartment with the given ID")
+
         vids = [
-            Media(video=vid, apartment_id=self.context["apartment_pk"])
+            Media(video=vid, apartment_id=apartment_pk)
             for vid in videos
         ]
 
@@ -54,14 +64,12 @@ class CreateMediaSerializer(serializers.Serializer):
 
 
 class PictureSerializer(serializers.ModelSerializer):
-    # image = serializers.SerializerMethodField()
 
     class Meta:
         model = Picture
         fields = ["id", "image"]  # "cover_pic"
 
     def get_image(self, obj: Picture):
-        # obj.apartment.
         return self.context["request"].build_absolute_uri(obj.image.url)
 
 
@@ -82,15 +90,19 @@ class CreatePictureSerializer(serializers.Serializer):
 
     def create(self, validated_data):
         images = validated_data.pop("image")
+        apartment_pk = self.context.get("apartment_pk", "")
+
+        if not Apartment.objects.filter(pk = apartment_pk ).exists():
+            raise serializers.ValidationError("No Apartment with the given ID")
 
         pics = [
-            Picture(image=img, apartment_id=self.context["apartment_pk"])
+            Picture(image=img, apartment_id= apartment_pk)
             for img in images
         ]
         #
-        instance = Picture.objects.bulk_create(pics)
+        
 
-        # Picture.objects.abulk_create
+        instance = Picture.objects.bulk_create(pics)
 
         # Since the `instance` is a list, a key has to be assigned to the instance so it can be accessed in the View Response
 

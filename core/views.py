@@ -30,7 +30,7 @@ from utils.permissions import IsAgent
 
 from .models import AgentDetails, Profile, User, UserSettings
 from .otp import OTPGenerator
-from .permissions import IsOwner
+from utils.permissions import IsOwner
 from .serializers import *
 from .signals import new_user_signal, verification_signal
 
