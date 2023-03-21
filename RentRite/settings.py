@@ -336,6 +336,7 @@ CACHES = {
     }
 }
 
+
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
@@ -353,6 +354,7 @@ LOGGING = {
             "handlers": ["file"],
             "propagate": True,
         },
+        
     },
     "formatters": {
         "verbose": {

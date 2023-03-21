@@ -1,15 +1,20 @@
 import requests
+from decouple import config
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.http import HttpRequest
 from rest_framework import generics, permissions, status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from decouple import config
-from django.http import HttpRequest
 
-from .models import Payment, Wallet
-from .serializers import CreateCardDepositFlutterwaveSerializer, CreatePaystackPaymentSerializer
+from .models import BankDetail, Payment, PaymentPlan, Wallet
+from .serializers import (
+    CreateCardDepositFlutterwaveSerializer,
+    CreatePaystackPaymentSerializer,
+    PaymentHistorySerializer,
+    PlanSerializer,
+)
 
 User = get_user_model()
 
@@ -40,7 +45,7 @@ class CreateCardDepositFlutterwaveAPIView(generics.GenericAPIView):
             metadata=serializer.validated_data["metadata"],
         )
         endpoint = "https://api.flutterwave.com/v3/payments"
-        
+
         # full_url = (
         #     scheme
         #     + "://"
@@ -112,16 +117,16 @@ class ConfirmCardDepositFlutterwave(generics.GenericAPIView):
             headers = {"Authorization": f"Bearer {settings.FLW_SECRET_KEY}"}
             response = requests.get(url, headers=headers)
             response = response.json()
-            transactionDetails = Payment.objects.filter(txn_ref=tx_ref).first()
+            transaction_details = Payment.objects.filter(txn_ref=tx_ref).first()
             if (
-                response["data"]["amount"] == transactionDetails.amount
+                response["data"]["amount"] == transaction_details.amount
                 and response["data"]["currency"] == "NGN"
             ):
-                transactionDetails.verified = True
-                transactionDetails.save()
-                recipient = transactionDetails.user
+                transaction_details.verified = True
+                transaction_details.save()
+                recipient = transaction_details.user
                 user_wallet = Wallet.objects.filter(user=recipient).first()
-                user_wallet.balance += transactionDetails.amount
+                user_wallet.balance += transaction_details.amount
                 user_wallet.save()
                 return Response(
                     {"success": "successful deposit"}, status=status.HTTP_200_OK
@@ -181,9 +186,9 @@ class PaystackPaymentView(APIView):
         }
         data = {
             "email": user.email,
-            "plan": serializer.validated_data['plan_id'],
-            "amount": serializer.validated_data['amount'],
-            "callback_url":  request.scheme + "://" + config("FRONTEND_URL", ""),
+            "plan": serializer.validated_data["plan_id"],
+            "amount": serializer.validated_data["amount"],
+            "callback_url": request.scheme + "://" + config("FRONTEND_URL", ""),
             "reference": payment.txn_ref,
             "metadata": metadata,
         }
@@ -221,3 +226,56 @@ class VerifyPaystackPayment(APIView):
 
 
 verify_paystack_payment = VerifyPaystackPayment.as_view()
+
+
+class BankDetailView(APIView):
+    def get(self, request, **kwargs):
+
+        detail = BankDetail.objects.first()
+        if detail:
+            return Response(detail.__dict__, status=status.HTTP_200_OK)
+        return Response(
+            {"details": "Bank details unavailable"}, status=status.HTTP_200_OK
+        )
+
+
+class PlanView(APIView):
+
+    serializer_class = PlanSerializer
+
+    def get(self, request, **kwargs):
+        plans = PaymentPlan.objects.all()
+        serializer = PlanSerializer(plans, many=True)
+        if plans:
+            Response(serializer.data, status=status.HTTP_200_OK)
+        return Response({"details": "no registered plans"}, status=status.HTTP_200_OK)
+
+
+class AgentSubscriptionView(APIView):
+
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, **kwargs):
+
+        wallet = Wallet.objects.get(user=request.user)
+        payment = Payment.objects.filter(user=request.user).latest("created_at")
+
+        plan = PaymentPlan.objects.get(plan_id=payment.payment_plan)
+        data = {
+            "email": request.user.email,
+            "account_id": wallet.account_id,
+            "current_subscription": plan.name,
+        }
+
+        return Response(data, status.HTTP_200_OK)
+
+
+class PaymentHistoryView(APIView):
+
+    serializer_class = PaymentHistorySerializer
+
+    def get(self, request):
+        payment = Payment.objects.filter(user=request.user)
+        serializer = self.serializer_class(payment, many=True)
+
+        return Response(serializer.data, status=status.HTTP_200_OK)

@@ -13,7 +13,7 @@ class Command(BaseCommand):
 
         try:
             current_dir = os.path.dirname(__file__)
-            file_path = os.path.join(current_dir, "seed.sql")
+            file_path = os.path.join(current_dir, "seed2.sql")
             sql = Path(file_path).read_text()
 
             with connection.cursor() as cursor:

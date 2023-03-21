@@ -1,6 +1,3 @@
-from datetime import timedelta
-
-import requests
 from django.http.request import HttpRequest
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
@@ -20,13 +17,12 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 
-from utils.permissions import IsFileOwner, IsOwner
-from utils.permissions import IsAgent
+from utils.permissions import IsAgent, IsFileOwner, IsOwner
 
 from .filters import ApartmentFilter
 from .models import Apartment, Bookmark, Media, Picture, Review
 from .serializers import *
-from .tasks import perform_click
+
 
 class ApartmentViewSet(ModelViewSet):
     """
@@ -70,9 +66,16 @@ class ApartmentViewSet(ModelViewSet):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def get_serializer_class(self):
-        if self.request.method in SAFE_METHODS:
+        if not self.request.method in SAFE_METHODS:
+            return CreateApartmentSerializer
+
+        # Checking if the endpoint been accessed is list or retrieve
+        path = self.request.get_full_path(force_append_slash=True)
+        url_split = path.split("/")
+        if url_split[-2].isdigit():
             return ApartmentSerializer
-        return CreateApartmentSerializer
+
+        return SimpleApartmentSerializer
 
     def get_serializer_context(self):
         return {"user": self.request.user, "request": self.request}
@@ -88,11 +91,11 @@ class ApartmentViewSet(ModelViewSet):
     def retrieve(self, request: HttpRequest, *args, **kwargs):
 
         # Do a hit count
-        
-        hit_count = HitCount.objects.get_for_object(self.get_object())
-        
-        HitCountMixin.hit_count(request, hit_count)
 
+        hit_count = HitCount.objects.get_for_object(self.get_object())
+
+        hit_response = HitCountMixin.hit_count(request, hit_count)
+        
         return super().retrieve(request, *args, **kwargs)
 
     # @method_decorator(cache_page(timedelta(minutes=30).total_seconds()))
@@ -183,7 +186,7 @@ class MediaViewSet(ModelViewSet):
 
 
 class ReviewViewSet(ModelViewSet):
-    
+
     """
     Agents and other users can leave reviews on apartments
 

@@ -1,7 +1,7 @@
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
-from .models import Payment
+from .models import Payment, PaymentPlan
 
 User = get_user_model()
 
@@ -31,3 +31,19 @@ class CreatePaystackPaymentSerializer(serializers.Serializer):
     email = serializers.EmailField()
     plan_id = serializers.CharField()
     metadata = serializers.JSONField()
+
+
+class PlanSerializer(serializers.ModelSerializer):
+
+    class Meta: 
+        model = PaymentPlan
+        exclude = ('id',)
+        # fields = "__all__"
+
+
+
+class PaymentHistorySerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Payment
+        fields = ['id','amount', 'payment_plan']

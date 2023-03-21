@@ -136,10 +136,8 @@ class ApartmentSerializer(serializers.ModelSerializer):
     agent = UserSerializer(read_only=True)
     pictures = PictureSerializer(many=True)
     videos = MediaSerializer(many=True)
-    short_address = serializers.SerializerMethodField()
     verified = serializers.BooleanField(read_only=True)
     price = serializers.SerializerMethodField()
-    # cover_pic = serializers.SerializerMethodField()
 
     class Meta:
         model = Apartment
@@ -152,7 +150,6 @@ class ApartmentSerializer(serializers.ModelSerializer):
             "price",
             "state",
             "address",
-            "short_address",
             "map_link",
             "specifications",
             "descriptions",
@@ -161,9 +158,47 @@ class ApartmentSerializer(serializers.ModelSerializer):
             "clicks",
             "agent",
             "pictures",
-            # "cover_pic",
             "videos",
         ]
+
+
+    def get_price(self, apartment):
+        price = intcomma(apartment.price)
+        if price.endswith("00"):
+            price = price.replace(".00", "")
+        return price
+
+
+class SimpleApartmentSerializer(serializers.ModelSerializer):
+
+    price = serializers.SerializerMethodField()
+    short_address = serializers.SerializerMethodField()
+    pictures = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Apartment
+        fields = [
+            "id",
+            "title",
+            "price",
+            "short_address",
+            "pictures"
+        ]
+
+    
+    def get_pictures(self, apartment:Apartment):
+        if apartment.pictures.count() >= 1 :
+            first_picture = apartment.pictures.first()
+
+            request = self.context.get('request')
+            return [request.build_absolute_uri(first_picture.image.url)]
+        return []
+    
+    def get_price(self, apartment):
+        price = intcomma(apartment.price)
+        if price.endswith("00"):
+            price = price.replace(".00", "")
+        return price
 
     def get_short_address(self, apartment: Apartment):
 
@@ -187,9 +222,3 @@ class ApartmentSerializer(serializers.ModelSerializer):
             return f"{short}, {apartment.state}"
         else:
             return apartment.state
-
-    def get_price(self, apartment):
-        price = intcomma(apartment.price)
-        if price.endswith("00"):
-            price = price.replace(".00", "")
-        return price

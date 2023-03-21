@@ -1,4 +1,6 @@
+import random
 import secrets
+import string
 
 from django.contrib.auth import get_user_model
 from django.db import models
@@ -61,6 +63,41 @@ class Wallet(models.Model):
     user = models.OneToOneField(get_user_model(), on_delete=models.CASCADE)
     balance = models.PositiveIntegerField(default=0)
     currency = models.CharField(default="NGN", max_length=100)
+    account_id = models.IntegerField()
+
+    def account_id_generator(self, length=10, chars=string.digits):
+        value = "".join(random.choice(chars) for _ in range(length))
+        while self.__class__.objects.filter(account_id=value).exists():
+            value = "".join(random.choice(chars) for _ in range(length))
+
+        return int(value)
 
     def __str__(self):
         return f"{self.user}: {self.balance} {self.currency}"
+
+    def save(self, **kwargs) -> None:
+        if not self.account_id:
+            self.account_id = self.account_id_generator()
+        return super().save(**kwargs)
+
+
+class PaymentPlan(models.Model):
+    PERIODS = [
+        ("month", "month"),
+        ("bi-weekly", "bi-weekly"),
+        ("6-months", "6-months"),
+        ("year", "year"),
+    ]
+    plan_id = models.CharField(unique=True, max_length=50, verbose_name="Plan ID")
+    name = models.CharField(max_length=50)
+    price = models.DecimalField(max_digits=6, decimal_places=2)
+    period = models.CharField(max_length=50, choices=PERIODS)
+    property_listings = models.IntegerField()
+    premium_listings = models.IntegerField()
+    post_boost = models.IntegerField()
+
+
+class BankDetail(models.Model):
+    account_number = models.IntegerField()
+    account_name = models.CharField(max_length=500)
+    bank_name = models.CharField(max_length=500)
