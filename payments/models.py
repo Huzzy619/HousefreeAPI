@@ -63,7 +63,7 @@ class Wallet(models.Model):
     user = models.OneToOneField(get_user_model(), on_delete=models.CASCADE)
     balance = models.PositiveIntegerField(default=0)
     currency = models.CharField(default="NGN", max_length=100)
-    account_id = models.IntegerField()
+    account_id = models.IntegerField(default=1)
 
     def account_id_generator(self, length=10, chars=string.digits):
         value = "".join(random.choice(chars) for _ in range(length))
