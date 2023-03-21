@@ -183,15 +183,16 @@ class SimpleApartmentSerializer(serializers.ModelSerializer):
             "price",
             "short_address",
             "pictures", 
-            "agent"
+            "agent", 
+            "category", 
+            "_type"
         ]
     
     def get_pictures(self, apartment:Apartment):
         if apartment.pictures.count() >= 1 :
             first_picture = apartment.pictures.first()
 
-            request = self.context.get('request')
-            return [request.build_absolute_uri(first_picture.image.url)]
+            return  [PictureSerializer(first_picture).data]
         return []
     
     def get_price(self, apartment):
