@@ -126,23 +126,23 @@ CHANNEL_LAYERS = {
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
-    },
+    # "default": {
+    #     "ENGINE": "django.db.backends.sqlite3",
+    #     "NAME": BASE_DIR / "db.sqlite3",
+    # },
     
     # The Multiple database system is not implemented yet
     # "info_db": {
     #     "ENGINE": "django.db.backends.sqlite3",
     #     "NAME": BASE_DIR / "infodb.sqlite3",
     # },
-    # "default":{
-    #     "ENGINE": "django.db.backends.postgresql",
-    #     "NAME": "housefree",
-    #     "USER": "postgres",
-    #     "PASSWORD": "0509",
-    #     "HOST": "localhost"
-    # }
+    "default":{
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": "housefree2",
+        "USER": "postgres",
+        "PASSWORD": "0509",
+        "HOST": "localhost"
+    }
 }
 
 
