@@ -92,6 +92,18 @@ class CustomRegisterSerializer(RegisterSerializer):
 
         pass
 
+class SimpleUserSerializer(serializers.ModelSerializer):
+
+    name = serializers.SerializerMethodField()
+
+    class Meta:
+        model  = get_user_model()
+        fields = ['name']
+
+    @extend_schema_field(OpenApiTypes.STR)
+    def get_name(self, obj):
+        return obj.get_full_name()
+
 
 class UserSerializer(serializers.ModelSerializer):
     name = serializers.SerializerMethodField()

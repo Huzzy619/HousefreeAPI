@@ -1,7 +1,7 @@
 from django.contrib.humanize.templatetags.humanize import intcomma
 from rest_framework import serializers
 
-from core.serializers import UserSerializer
+from core.serializers import UserSerializer, SimpleUserSerializer
 
 from .models import Apartment, Bookmark, Media, Picture, Review
 
@@ -133,7 +133,6 @@ class CreateApartmentSerializer(serializers.ModelSerializer):
 
 class ApartmentSerializer(serializers.ModelSerializer):
     # apartment_type = serializers.CharField(source = '_type')
-    agent = UserSerializer(read_only=True)
     pictures = PictureSerializer(many=True)
     videos = MediaSerializer(many=True)
     verified = serializers.BooleanField(read_only=True)
@@ -171,6 +170,7 @@ class ApartmentSerializer(serializers.ModelSerializer):
 
 class SimpleApartmentSerializer(serializers.ModelSerializer):
 
+    agent = SimpleUserSerializer(read_only=True)
     price = serializers.SerializerMethodField()
     short_address = serializers.SerializerMethodField()
     pictures = serializers.SerializerMethodField()
@@ -182,9 +182,9 @@ class SimpleApartmentSerializer(serializers.ModelSerializer):
             "title",
             "price",
             "short_address",
-            "pictures"
+            "pictures", 
+            "agent"
         ]
-
     
     def get_pictures(self, apartment:Apartment):
         if apartment.pictures.count() >= 1 :
