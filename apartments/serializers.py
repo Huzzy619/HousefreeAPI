@@ -137,6 +137,9 @@ class ApartmentSerializer(serializers.ModelSerializer):
     videos = MediaSerializer(many=True)
     verified = serializers.BooleanField(read_only=True)
     price = serializers.SerializerMethodField()
+    agent = UserSerializer(read_only=True)
+    short_address = serializers.SerializerMethodField()
+
 
     class Meta:
         model = Apartment
@@ -149,6 +152,7 @@ class ApartmentSerializer(serializers.ModelSerializer):
             "price",
             "state",
             "address",
+            "short_address",
             "map_link",
             "specifications",
             "descriptions",
@@ -158,6 +162,8 @@ class ApartmentSerializer(serializers.ModelSerializer):
             "agent",
             "pictures",
             "videos",
+            "date_created", 
+            "date_updated"
         ]
 
 
@@ -167,6 +173,28 @@ class ApartmentSerializer(serializers.ModelSerializer):
             price = price.replace(".00", "")
         return price
 
+    def get_short_address(self, apartment: Apartment):
+
+        # ? Shortening the Address so it would look better on the frontend
+
+        address_parts = apartment.address.rsplit(",", 2)
+        if len(address_parts) > 1:
+            short = address_parts[-1].strip()
+            if short.lower() == apartment.state.lower():
+                short = address_parts[-2].strip()
+        else:
+            address_parts = apartment.address.split()
+            if len(address_parts) >= 2:
+                short = " ".join(address_parts[-2:]).strip()
+                if apartment.state.lower() in short.lower():
+                    short = short.replace(apartment.state, "").strip()
+            else:
+                short = apartment.address
+
+        if short is not None and short.lower() != apartment.state.lower():
+            return f"{short}, {apartment.state}"
+        else:
+            return apartment.state
 
 class SimpleApartmentSerializer(serializers.ModelSerializer):
 

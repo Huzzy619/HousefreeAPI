@@ -123,7 +123,7 @@ class UserSerializer(serializers.ModelSerializer):
         try:
             if obj.is_agent:
                 status = obj.agent_details.is_verified
-                return "Verified" if status else "Unverified"
+                return "verified" if status else "unverified"
         except:
             return None
 
