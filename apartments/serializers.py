@@ -162,8 +162,8 @@ class ApartmentSerializer(serializers.ModelSerializer):
             "agent",
             "pictures",
             "videos",
-            "date_created", 
-            "date_updated"
+            # "date_created", 
+            # "date_updated"
         ]
 
 
