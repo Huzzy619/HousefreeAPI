@@ -66,16 +66,16 @@ class ApartmentViewSet(ModelViewSet):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def get_serializer_class(self):
-        if not self.request.method in SAFE_METHODS:
+        if self.request.method not in SAFE_METHODS:
             return CreateApartmentSerializer
 
         # Checking if the endpoint been accessed is list or retrieve
-        path = self.request.get_full_path(force_append_slash=True)
-        url_split = path.split("/")
-        if url_split[-2].isdigit():
-            return ApartmentSerializer
+        # path = self.request.get_full_path(force_append_slash=True)
+        # url_split = path.split("/")
+        # if url_split[-2].isdigit():
+        return ApartmentSerializer
 
-        return SimpleApartmentSerializer
+        # return SimpleApartmentSerializer
 
     def get_serializer_context(self):
         return {"user": self.request.user, "request": self.request}
@@ -94,7 +94,7 @@ class ApartmentViewSet(ModelViewSet):
 
         hit_count = HitCount.objects.get_for_object(self.get_object())
 
-        hit_response = HitCountMixin.hit_count(request, hit_count)
+        HitCountMixin.hit_count(request, hit_count)
         
         return super().retrieve(request, *args, **kwargs)
 
