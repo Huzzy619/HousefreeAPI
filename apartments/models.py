@@ -53,9 +53,6 @@ class Apartment(models.Model, HitCountMixin):
         HitCount, object_id_field="object_pk", related_query_name="clicks_relation"
     )
 
-    # date_created = models.DateTimeField(auto_now_add=True)
-    # date_updated = models.DateTimeField(auto_now=True)
-
     agent = models.ForeignKey(get_user_model(), on_delete=models.DO_NOTHING)
     verified = models.BooleanField(default=False)
 
