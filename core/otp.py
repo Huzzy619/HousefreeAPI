@@ -8,7 +8,7 @@ from core.models import OTP
 
 class OTPGenerator:
     """
-    secret_key(Base32): is needed to generate and veriiy the otp securely
+    secret_key(Base32): is needed to generate and verify the otp securely
     processed_id: is the first 4 digit of a UUID object type casted to Integer
     counter: keeps track of otp request made by a user.
     value: makes each request unique by adding processed_id and counter
