@@ -138,7 +138,7 @@ DATABASES = {
     # },
     # "default":{
     #     "ENGINE": "django.db.backends.postgresql",
-    #     "NAME": "housefree2",
+    #     "NAME": "testrailway3",
     #     "USER": "postgres",
     #     "PASSWORD": "0509",
     #     "HOST": "localhost"
@@ -215,7 +215,8 @@ SPECTACULAR_SETTINGS = {
     "REDOC_DIST": "SIDECAR",
     # "ENUM_NAME_OVERRIDES" :{"Category57aEnum": "CategoryEnum"}
     # OTHER SETTINGS
-
+    "DISABLE_ERRORS_AND_WARNINGS": True,
+    "SCHEMA_COERCE_PATH_PK_SUFFIX": True,
 }
 
 
@@ -307,8 +308,15 @@ PAYSTACK_SECRET_KEY = config("PAYSTACK_SECRET_KEY", default="")
 
 
 # ? HITCOUNT SETTINGS
+# Limit the number of active Hits from a single IP address. 0 means that it is unlimited.
 HITCOUNT_HITS_PER_IP_LIMIT = 1
-HITCOUNT_KEEP_HIT_ACTIVE = {"days": 2}
+
+# This is the number of days, weeks, months, hours, etc (using a timedelta keyword argument), that an Hit is kept active. 
+# If a Hit is active a repeat viewing will not be counted. 
+# After the active period ends, however, a new Hit will be recorded. 
+# You can decide how long you want this period to last and it is probably a matter of preference
+HITCOUNT_KEEP_HIT_ACTIVE = {"days": 1}
+
 
 CELERY_BROKER_URL = REDIS_URL
 

@@ -1,6 +1,4 @@
 import asyncio
-import os
-from datetime import datetime, timedelta, timezone
 
 from allauth.account import app_settings as allauth_settings
 from allauth.account.models import EmailAddress
@@ -10,12 +8,11 @@ from asgiref.sync import async_to_sync
 from decouple import config
 from dj_rest_auth.registration.views import RegisterView, SocialLoginView
 from dj_rest_auth.utils import jwt_encode
-from dj_rest_auth.views import LoginView, PasswordChangeView, PasswordResetView
+from dj_rest_auth.views import PasswordChangeView, PasswordResetView
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
 from drf_spectacular.utils import extend_schema
-from jose import JWTError, jwt
 from rest_framework import status
 from rest_framework.generics import CreateAPIView
 from rest_framework.mixins import ListModelMixin, UpdateModelMixin
@@ -26,11 +23,10 @@ from rest_framework.viewsets import GenericViewSet, ModelViewSet
 
 from core.signals import reset_password_signal
 from utils.auth.agent_verification import agent_identity_verification
-from utils.permissions import IsAgent
+from utils.permissions import IsAgent, IsOwner
 
-from .models import AgentDetails, Profile, User, UserSettings
+from .models import AgentDetails, Profile, UserSettings
 from .otp import OTPGenerator
-from utils.permissions import IsOwner
 from .serializers import *
 from .signals import new_user_signal, verification_signal
 
@@ -148,7 +144,7 @@ class AgentDetailsView(CreateAPIView):
     @async_to_sync
     async def create(self, request, *args, **kwargs):
 
-        serializer = self.get_serializer(data=request.data)
+        serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
         front_image = serializer.validated_data["id_front"]
         back_image = serializer.validated_data["id_back"]
@@ -273,103 +269,3 @@ class GoogleLogin(CustomSocialLoginView):
     callback_url = config("CALLBACK_URL", default_call_back_url)
 
     client_class = OAuth2Client
-
-
-#! I dont think we need this for now
-
-
-# class SendVerificationTokenView(APIView):
-#     """
-#     An endpoint that encodes user data and generate JWT token
-
-#     Args:
-
-#         Email
-
-#     Response:
-
-#         HTTP_201_CREATED- if token for user is generated successfully
-
-#     Raise:
-
-#         HTTP_404_NOT_FOUND- if a user with supplied email does not exist
-#     """
-
-#     permission_classes = [AllowAny]
-#     serializer_class = EmailSerializer
-
-#     def post(self, request):
-
-#         serializer = EmailSerializer(data=request.data)
-#         serializer.is_valid(raise_exception=True)
-#         user = get_object_or_404(User, email=serializer.validated_data["email"])
-#         expiration_time = datetime.now(timezone.utc) + timedelta(seconds=600)
-#         encode_user_data = {"user_id": str(user.id), "expire": str(expiration_time)}
-#         encoded_jwt = jwt.encode(
-#             encode_user_data, settings.SECRET_KEY, algorithm="HS256"
-#         )
-#         return Response(data=encoded_jwt, status=status.HTTP_201_CREATED)
-
-
-# class TokenVerificationView(APIView):
-#     """
-#     An email verification endpoint
-
-#     Args:
-
-#         token
-
-#     Response:
-
-#         HTTP_200_OK- if email verification is successful
-
-#     Raise:
-
-#         HTTP_404_NOT_FOUND- if a user with supplied ID does not exist
-
-#         HTTP_400_BAD_REQUEST- if credential validation is unsuccessful or token has expired
-#     """
-
-#     permission_classes = [AllowAny]
-#     serializer_class = TokenSerializer
-
-#     def post(self, request):
-
-#         serializer = TokenSerializer(data=request.data)
-#         serializer.is_valid(raise_exception=True)
-
-#         token = serializer.validated_data["token"]
-
-#         credentials_exception = Response(
-#             status=status.HTTP_400_BAD_REQUEST,
-#             data="Could not validate credentials",
-#         )
-
-#         try:
-#             # Decodes token
-#             payload = jwt.decode(token, settings.SECRET_KEY, algorithms="HS256")
-#             user_id: str = payload.get("user_id")
-#             expire = payload.get("expire")
-#             if user_id is None or expire is None:
-#                 raise credentials_exception
-#         except JWTError as e:
-#             msg = {"error": e, "time": datetime.now().strftime("%m/%d/%Y, %H:%M:%S")}
-
-#             return credentials_exception
-
-#         # Check token expiration
-#         if str(datetime.now(timezone.utc)) > expire:
-#             return Response(
-#                 status=status.HTTP_401_UNAUTHORIZED,
-#                 data="Token expired or invalid!",
-#             )
-
-#         user = get_object_or_404(User, id=user_id)
-#         get_allauth = get_object_or_404(EmailAddress, user=user)
-
-#         if get_allauth.verified == True:
-#             return Response("email already verified", status=status.HTTP_403_FORBIDDEN)
-
-#         get_allauth.verified = True
-#         get_allauth.save()
-#         return Response("verification successful", status=status.HTTP_200_OK)

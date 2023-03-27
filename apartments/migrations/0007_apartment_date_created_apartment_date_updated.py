@@ -9,7 +9,6 @@ class Migration(migrations.Migration):
     dependencies = [
         ("apartments", "0006_alter_media_options"),
     ]
-
     operations = [
         migrations.AddField(
             model_name="apartment",

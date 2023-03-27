@@ -107,34 +107,43 @@ class SimpleUserSerializer(serializers.ModelSerializer):
 
 class UserSerializer(serializers.ModelSerializer):
     name = serializers.SerializerMethodField()
-    status = serializers.SerializerMethodField()
+    is_verified = serializers.SerializerMethodField(method_name="get_status")
     phone = serializers.SerializerMethodField()
+    address = serializers.SerializerMethodField() 
 
     class Meta:
         model = get_user_model()
-        fields = ["id", "name", "email", "is_agent", "date_joined", "status", "phone"]
+        fields = ["id", "name", "email", "is_agent", "date_joined", "is_verified", "phone", "address"]
 
     @extend_schema_field(OpenApiTypes.STR)
     def get_name(self, obj):
         return obj.get_full_name()
 
     @extend_schema_field(OpenApiTypes.STR)
-    def get_status(self, obj):
+    def get_status(self, obj: get_user_model()):
         try:
             if obj.is_agent:
                 status = obj.agent_details.is_verified
-                return "verified" if status else "unverified"
-        except:
-            return None
+                return status
+        except Exception:
+            return False 
 
     @extend_schema_field(OpenApiTypes.STR)
     def get_phone(self, obj):
         try:
             if obj.is_agent:
                 return str(obj.agent_details.phone)
-        except:
+        except Exception:
             return None
 
+    @extend_schema_field(OpenApiTypes.STR)
+    def get_address(self, obj):
+        try:
+            if obj.is_agent:
+                return str(obj.profile.location)
+        except Exception:
+            return ""
+        return ""
 
 class OTPSerializer(serializers.Serializer):
     email = serializers.EmailField()

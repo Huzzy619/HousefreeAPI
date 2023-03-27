@@ -1,7 +1,4 @@
 from django.http.request import HttpRequest
-from django.utils.decorators import method_decorator
-from django.views.decorators.cache import cache_page
-from django.views.decorators.vary import vary_on_cookie, vary_on_headers
 from django_filters.rest_framework import DjangoFilterBackend
 from hitcount.models import HitCount
 from hitcount.views import HitCountMixin
@@ -95,7 +92,7 @@ class ApartmentViewSet(ModelViewSet):
         hit_count = HitCount.objects.get_for_object(self.get_object())
 
         HitCountMixin.hit_count(request, hit_count)
-        
+
         return super().retrieve(request, *args, **kwargs)
 
     # @method_decorator(cache_page(timedelta(minutes=30).total_seconds()))
