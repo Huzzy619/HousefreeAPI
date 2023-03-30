@@ -15,10 +15,11 @@ class ApartmentFilter(FilterSet):
     # Same with this fields, Probably because of the look_up
     # With this setuo, one can simplify the name of the attribute passed in the query parameter
     address = CharFilter(field_name="address", lookup_expr="icontains")
-    agent_first_name = CharFilter(
-        field_name="agent__first_name", lookup_expr="icontains"
-    )
-    agent_last_name = CharFilter(field_name="agent__last_name", lookup_expr="icontains")
+    # agent_first_name = CharFilter(
+    #     field_name="agent__first_name", lookup_expr="icontains"
+    # )
+    # agent_last_name = CharFilter(field_name="agent__last_name", lookup_expr="icontains")
+    agent_id = CharFilter(field_name="agent_id", lookup_expr="exact")
 
     class Meta:
         model = Apartment

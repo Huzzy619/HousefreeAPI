@@ -27,7 +27,16 @@ CATEGORY_TYPE = [
 ]
 
 
-class Apartment(models.Model, HitCountMixin):
+class BaseModel(models.Model):
+
+    date_created = models.DateTimeField(auto_now_add=True)
+    date_updated = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        abstract = True
+
+
+class Apartment(BaseModel, HitCountMixin):
 
     guid = models.UUIDField(
         default=uuid.uuid4,
@@ -53,9 +62,6 @@ class Apartment(models.Model, HitCountMixin):
         HitCount, object_id_field="object_pk", related_query_name="clicks_relation"
     )
 
-    date_created = models.DateTimeField(auto_now_add=True)
-    date_updated = models.DateTimeField(auto_now=True)
-
     agent = models.ForeignKey(get_user_model(), on_delete=models.DO_NOTHING)
     verified = models.BooleanField(default=False)
 
@@ -67,7 +73,7 @@ class Apartment(models.Model, HitCountMixin):
         return value
 
     def save(self, **kwargs) -> None:
-        if not self.property_ref: 
+        if not self.property_ref:
             self.property_ref = self.property_ref_generator()
         return super().save(**kwargs)
 
@@ -76,7 +82,6 @@ class Apartment(models.Model, HitCountMixin):
 
     def __str__(self) -> str:
         return f"{self.title}-- {self.id}"
-    
 
     @property
     def clicks(self):
@@ -85,18 +90,16 @@ class Apartment(models.Model, HitCountMixin):
     class Meta:
         ordering = ["category"]
 
-class Picture(models.Model):
+
+class Picture(BaseModel):
 
     image = models.ImageField(upload_to="apartments")
     apartment = models.ForeignKey(
         Apartment, on_delete=models.CASCADE, related_name="pictures"
     )
 
-    date_created = models.DateTimeField(auto_now_add=True)
-    date_updated = models.DateTimeField(auto_now=True)
 
-
-class Media(models.Model):
+class Media(BaseModel):
 
     video = models.FileField(
         upload_to="apartment/videos",
@@ -106,23 +109,17 @@ class Media(models.Model):
         Apartment, on_delete=models.CASCADE, related_name="videos"
     )
 
-    date_created = models.DateTimeField(auto_now_add=True)
-    date_updated = models.DateTimeField(auto_now=True)
-
     class Meta:
         verbose_name = "Video"
 
 
-class Review(models.Model):
+class Review(BaseModel):
 
     text = models.TextField()
     user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
     apartment = models.ForeignKey(
         Apartment, on_delete=models.CASCADE, related_name="reviews"
     )
-
-    date_created = models.DateTimeField(auto_now_add=True)
-    date_updated = models.DateTimeField(auto_now=True)
 
     class Meta:
         ordering = ["-date_updated"]
