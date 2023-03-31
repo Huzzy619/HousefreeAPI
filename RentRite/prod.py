@@ -17,13 +17,13 @@ ALLOWED_HOSTS = [
 CSRF_TRUSTED_ORIGINS = ["https://" + host for host in ALLOWED_HOSTS]
 
 # DATABASES = {"default": dj_database_url.config()}
-DATABASES = {
-    "default": dj_database_url.parse(
-        config("RAILWAY_DB_URL", ""),
-        conn_max_age=600,
-        conn_health_checks=True,
-    )
-}
+# DATABASES = {
+#     "default": dj_database_url.parse(
+#         config("RAILWAY_DB_URL", ""),
+#         conn_max_age=600,
+#         conn_health_checks=True,
+#     )
+# }
 
 INSTALLED_APPS.remove("debug_toolbar")
 MIDDLEWARE.remove("debug_toolbar.middleware.DebugToolbarMiddleware")
