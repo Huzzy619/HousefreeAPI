@@ -1,5 +1,5 @@
 from django.db import models
-from django_filters import CharFilter, FilterSet
+from django_filters import CharFilter, FilterSet, NumericRangeFilter
 
 from .models import Apartment
 
@@ -11,14 +11,11 @@ class ApartmentFilter(FilterSet):
     bedrooms = CharFilter(field_name="specifications__bedrooms", lookup_expr="exact")
     toilets = CharFilter(field_name="specifications__toilets", lookup_expr="exact")
     bathrooms = CharFilter(field_name="specifications__bathrooms", lookup_expr="exact")
+    price = NumericRangeFilter(field_name="price", lookup_expr="range")
 
     # Same with this fields, Probably because of the look_up
     # With this setuo, one can simplify the name of the attribute passed in the query parameter
     address = CharFilter(field_name="address", lookup_expr="icontains")
-    # agent_first_name = CharFilter(
-    #     field_name="agent__first_name", lookup_expr="icontains"
-    # )
-    # agent_last_name = CharFilter(field_name="agent__last_name", lookup_expr="icontains")
     agent_id = CharFilter(field_name="agent_id", lookup_expr="exact")
 
     class Meta:
@@ -28,7 +25,6 @@ class ApartmentFilter(FilterSet):
             "_type": ["exact"],
             "state": ["exact"],
             "property_ref": ["exact"],
-            "price": ["gte", "lte"],
         }
 
     def filter_queryset(self, queryset):
