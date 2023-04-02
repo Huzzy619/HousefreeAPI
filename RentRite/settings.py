@@ -136,13 +136,13 @@ DATABASES = {
     #     "ENGINE": "django.db.backends.sqlite3",
     #     "NAME": BASE_DIR / "infodb.sqlite3",
     # },
-    # "default":{
-    #     "ENGINE": "django.db.backends.postgresql",
-    #     "NAME": "housefree",
-    #     "USER": "postgres",
-    #     "PASSWORD": "0509",
-    #     "HOST": "localhost"
-    # }
+    "default1":{
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": "testrailway3",
+        "USER": "postgres",
+        "PASSWORD": "0509", 
+        "HOST": "localhost"
+    }
 }
 
 

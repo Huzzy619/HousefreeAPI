@@ -1,4 +1,9 @@
+from datetime import timedelta
+
 from django.http.request import HttpRequest
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
+from django.views.decorators.vary import vary_on_headers, vary_on_cookie
 from django_filters.rest_framework import DjangoFilterBackend
 from hitcount.models import HitCount
 from hitcount.views import HitCountMixin
@@ -47,8 +52,8 @@ class ApartmentViewSet(ModelViewSet):
     ordering_fields = ["category"]
 
     @action(methods=["GET"], permission_classes=[IsAuthenticated], detail=False)
-    # @method_decorator(cache_page(timedelta(hours=1).total_seconds()))
-    # @method_decorator(vary_on_headers)
+    @method_decorator(cache_page(timedelta(hours=1).total_seconds()))
+    @method_decorator(vary_on_headers("Authorization",))
     def mine(self, request):
         """
         Returns all the apartments owned by the currently logged in agent
@@ -95,7 +100,8 @@ class ApartmentViewSet(ModelViewSet):
 
         return super().retrieve(request, *args, **kwargs)
 
-    # @method_decorator(cache_page(timedelta(minutes=30).total_seconds()))
+    @method_decorator(cache_page(timedelta(hours=1).total_seconds()))
+    # @method_decorator(vary_on_headers("Authorization",))
     def list(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)
 
