@@ -136,7 +136,7 @@ class ApartmentSerializer(serializers.ModelSerializer):
     pictures = PictureSerializer(many=True)
     videos = MediaSerializer(many=True)
     verified = serializers.BooleanField(read_only=True)
-    price = serializers.SerializerMethodField()
+    f_price = serializers.SerializerMethodField()
     agent = UserSerializer(read_only=True)
     short_address = serializers.SerializerMethodField()
 
@@ -150,6 +150,7 @@ class ApartmentSerializer(serializers.ModelSerializer):
             "category",
             "_type",
             "price",
+            "f_price",
             "state",
             "address",
             "short_address",
@@ -167,7 +168,7 @@ class ApartmentSerializer(serializers.ModelSerializer):
         ]
 
 
-    def get_price(self, apartment):
+    def get_f_price(self, apartment):
         price = intcomma(apartment.price)
         if price.endswith("00"):
             price = price.replace(".00", "")
