@@ -139,6 +139,7 @@ class ApartmentSerializer(serializers.ModelSerializer):
     f_price = serializers.SerializerMethodField()
     agent = UserSerializer(read_only=True)
     short_address = serializers.SerializerMethodField()
+    id = serializers.UUIDField(source = "guid")
 
 
     class Meta:
