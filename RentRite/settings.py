@@ -126,7 +126,7 @@ CHANNEL_LAYERS = {
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
 DATABASES = {
-    "default": {
+    "default1": {
         "ENGINE": "django.db.backends.sqlite3",
         "NAME": BASE_DIR / "db.sqlite3",
     },
@@ -136,7 +136,7 @@ DATABASES = {
     #     "ENGINE": "django.db.backends.sqlite3",
     #     "NAME": BASE_DIR / "infodb.sqlite3",
     # },
-    "default1":{
+    "default":{
         "ENGINE": "django.db.backends.postgresql",
         "NAME": "testrailway3",
         "USER": "postgres",

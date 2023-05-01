@@ -147,6 +147,7 @@ class ApartmentSerializer(serializers.ModelSerializer):
             "id",
             "property_ref",
             "title",
+            "slug",
             "category",
             "_type",
             "price",

@@ -25,6 +25,12 @@ from .filters import ApartmentFilter
 from .models import Apartment, Bookmark, Media, Picture, Review
 from .serializers import *
 
+from django.http import HttpResponse
+
+def hello(request):
+    for apartment in Apartment.objects.all():
+        apartment.save()
+    return HttpResponse("ok") 
 
 class ApartmentViewSet(ModelViewSet):
     """
@@ -100,7 +106,7 @@ class ApartmentViewSet(ModelViewSet):
 
         return super().retrieve(request, *args, **kwargs)
 
-    @method_decorator(cache_page(timedelta(hours=1).total_seconds()))
+    # @method_decorator(cache_page(timedelta(hours=1).total_seconds()))
     # @method_decorator(vary_on_headers("Authorization",))
     def list(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)

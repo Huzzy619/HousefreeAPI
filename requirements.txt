@@ -102,3 +102,4 @@ Werkzeug==2.2.2
 whitenoise==6.3.0
 zope.event==4.6
 zope.interface==5.5.2
+django-autoslug==1.9.9
