@@ -46,7 +46,7 @@ class Apartment(BaseModel, HitCountMixin):
     title = models.CharField(
         max_length=500, null=False, blank=True, verbose_name="Apartment Title"
     )
-    slug = AutoSlugField(populate_from='title', default="", unique=True)
+    slug = AutoSlugField(populate_from='title', default="")
     property_ref = models.CharField(max_length=10, editable=False)
     category = models.CharField(choices=CATEGORY_TYPE, max_length=50)
     _type = models.CharField(
