@@ -26,9 +26,18 @@ DATABASES = {
 }
 
 INSTALLED_APPS.remove("debug_toolbar")
+INSTALLED_APPS.remove("drf_spectacular_sidecar")
 MIDDLEWARE.remove("debug_toolbar.middleware.DebugToolbarMiddleware")
 
-DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
+
+STORAGES = {
+    "default":{
+        "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
+    },
+    "staticfiles":{
+        "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage"
+    }
+}
 
 CLOUDINARY_STORAGE = {
     "CLOUD_NAME": config("CLOUD_NAME", ""),
