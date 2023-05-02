@@ -53,6 +53,7 @@ class ApartmentViewSet(ModelViewSet):
     filter_backends = [DjangoFilterBackend, OrderingFilter, SearchFilter]
     filterset_class = ApartmentFilter
     http_method_names = ["get", "post", "put", "delete"]
+    lookup_field = 'guid' #This will make it use the guid instead of the typical id to retrieve apartments
     permission_classes = [IsOwner, IsAgent]
     search_fields = ["address", "price", "category", "title"]
     ordering_fields = ["category"]
@@ -106,10 +107,11 @@ class ApartmentViewSet(ModelViewSet):
 
         return super().retrieve(request, *args, **kwargs)
 
-    # @method_decorator(cache_page(timedelta(hours=1).total_seconds()))
-    # @method_decorator(vary_on_headers("Authorization",))
+    @method_decorator(cache_page(timedelta(hours=1).total_seconds()))
+    @method_decorator(vary_on_headers("Authorization",))
     def list(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)
+    
 
 
 class PicturesViewSet(ModelViewSet):
@@ -150,7 +152,8 @@ class PicturesViewSet(ModelViewSet):
         return Response(
             {"detail": "Images uploaded successfully"}, status=status.HTTP_201_CREATED
         )
-
+    
+    
 
 class MediaViewSet(ModelViewSet):
 
