@@ -1,0 +1,74 @@
+[
+    {
+      "name": "CALLBACK_URL",
+      "value": "https://rentrite.up.railway.app/accounts/google/login/callback/"
+    },
+    {
+      "name": "CC_PYTHON_BACKEND",
+      "value": "gunicorn"
+    },
+    {
+      "name": "CC_PYTHON_MANAGE_TASKS",
+      "value": "migrate"
+    },
+    {
+      "name": "CC_PYTHON_MODULE",
+      "value": "Rentrite.wsgi"
+    },
+    {
+      "name": "CC_PYTHON_VERSION",
+      "value": "3"
+    },
+    {
+      "name": "CLOUD_API_KEY",
+      "value": "728524956956634"
+    },
+    {
+      "name": "CLOUD_API_SECRET",
+      "value": "_S1LlGwXuLIqNOXqBEjtDGWz0m8"
+    },
+    {
+      "name": "CLOUD_NAME",
+      "value": "doc3jbqfc"
+    },
+    {
+      "name": "DB_URL",
+      "value": "postgresql://postgres:7viXEAnYoR8lRTFk8LlV@containers-us-west-57.railway.app:5598/railway"
+    },
+    {
+      "name": "DJANGO_SETTINGS_MODULE",
+      "value": "Rentrite.prod"
+    },
+    {
+      "name": "EMAIL_HOST_PASSWORD",
+      "value": "xnrunctxebrjwohz"
+    },
+    {
+      "name": "EMAIL_HOST_USER",
+      "value": "blazingkrane@gmail.com"
+    },
+    {
+      "name": "GOOGLE_CLIENT_ID",
+      "value": "201703575691-r9cbjb8a0nk5n3miidcfagk3t3non9nv.apps.googleusercontent.com"
+    },
+    {
+      "name": "GOOGLE_SECRET",
+      "value": "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"
+    },
+    {
+      "name": "RAILWAY_DB_URL",
+      "value": "postgresql://udumooreth9ro8kur692:i2ROQ8k5UFedDZuz3u6LrvUEeRDQgW@bgyy0e7zkdqtelrwkgfr-postgresql.services.clever-cloud.com:5432/bgyy0e7zkdqtelrwkgfr"
+    },
+    {
+      "name": "SECRET_KEY",
+      "value": "$9!we3$l7&*ai-cbikzm$4^#c9ko0fi5vpb@5jn!t^bt2yphd^"
+    },
+    {
+      "name": "SITE_ID",
+      "value": "1"
+    },
+    {
+      "name": "SOCIAL_PASSWORD",
+      "value": "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"
+    }
+  ]

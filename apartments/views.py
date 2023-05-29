@@ -27,6 +27,8 @@ from .serializers import *
 
 from django.http import HttpResponse
 
+from utils.helpers import custom_cache_decorator
+
 def hello(request):
     for apartment in Apartment.objects.all():
         apartment.save()
@@ -107,8 +109,7 @@ class ApartmentViewSet(ModelViewSet):
 
         return super().retrieve(request, *args, **kwargs)
 
-    @method_decorator(cache_page(timedelta(hours=1).total_seconds()))
-    @method_decorator(vary_on_headers("Authorization",))
+    @method_decorator(custom_cache_decorator)
     def list(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)
     
