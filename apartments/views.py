@@ -109,7 +109,7 @@ class ApartmentViewSet(ModelViewSet):
 
         return super().retrieve(request, *args, **kwargs)
 
-    @method_decorator(custom_cache_decorator)
+    # @method_decorator(custom_cache_decorator)
     def list(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)
     
