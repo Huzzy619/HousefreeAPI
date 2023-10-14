@@ -1,0 +1,14 @@
+-r requirements.txt
+
+django-debug-toolbar
+black
+autoflake
+pytest
+pytest-django
+pytest-xdist
+pytest-cov
+pytest-mock
+faker
+model_bakery
+pre-commit
+factory-boy

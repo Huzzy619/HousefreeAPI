@@ -52,7 +52,7 @@ INSTALLED_APPS = [
     "rest_framework_simplejwt",
     "rest_framework_simplejwt.token_blacklist",
     "drf_spectacular",
-    "drf_spectacular_sidecar",
+    # "drf_spectacular_sidecar",
     "debug_toolbar",
     "django.contrib.sites",
     "allauth",
@@ -81,6 +81,8 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "corsheaders.middleware.CorsMiddleware",
+    "core.middleware.RequestIDMiddleware",
+    "core.middleware.ExceptionHandlerMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
     "debug_toolbar.middleware.DebugToolbarMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
@@ -172,7 +174,8 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = "en-us"
 
-TIME_ZONE = "UTC"
+# TIME_ZONE = "UTC"
+TIME_ZONE = "Africa/Lagos"
 
 USE_I18N = True
 
@@ -209,9 +212,9 @@ SPECTACULAR_SETTINGS = {
     "DESCRIPTION": "A better Home makes a better Family",
     "VERSION": "1.0",
     "SERVE_INCLUDE_SCHEMA": False,
-    "SWAGGER_UI_DIST": "SIDECAR",  # shorthand to use the sidecar instead
-    "SWAGGER_UI_FAVICON_HREF": "SIDECAR",
-    "REDOC_DIST": "SIDECAR",
+    # "SWAGGER_UI_DIST": "SIDECAR",  # shorthand to use the sidecar instead
+    # "SWAGGER_UI_FAVICON_HREF": "SIDECAR",
+    # "REDOC_DIST": "SIDECAR",
     # "ENUM_NAME_OVERRIDES" :{"Category57aEnum": "CategoryEnum"}
     # OTHER SETTINGS
     "DISABLE_ERRORS_AND_WARNINGS": True,
