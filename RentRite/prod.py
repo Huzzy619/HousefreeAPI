@@ -26,7 +26,6 @@ DATABASES = {
 }
 
 INSTALLED_APPS.remove("debug_toolbar")
-INSTALLED_APPS.remove("drf_spectacular_sidecar")
 MIDDLEWARE.remove("debug_toolbar.middleware.DebugToolbarMiddleware")
 
 
