@@ -11,6 +11,7 @@ from core.serializers import UserSerializer
 def register_with_google(email, **kwargs):
     user = get_user_model().objects.filter(email=email).first()
 
+    kwargs.pop("picture", None)  # For now, we would update the profile picture later
     if not user:
         user = get_user_model().objects.create_user(
             email=email, password=config("SOCIAL_PASSWORD"), **kwargs
