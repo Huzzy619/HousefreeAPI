@@ -7,18 +7,14 @@ from rest_framework import permissions
 
 class IsAgent(permissions.BasePermission):
     message = "Only users that are agent can access this endpoint"
-    
+
     def has_permission(self, request, view):
-        
         if request.method in permissions.SAFE_METHODS:
             return True
         return bool(request.user.is_agent)
 
 
-
-
 class IsOwner(permissions.BasePermission):
-
     # This Permission checks for changes to the Apartment
 
     message = "Only apartment owners/agents can make changes to their apartments"
@@ -48,7 +44,6 @@ class IsFileOwner(permissions.BasePermission):
     message = "cannot make changes to other's apartment pictures/videos"
 
     def has_permission(self, request, view):
-
         apartment = get_object_or_404(Apartment, pk=int(view.kwargs["apartment_pk"]))
 
         return bool(

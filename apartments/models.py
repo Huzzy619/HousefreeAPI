@@ -29,7 +29,6 @@ CATEGORY_TYPE = [
 
 
 class BaseModel(models.Model):
-
     date_created = models.DateTimeField(auto_now_add=True)
     date_updated = models.DateTimeField(auto_now=True)
 
@@ -38,7 +37,6 @@ class BaseModel(models.Model):
 
 
 class Apartment(BaseModel, HitCountMixin):
-
     guid = models.UUIDField(
         default=uuid.uuid4,
         editable=False,
@@ -46,7 +44,7 @@ class Apartment(BaseModel, HitCountMixin):
     title = models.CharField(
         max_length=500, null=False, blank=True, verbose_name="Apartment Title"
     )
-    slug = AutoSlugField(populate_from='title', default="")
+    slug = AutoSlugField(populate_from="title", default="")
     property_ref = models.CharField(max_length=10, editable=False)
     category = models.CharField(choices=CATEGORY_TYPE, max_length=50)
     _type = models.CharField(
@@ -76,7 +74,7 @@ class Apartment(BaseModel, HitCountMixin):
     def save(self, **kwargs) -> None:
         if not self.property_ref:
             self.property_ref = self.property_ref_generator()
-        
+
         return super().save(**kwargs)
 
     def cover_pic(self):
@@ -94,7 +92,6 @@ class Apartment(BaseModel, HitCountMixin):
 
 
 class Picture(BaseModel):
-
     image = models.ImageField(upload_to="apartments")
     apartment = models.ForeignKey(
         Apartment, on_delete=models.CASCADE, related_name="pictures"
@@ -102,7 +99,6 @@ class Picture(BaseModel):
 
 
 class Media(BaseModel):
-
     video = models.FileField(
         upload_to="apartment/videos",
         validators=[FileExtensionValidator(allowed_extensions=["mp4", "mkv", "3gp"])],
@@ -116,7 +112,6 @@ class Media(BaseModel):
 
 
 class Review(BaseModel):
-
     text = models.TextField()
     user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
     apartment = models.ForeignKey(
@@ -128,6 +123,5 @@ class Review(BaseModel):
 
 
 class Bookmark(models.Model):
-
     apartment = models.ForeignKey(Apartment, on_delete=models.CASCADE)
     user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)

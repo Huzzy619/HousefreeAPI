@@ -6,7 +6,8 @@ from .views import (
     BookmarkView,
     MediaViewSet,
     PicturesViewSet,
-    ReviewViewSet, hello
+    ReviewViewSet,
+    hello,
 )
 
 router = DefaultRouter()
@@ -23,10 +24,7 @@ nested_router.register("reviews", ReviewViewSet, basename="apartments-reviews")
 from django.urls import path
 
 urlpatterns = (
-    [
-        path("bookmark/", BookmarkView.as_view()),
-        path("hello/", hello)
-    ]
+    [path("bookmark/", BookmarkView.as_view()), path("hello/", hello)]
     + router.urls
     + nested_router.urls
 )

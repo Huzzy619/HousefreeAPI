@@ -25,12 +25,11 @@ from utils.auth.AuthMiddleware import JWTAuthMiddleWareStack
 import chat.routing
 
 
-
 application = ProtocolTypeRouter(
-        {
-            "http": get_asgi_application(),
-            "websocket": AllowedHostsOriginValidator(
-                JWTAuthMiddleWareStack(URLRouter(chat.routing.websocket_urlpatterns))
-            ),
-        }
-    )
+    {
+        "http": get_asgi_application(),
+        "websocket": AllowedHostsOriginValidator(
+            JWTAuthMiddleWareStack(URLRouter(chat.routing.websocket_urlpatterns))
+        ),
+    }
+)

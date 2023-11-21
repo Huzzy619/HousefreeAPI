@@ -13,6 +13,7 @@ urlpatterns = [
     path("", TemplateView.as_view(template_name="index.html"), name="index"),
     path("admin/", admin.site.urls),
     path("accounts/", include("core.urls")),
+    path("v2/accounts/", include("authentication.urls")),
     path("payments/", include("payments.urls")),
     path("chat/", include("chat.urls")),
     path("info/", include("info.urls")),

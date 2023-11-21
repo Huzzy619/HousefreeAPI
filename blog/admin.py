@@ -20,11 +20,10 @@ class BlogAdmin(admin.ModelAdmin):
     def show_image(self, instance):
         if instance.image:
             return format_html(
-                f'<a href ="{instance.image.url}"><image src="{instance.image.url}" alt="{instance.title}" class = "thumbnail" ></a>'
+                f'<a href ="{instance.image.url}"><image src="{instance.image.url}"'
+                f' alt="{instance.title}" class = "thumbnail" ></a>'
             )
         return "no image"
 
     class Media:
         css = {"all": ["thumbnail/image.css"]}
-
-

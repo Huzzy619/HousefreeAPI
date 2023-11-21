@@ -5,7 +5,6 @@ from utils.paths.path_helpers import get_blogs_image_path
 
 
 class Blog(models.Model):
-
     CATEGORY = [
         ("Spotlight", "Spotlight"),
         ("Buying & Selling", "Buying & Selling"),
@@ -20,7 +19,6 @@ class Blog(models.Model):
     author = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
     date_published = models.DateTimeField(auto_now_add=True)
     date_updated = models.DateTimeField(auto_now=True)
-    
 
     class Meta:
         ordering = ["-date_published"]
@@ -28,8 +26,7 @@ class Blog(models.Model):
 
     def __str__(self):
         return self.title
-    
+
     @property
     def author_name(self):
         return self.author.get_full_name()
-

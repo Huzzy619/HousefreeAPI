@@ -7,7 +7,6 @@ from django.template.loader import render_to_string
 from mailjet_rest import Client
 
 
-
 class EmailThread(threading.Thread):
     def __init__(self, email):
         self.email = email
@@ -81,5 +80,4 @@ def mailjet_email_backend(
         print({"status": result.status_code})
         print(result.json())
     except:
-
         print("Something went wrong with email messaging")

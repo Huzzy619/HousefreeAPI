@@ -7,7 +7,12 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from .models import Contact, HelpDesk, Newsletter, Report
-from .serializers import ContactSerializer, HelpDeskSerializer, NewsletterSerializer, ReportListingSerializer
+from .serializers import (
+    ContactSerializer,
+    HelpDeskSerializer,
+    NewsletterSerializer,
+    ReportListingSerializer,
+)
 
 
 class ReportListingView(CreateAPIView):
@@ -18,7 +23,7 @@ class ReportListingView(CreateAPIView):
 
         {
             "problem":"Other problems",
-            "description":"Love and War", 
+            "description":"Love and War",
             "apartment": 1
         }
 
@@ -27,6 +32,7 @@ class ReportListingView(CreateAPIView):
         An instance of the newly created report for a listing
 
     """
+
     queryset = Report.objects.none()
     permission_classes = [IsAuthenticated]
     serializer_class = ReportListingSerializer

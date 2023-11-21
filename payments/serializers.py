@@ -25,7 +25,8 @@ class CreateCardDepositFlutterwaveSerializer(serializers.Serializer):
     email = serializers.EmailField()
     metadata = serializers.JSONField()
     payment_plan = serializers.CharField()
-    
+
+
 class CreatePaystackPaymentSerializer(serializers.Serializer):
     amount = serializers.IntegerField()
     email = serializers.EmailField()
@@ -34,16 +35,13 @@ class CreatePaystackPaymentSerializer(serializers.Serializer):
 
 
 class PlanSerializer(serializers.ModelSerializer):
-
-    class Meta: 
+    class Meta:
         model = PaymentPlan
-        exclude = ('id',)
+        exclude = ("id",)
         # fields = "__all__"
 
 
-
 class PaymentHistorySerializer(serializers.ModelSerializer):
-
     class Meta:
         model = Payment
-        fields = ['id','amount', 'payment_plan']
+        fields = ["id", "amount", "payment_plan"]

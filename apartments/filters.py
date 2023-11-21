@@ -5,7 +5,6 @@ from .models import Apartment
 
 
 class ApartmentFilter(FilterSet):
-
     # The JSON Field did not work directly, until it is declared here separately
     size = CharFilter(field_name="specifications__size", lookup_expr="exact")
     bedrooms = CharFilter(field_name="specifications__bedrooms", lookup_expr="exact")

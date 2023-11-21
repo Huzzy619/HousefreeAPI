@@ -73,6 +73,7 @@ INSTALLED_APPS = [
     "blog",
     "payments",
     "notifications",
+    "authentication",
     # "playground",
 ]
 
@@ -83,6 +84,7 @@ MIDDLEWARE = [
     "core.middleware.RequestIDMiddleware",
     "core.middleware.ExceptionHandlerMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
+    "allauth.account.middleware.AccountMiddleware",
     "debug_toolbar.middleware.DebugToolbarMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -131,7 +133,6 @@ DATABASES = {
         "ENGINE": "django.db.backends.sqlite3",
         "NAME": BASE_DIR / "db.sqlite3",
     },
-    
     # The Multiple database system is not implemented yet
     # "info_db": {
     #     "ENGINE": "django.db.backends.sqlite3",
@@ -141,7 +142,7 @@ DATABASES = {
     #     "ENGINE": "django.db.backends.postgresql",
     #     "NAME": "testrailway3",
     #     "USER": "postgres",
-    #     "PASSWORD": "0509", 
+    #     "PASSWORD": "0509",
     #     "HOST": "localhost"
     # }
 }
@@ -154,7 +155,9 @@ DATABASES = {
 
 AUTH_PASSWORD_VALIDATORS = [
     {
-        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
+        "NAME": (
+            "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"
+        ),
     },
     {
         "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
@@ -230,19 +233,19 @@ REST_FRAMEWORK = {
     ),
     "COERCE_DECIMAL_TO_STRING": False,
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+    "EXCEPTION_HANDLER": "core.exception_handlers.custom_exception_handler",
     "NON_FIELD_ERRORS_KEY": "error",
 }
-REST_AUTH_SERIALIZERS = {
+REST_AUTH = {
     "LOGIN_SERIALIZER": "core.serializers.CustomLoginSerializer",
     "REGISTER_SERIALIZER": "core.serializers.CustomRegisterSerializer",
     # "PASSWORD_RESET_CONFIRM_SERIALIZER": ""
     # "PASSWORD_CHANGE_SERIALIZER":"core.serializers."
     "JWT_SERIALIZER": "core.serializers.CustomJWTSerializer",
+    "USE_JWT": True,
+    "JWT_AUTH_COOKIE": "my-app-auth",
+    "JWT_AUTH_REFRESH_COOKIE": "my-refresh-token",
 }
-REST_USE_JWT = True
-
-JWT_AUTH_COOKIE = "my-app-auth"
-JWT_AUTH_REFRESH_COOKIE = "my-refresh-token"
 
 
 SIMPLE_JWT = {
@@ -312,9 +315,9 @@ PAYSTACK_SECRET_KEY = config("PAYSTACK_SECRET_KEY", default="")
 # Limit the number of active Hits from a single IP address. 0 means that it is unlimited.
 HITCOUNT_HITS_PER_IP_LIMIT = 1
 
-# This is the number of days, weeks, months, hours, etc (using a timedelta keyword argument), that an Hit is kept active. 
-# If a Hit is active a repeat viewing will not be counted. 
-# After the active period ends, however, a new Hit will be recorded. 
+# This is the number of days, weeks, months, hours, etc (using a timedelta keyword argument), that an Hit is kept active.
+# If a Hit is active a repeat viewing will not be counted.
+# After the active period ends, however, a new Hit will be recorded.
 # You can decide how long you want this period to last and it is probably a matter of preference
 HITCOUNT_KEEP_HIT_ACTIVE = {"days": 1}
 
@@ -337,7 +340,7 @@ EMAIL_PORT = 465
 EMAIL_USE_SSL = True
 EMAIL_USE_TSL = False
 
-TEST_RUNNER = 'utils.test.PytestTestRunner'
+TEST_RUNNER = "utils.test.PytestTestRunner"
 CACHES = {
     "default": {
         "BACKEND": "django.core.cache.backends.redis.RedisCache",
@@ -363,11 +366,13 @@ LOGGING = {
             "handlers": ["file"],
             "propagate": True,
         },
-        
     },
     "formatters": {
         "verbose": {
-            "format": "{asctime} ({levelname}) -  {module} {name} {process:d} {thread:d} {message}",
+            "format": (
+                "{asctime} ({levelname}) -  {module} {name} {process:d} {thread:d}"
+                " {message}"
+            ),
             "style": "{",
         },
         "simple": {

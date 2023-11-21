@@ -1,16 +1,20 @@
 from django.db.models import Q
-from rest_framework.generics import get_object_or_404
 from rest_framework.mixins import (
     CreateModelMixin,
     DestroyModelMixin,
     ListModelMixin,
     RetrieveModelMixin,
 )
-from rest_framework.viewsets import GenericViewSet, ModelViewSet
+from rest_framework.viewsets import GenericViewSet
 
 from .models import Attachment, Conversation, Message
 from .paginators import MessagePagination
-from .serializers import AttachmentSerializer, ConversationSerializer, MessageSerializer, CreateAttachmentSerializer
+from .serializers import (
+    AttachmentSerializer,
+    ConversationSerializer,
+    MessageSerializer,
+    CreateAttachmentSerializer,
+)
 
 
 class MessageViewSet(ListModelMixin, DestroyModelMixin, GenericViewSet):  #
@@ -63,6 +67,6 @@ class AttachmentViewSet(CreateModelMixin, GenericViewSet):
     queryset = Attachment.objects.none()
 
     def get_serializer_class(self):
-        if self.request.method == 'POST':
+        if self.request.method == "POST":
             return CreateAttachmentSerializer
         return AttachmentSerializer

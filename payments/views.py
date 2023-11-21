@@ -110,7 +110,7 @@ class ConfirmCardDepositFlutterwave(generics.GenericAPIView):
     def get(self, request):
         tx_status = self.request.query_params.get("status")
         tx_ref = self.request.query_params.get("tx_ref")
-        transaction_id = request.query_params.get("transaction_id")
+        request.query_params.get("transaction_id")
 
         if tx_status == "successful":
             url = f"https://api.flutterwave.com/v3/transactions/verify_by_reference?tx_ref={tx_ref}"
@@ -141,7 +141,9 @@ class ConfirmCardDepositFlutterwave(generics.GenericAPIView):
         return Response(
             {
                 "error": {
-                    "something went wrong": "payment could not be verified, contact the admin"
+                    "something went wrong": (
+                        "payment could not be verified, contact the admin"
+                    )
                 }
             },
             status=status.HTTP_400_BAD_REQUEST,
@@ -207,7 +209,7 @@ paystack_card_deposit = PaystackPaymentView.as_view()
 class VerifyPaystackPayment(APIView):
     def get(self, request):
         tx_ref = self.request.query_params.get("trxref")
-        paystack_reference = self.request.query_params.get("reference")
+        self.request.query_params.get("reference")
         payment = Payment.objects.get(txn_ref=tx_ref)
         verified = payment.verify_paystack_payment()
         if verified:
@@ -230,7 +232,6 @@ verify_paystack_payment = VerifyPaystackPayment.as_view()
 
 class BankDetailView(APIView):
     def get(self, request, **kwargs):
-
         detail = BankDetail.objects.first()
         if detail:
             return Response(detail.__dict__, status=status.HTTP_200_OK)
@@ -240,7 +241,6 @@ class BankDetailView(APIView):
 
 
 class PlanView(APIView):
-
     serializer_class = PlanSerializer
 
     def get(self, request, **kwargs):
@@ -252,11 +252,9 @@ class PlanView(APIView):
 
 
 class AgentSubscriptionView(APIView):
-
     permission_classes = [IsAuthenticated]
 
     def get(self, request, **kwargs):
-
         wallet = Wallet.objects.get(user=request.user)
         payment = Payment.objects.filter(user=request.user).latest("created_at")
 
@@ -271,7 +269,6 @@ class AgentSubscriptionView(APIView):
 
 
 class PaymentHistoryView(APIView):
-
     serializer_class = PaymentHistorySerializer
 
     def get(self, request):

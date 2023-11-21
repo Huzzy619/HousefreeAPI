@@ -1,8 +1,4 @@
-import json
 import random
-import time
-import django
-from django.contrib.auth import get_user_model
 from locust import HttpUser, between, task
 
 
@@ -41,22 +37,29 @@ class WebsiteUser(HttpUser):
                 "descriptions": "string",
                 "is_available": True,
             },
-            headers={
-                'Authorization': f'JWT {random.choice(self.access_tokens)}'
-            }
+            headers={"Authorization": f"JWT {random.choice(self.access_tokens)}"},
         )
 
     # @task(10)
     def login(self):
-        resp = self.client.post('/accounts/login/', json={'email':f'testuser{random.randint(1,3)}@gmail.com', 'password':'@Huzkid619'}, name = '/login/additional/')
-        self.access_tokens.append(resp.json()['access_token'])
-    
+        resp = self.client.post(
+            "/accounts/login/",
+            json={
+                "email": f"testuser{random.randint(1,3)}@gmail.com",
+                "password": "@Huzkid619",
+            },
+            name="/login/additional/",
+        )
+        self.access_tokens.append(resp.json()["access_token"])
+
     # @task(5)
     def make_booking(self):
-        self.client.post("/bookmark/", json={"apartment_id": 1}, headers={
-                'Authorization': f'JWT {random.choice(self.access_tokens)}'
-            })
-        
+        self.client.post(
+            "/bookmark/",
+            json={"apartment_id": 1},
+            headers={"Authorization": f"JWT {random.choice(self.access_tokens)}"},
+        )
+
     #  TODO
 
     # ? i have to come rewrite the tests
@@ -67,4 +70,4 @@ class WebsiteUser(HttpUser):
 
     #     resp = self.client.post('/accounts/login/', json={'email':'admin@django.com', 'password':123}, name = '/login/')
     #     self.access_tokens.append(resp.json()['access_token'])
-    #     # self.access_tokens.append(resp.json()['access_token']) 
+    #     # self.access_tokens.append(resp.json()['access_token'])

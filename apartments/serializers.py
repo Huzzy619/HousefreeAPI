@@ -21,9 +21,9 @@ class ReviewSerializer(serializers.ModelSerializer):
         user = self.context["user"]
         apartment_pk = self.context.get("apartment_pk", "")
 
-        if not Apartment.objects.filter(pk = apartment_pk ).exists():
+        if not Apartment.objects.filter(pk=apartment_pk).exists():
             raise serializers.ValidationError("No Apartment with the given ID")
-        
+
         return super().save(user=user, **self.validated_data)
 
 
@@ -48,13 +48,10 @@ class CreateMediaSerializer(serializers.Serializer):
 
         apartment_pk = self.context["apartment_pk"]
 
-        if not Apartment.objects.filter(pk = apartment_pk ).exists():
+        if not Apartment.objects.filter(pk=apartment_pk).exists():
             raise serializers.ValidationError("No Apartment with the given ID")
 
-        vids = [
-            Media(video=vid, apartment_id=apartment_pk)
-            for vid in videos
-        ]
+        vids = [Media(video=vid, apartment_id=apartment_pk) for vid in videos]
 
         instance = Media.objects.bulk_create(vids)
 
@@ -64,7 +61,6 @@ class CreateMediaSerializer(serializers.Serializer):
 
 
 class PictureSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = Picture
         fields = ["id", "image"]  # "cover_pic"
@@ -92,15 +88,11 @@ class CreatePictureSerializer(serializers.Serializer):
         images = validated_data.pop("image")
         apartment_pk = self.context.get("apartment_pk", "")
 
-        if not Apartment.objects.filter(pk = apartment_pk ).exists():
+        if not Apartment.objects.filter(pk=apartment_pk).exists():
             raise serializers.ValidationError("No Apartment with the given ID")
 
-        pics = [
-            Picture(image=img, apartment_id= apartment_pk)
-            for img in images
-        ]
+        pics = [Picture(image=img, apartment_id=apartment_pk) for img in images]
         #
-        
 
         instance = Picture.objects.bulk_create(pics)
 
@@ -139,8 +131,7 @@ class ApartmentSerializer(serializers.ModelSerializer):
     f_price = serializers.SerializerMethodField()
     agent = UserSerializer(read_only=True)
     short_address = serializers.SerializerMethodField()
-    id = serializers.UUIDField(source = "guid")
-
+    id = serializers.UUIDField(source="guid")
 
     class Meta:
         model = Apartment
@@ -165,10 +156,9 @@ class ApartmentSerializer(serializers.ModelSerializer):
             "agent",
             "pictures",
             "videos",
-            "date_created", 
-            "date_updated"
+            "date_created",
+            "date_updated",
         ]
-
 
     def get_f_price(self, apartment):
         price = intcomma(apartment.price)
@@ -177,7 +167,6 @@ class ApartmentSerializer(serializers.ModelSerializer):
         return price
 
     def get_short_address(self, apartment: Apartment):
-
         # ? Shortening the Address so it would look better on the frontend
 
         address_parts = apartment.address.rsplit(",", 2)
@@ -199,8 +188,8 @@ class ApartmentSerializer(serializers.ModelSerializer):
         else:
             return apartment.state
 
-class SimpleApartmentSerializer(serializers.ModelSerializer):
 
+class SimpleApartmentSerializer(serializers.ModelSerializer):
     agent = SimpleUserSerializer(read_only=True)
     price = serializers.SerializerMethodField()
     short_address = serializers.SerializerMethodField()
@@ -213,19 +202,19 @@ class SimpleApartmentSerializer(serializers.ModelSerializer):
             "title",
             "price",
             "short_address",
-            "pictures", 
-            "agent", 
-            "category", 
-            "_type"
+            "pictures",
+            "agent",
+            "category",
+            "_type",
         ]
-    
-    def get_pictures(self, apartment:Apartment):
-        if apartment.pictures.count() >= 1 :
+
+    def get_pictures(self, apartment: Apartment):
+        if apartment.pictures.count() >= 1:
             first_picture = apartment.pictures.first()
 
-            return  [PictureSerializer(first_picture).data]
+            return [PictureSerializer(first_picture).data]
         return []
-    
+
     def get_price(self, apartment):
         price = intcomma(apartment.price)
         if price.endswith("00"):
@@ -233,7 +222,6 @@ class SimpleApartmentSerializer(serializers.ModelSerializer):
         return price
 
     def get_short_address(self, apartment: Apartment):
-
         # ? Shortening the Address so it would look better on the frontend
 
         address_parts = apartment.address.rsplit(",", 2)

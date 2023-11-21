@@ -106,7 +106,6 @@ class ChatConsumer(JsonWebsocketConsumer):
         attachment = content.get("attachment", False)
 
         if message_type == "chat_message":
-
             message = Message.objects.create(
                 from_user=self.user,
                 to_user=self.get_receiver(),
@@ -114,15 +113,13 @@ class ChatConsumer(JsonWebsocketConsumer):
                 conversation=self.conversation,
             )
 
-            #instantiate the init value so it can be accessed
+            # instantiate the init value so it can be accessed
             self.message = message
 
             async_to_sync(self.channel_layer.group_send)(
                 self.conversation_name,
                 {
-                    "type": (
-                        "echo.message.attachment" if attachment else "echo.message"
-                    ),
+                    "type": "echo.message.attachment" if attachment else "echo.message",
                     "message": MessageSerializer(message).data,
                 },
             )
@@ -213,9 +210,7 @@ class ChatConsumer(JsonWebsocketConsumer):
         names = [name.replace("_", " ").lower() for name in names]
 
         for name in names:
-
             if name != self.user.get_full_name().lower():
-
                 first_name, last_name = name.split()
 
                 user = User.objects.filter(

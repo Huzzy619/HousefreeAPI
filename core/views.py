@@ -90,10 +90,8 @@ class CustomPasswordResetConfirmView(PasswordChangeView):
     permission_classes = [AllowAny]
 
     def get_serializer_context(self):
-
         data = super().get_serializer_context()
         if self.request.method == "POST":
-
             email = self.request.data["email"]
             user = get_object_or_404(get_user_model(), email=email)
             data["user"] = user
@@ -143,7 +141,6 @@ class AgentDetailsView(CreateAPIView):
 
     @async_to_sync
     async def create(self, request, *args, **kwargs):
-
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
         front_image = serializer.validated_data["id_front"]
@@ -156,7 +153,6 @@ class AgentDetailsView(CreateAPIView):
 
         verification_signal.send(__class__, status="pending", user=request.user)
         if agent_verification:
-
             # checks if the agent details from identity verification service provider API
             # matches the agent details we've in our DB
             agent_first_name = agent_verification["result"]["firstName"]
@@ -236,12 +232,15 @@ class CustomRegisterView(RegisterView):
 
 # if you want to use Authorization Code Grant, use this
 class GoogleLogin(CustomSocialLoginView):
-
     site = config("CALLBACK_URL", "")
     domain = site.split("/")[2] if site else ""
 
     @extend_schema(
-        description=f"# Visit this [`link`](https://accounts.google.com/o/oauth2/v2/auth?redirect_uri=https://{domain}/accounts/google/login/callback/&prompt=consent&response_type=code&client_id=878674025478-e8s4rf34md8h4n7qobb6mog43nfhfb7r.apps.googleusercontent.com&scope=openid%20email%20profile&access_type=offline) for users to see the google account select modal."
+        description=(
+            "# Visit this"
+            f" [`link`](https://accounts.google.com/o/oauth2/v2/auth?redirect_uri=https://{domain}/accounts/google/login/callback/&prompt=consent&response_type=code&client_id=878674025478-e8s4rf34md8h4n7qobb6mog43nfhfb7r.apps.googleusercontent.com&scope=openid%20email%20profile&access_type=offline)"
+            " for users to see the google account select modal."
+        )
         + """
         After Users select account for login, they will be redirected to a new url.
 

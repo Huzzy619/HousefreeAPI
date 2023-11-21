@@ -3,7 +3,7 @@ from datetime import timedelta
 from django.http.request import HttpRequest
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
-from django.views.decorators.vary import vary_on_headers, vary_on_cookie
+from django.views.decorators.vary import vary_on_headers
 from django_filters.rest_framework import DjangoFilterBackend
 from hitcount.models import HitCount
 from hitcount.views import HitCountMixin
@@ -29,10 +29,12 @@ from django.http import HttpResponse
 
 from utils.helpers import custom_cache_decorator
 
+
 def hello(request):
     for apartment in Apartment.objects.all():
         apartment.save()
-    return HttpResponse("ok") 
+    return HttpResponse("ok")
+
 
 class ApartmentViewSet(ModelViewSet):
     """
@@ -55,14 +57,20 @@ class ApartmentViewSet(ModelViewSet):
     filter_backends = [DjangoFilterBackend, OrderingFilter, SearchFilter]
     filterset_class = ApartmentFilter
     http_method_names = ["get", "post", "put", "delete"]
-    lookup_field = 'guid' #This will make it use the guid instead of the typical id to retrieve apartments
+    lookup_field = (  # This will make it use the guid instead of the typical id to retrieve apartments
+        "guid"
+    )
     permission_classes = [IsOwner, IsAgent]
     search_fields = ["address", "price", "category", "title"]
     ordering_fields = ["category"]
 
     @action(methods=["GET"], permission_classes=[IsAuthenticated], detail=False)
     @method_decorator(cache_page(timedelta(hours=1).total_seconds()))
-    @method_decorator(vary_on_headers("Authorization",))
+    @method_decorator(
+        vary_on_headers(
+            "Authorization",
+        )
+    )
     def mine(self, request):
         """
         Returns all the apartments owned by the currently logged in agent
@@ -92,7 +100,6 @@ class ApartmentViewSet(ModelViewSet):
         return {"user": self.request.user, "request": self.request}
 
     def get_queryset(self):
-
         return (
             Apartment.objects.all()
             .prefetch_related("reviews", "pictures", "videos")
@@ -100,7 +107,6 @@ class ApartmentViewSet(ModelViewSet):
         )
 
     def retrieve(self, request: HttpRequest, *args, **kwargs):
-
         # Do a hit count
 
         hit_count = HitCount.objects.get_for_object(self.get_object())
@@ -112,7 +118,6 @@ class ApartmentViewSet(ModelViewSet):
     @method_decorator(custom_cache_decorator)
     def list(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)
-    
 
 
 class PicturesViewSet(ModelViewSet):
@@ -153,8 +158,7 @@ class PicturesViewSet(ModelViewSet):
         return Response(
             {"detail": "Images uploaded successfully"}, status=status.HTTP_201_CREATED
         )
-    
-    
+
 
 class MediaViewSet(ModelViewSet):
 
@@ -229,7 +233,6 @@ class BookmarkView(APIView):
     serializer_class = CreateBookmarkSerializer
 
     def get(self, request):
-
         """
         Provides all the apartments that have been saved by the currently logged in user
         """

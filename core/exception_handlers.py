@@ -41,6 +41,11 @@ class ErrorEnum(Enum):
         status.HTTP_404_NOT_FOUND,
         "Resource does not exist",
     )
+    ERR_007 = (
+        "Invalid Login Credentials",
+        status.HTTP_401_UNAUTHORIZED,
+        "Email or Password is incorrect",
+    )
 
 
 class ErrorResponse(Response):

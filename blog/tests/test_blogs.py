@@ -37,7 +37,7 @@ class TestCreateBlog:
 
         api_client.force_authenticate(user=grouped_user)
 
-        response = api_client.post(f"/blogs/", blog_data, format="multipart")
+        response = api_client.post("/blogs/", blog_data, format="multipart")
 
         assert response.status_code == status.HTTP_201_CREATED
 
@@ -48,7 +48,7 @@ class TestCreateBlog:
         api_client.force_authenticate(user=user)
 
         response = api_client.post(
-            f"/blogs/",
+            "/blogs/",
             blog_data,
             format="multipart",
         )

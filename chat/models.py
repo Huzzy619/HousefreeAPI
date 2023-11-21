@@ -42,11 +42,15 @@ class Message(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
     read = models.BooleanField(default=False)
 
-
     def __str__(self):
-        return f"From {self.from_user.first_name} to {self.to_user.first_name}: {self.text} [{self.timestamp}]"
+        return (
+            f"From {self.from_user.first_name} to {self.to_user.first_name}:"
+            f" {self.text} [{self.timestamp}]"
+        )
 
-    
+
 class Attachment(models.Model):
     _file = models.FileField(blank=True, null=True, upload_to=get_attachment_path)
-    message = models.ForeignKey(Message, on_delete=models.CASCADE, related_name='attachment')
+    message = models.ForeignKey(
+        Message, on_delete=models.CASCADE, related_name="attachment"
+    )

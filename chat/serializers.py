@@ -7,22 +7,25 @@ from drf_spectacular.utils import extend_schema_field
 from drf_spectacular.types import OpenApiTypes
 
 User = get_user_model()
-class CreateAttachmentSerializer(serializers.ModelSerializer):
 
+
+class CreateAttachmentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Attachment
-        fields = ['id', '_file', 'message']
+        fields = ["id", "_file", "message"]
+
 
 class AttachmentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Attachment
-        fields = ['id', '_file']
+        fields = ["id", "_file"]
+
 
 class MessageSerializer(serializers.ModelSerializer):
     from_user = UserSerializer()
     to_user = UserSerializer()
     conversation = serializers.SerializerMethodField()
-    attachment = AttachmentSerializer(many = True)
+    attachment = AttachmentSerializer(many=True)
 
     class Meta:
         model = Message
@@ -41,11 +44,6 @@ class MessageSerializer(serializers.ModelSerializer):
     def get_conversation(self, obj: Message):
         return str(obj.conversation.id)
 
-    
-    
-
-
-
 
 class ConversationSerializer(serializers.ModelSerializer):
     other_user = serializers.SerializerMethodField()
@@ -62,7 +60,7 @@ class ConversationSerializer(serializers.ModelSerializer):
             return None
         message = messages[0]
         return MessageSerializer(message).data
-        
+
     @extend_schema_field(OpenApiTypes.OBJECT)
     def get_other_user(self, obj):
         User = get_user_model()
@@ -72,9 +70,7 @@ class ConversationSerializer(serializers.ModelSerializer):
         names = [name.replace("_", " ").lower() for name in names]
 
         for name in names:
-
-            if name != self.context['user'].get_full_name().lower():
-
+            if name != self.context["user"].get_full_name().lower():
                 first_name, last_name = name.split()
 
                 user = User.objects.filter(

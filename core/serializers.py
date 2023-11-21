@@ -12,14 +12,16 @@ from django.utils.translation import gettext as _
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
-
 from .models import *
 
 
 class CustomJWTSerializer(JWTSerializer):
     def get_user(self, obj):
-
         user_data = super().get_user(obj)
+
+        # tokens = RefreshToken.for_user(obj["user"])
+
+        # data = self.data
 
         user_data["is_marketer"] = (
             obj["user"].groups.filter(name="Marketers and Content Writers").exists()
@@ -47,7 +49,6 @@ class AgentDetailsSerializer(serializers.ModelSerializer):
         ]
 
     def save(self, **kwargs):
-
         return super().save(agent=self.context["user"], is_verified=True, **kwargs)
 
 
@@ -90,15 +91,13 @@ class CustomRegisterSerializer(RegisterSerializer):
         user_obj.is_agent = bool(request.data.get("is_agent", False))
         user_obj.save()
 
-        pass
 
 class SimpleUserSerializer(serializers.ModelSerializer):
-
     name = serializers.SerializerMethodField()
 
     class Meta:
-        model  = get_user_model()
-        fields = ['name']
+        model = get_user_model()
+        fields = ["name"]
 
     @extend_schema_field(OpenApiTypes.STR)
     def get_name(self, obj):
@@ -109,11 +108,20 @@ class UserSerializer(serializers.ModelSerializer):
     name = serializers.SerializerMethodField()
     is_verified = serializers.SerializerMethodField(method_name="get_status")
     phone = serializers.SerializerMethodField()
-    address = serializers.SerializerMethodField() 
+    address = serializers.SerializerMethodField()
 
     class Meta:
         model = get_user_model()
-        fields = ["id", "name", "email", "is_agent", "date_joined", "is_verified", "phone", "address"]
+        fields = [
+            "id",
+            "name",
+            "email",
+            "is_agent",
+            "date_joined",
+            "is_verified",
+            "phone",
+            "address",
+        ]
 
     @extend_schema_field(OpenApiTypes.STR)
     def get_name(self, obj):
@@ -126,7 +134,7 @@ class UserSerializer(serializers.ModelSerializer):
                 status = obj.agent_details.is_verified
                 return status
         except Exception:
-            return False 
+            return False
 
     @extend_schema_field(OpenApiTypes.STR)
     def get_phone(self, obj):
@@ -144,6 +152,7 @@ class UserSerializer(serializers.ModelSerializer):
         except Exception:
             return ""
         return ""
+
 
 class OTPSerializer(serializers.Serializer):
     email = serializers.EmailField()

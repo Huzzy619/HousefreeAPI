@@ -26,6 +26,8 @@ class IsMarketerOrReadOnly(BasePermission):
             request.method in SAFE_METHODS
             or request.user
             and request.user.is_authenticated
-            and request.user.groups.filter(name="Marketers and Content Writers").exists()
+            and request.user.groups.filter(
+                name="Marketers and Content Writers"
+            ).exists()
             or request.user.is_superuser
         )

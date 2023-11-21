@@ -1,10 +1,7 @@
-from django.conf import settings
-from django.contrib.auth import get_user_model
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from mailjet_rest import Client
 
-from .models import Contact, Newsletter
+from .models import Contact
 
 
 # @receiver(post_save, sender=get_user_model())
@@ -16,7 +13,6 @@ from .models import Contact, Newsletter
 @receiver(post_save, sender=Contact)
 def send_contact_email(instance, created, **kwargs):
     if created:
-
         # api_key = settings.MJ_APIKEY_PUBLIC
         # api_secret = settings.MJ_APIKEY_PRIVATE
         # mailjet = Client(auth=(api_key, api_secret), version='v3.1')

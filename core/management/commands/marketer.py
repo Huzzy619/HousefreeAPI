@@ -81,7 +81,7 @@ class Command(BaseCommand):
 
             user.groups.add(group)
 
-        return self.stdout.write(self.style.SUCCESS(f"User(s) added Successfully"))
+        return self.stdout.write(self.style.SUCCESS("User(s) added Successfully"))
 
     def remove_users(self, emails, group):
 
@@ -97,6 +97,6 @@ class Command(BaseCommand):
                 )
             )
         if len(emails) > 1:
-            raise CommandError(f"Users do not exist")
+            raise CommandError("Users do not exist")
 
-        raise CommandError(f"User does not exist")
+        raise CommandError("User does not exist")

@@ -21,6 +21,3 @@ class MediaInline(admin.TabularInline):
 class ApartmentAdmin(admin.ModelAdmin):
     list_display = ["property_ref", "title", "category", "_type", "clicks"]
     inlines = [PictureInline, MediaInline]
-    
-    
-    

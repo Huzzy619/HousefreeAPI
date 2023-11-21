@@ -3,10 +3,12 @@ import os
 import dj_database_url
 
 from .settings import *
+from sentry_sdk.integrations.django import DjangoIntegration
+
 
 SECRET_KEY = os.environ.get("SECRET_KEY", config("SECRET_KEY", SECRET_KEY))
 
-DEBUG = config("DEBUG", False, cast = bool)
+DEBUG = config("DEBUG", False, cast=bool)
 
 ALLOWED_HOSTS = [
     "rentrite.herokuapp.com",
@@ -30,12 +32,10 @@ MIDDLEWARE.remove("debug_toolbar.middleware.DebugToolbarMiddleware")
 
 
 STORAGES = {
-    "default":{
+    "default": {
         "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
     },
-    "staticfiles":{
-        "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage"
-    }
+    "staticfiles": {"BACKEND": "whitenoise.storage.CompressedStaticFilesStorage"},
 }
 
 CLOUDINARY_STORAGE = {
@@ -47,9 +47,9 @@ CLOUDINARY_STORAGE = {
 
 # Test mailtrap email account.... till mail_jet is fully configured
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
-EMAIL_HOST= 'smtp.gmail.com'
-EMAIL_HOST_USER = config('EMAIL_HOST_USER')
-EMAIL_HOST_PASSWORD =config('EMAIL_HOST_PASSWORD')
+EMAIL_HOST = "smtp.gmail.com"
+EMAIL_HOST_USER = config("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD")
 EMAIL_PORT = 587
 EMAIL_USE_SSL = False
 EMAIL_USE_TSL = True
@@ -70,8 +70,25 @@ CHANNEL_LAYERS = {
 CELERY_BROKER_URL = REDIS_URL
 
 CACHES = {
-    'default': {
-        'BACKEND': 'django.core.cache.backends.redis.RedisCache',
-        'LOCATION': REDIS_URL,
+    "default": {
+        "BACKEND": "django.core.cache.backends.redis.RedisCache",
+        "LOCATION": REDIS_URL,
     }
 }
+
+sentry_sdk.init(
+    dsn=config("SENTRY_LOGGER_URL", ""),
+    integrations=[DjangoIntegration()],
+    # If you wish to associate users to errors (assuming you are using
+    # django.contrib.auth) you may enable sending PII data.
+    send_default_pii=True,
+    # Set traces_sample_rate to 1.0 to capture 100%
+    # of transactions for performance monitoring.
+    # We recommend adjusting this value in production.
+    traces_sample_rate=1.0,
+    # To set a uniform sample rate
+    # Set profiles_sample_rate to 1.0 to profile 100%
+    # of sampled transactions.
+    # We recommend adjusting this value in production,
+    profiles_sample_rate=1.0,
+)
