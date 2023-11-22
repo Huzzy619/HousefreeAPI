@@ -81,8 +81,8 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "corsheaders.middleware.CorsMiddleware",
-    "core.middleware.RequestIDMiddleware",
-    "core.middleware.ExceptionHandlerMiddleware",
+    # "core.middleware.RequestIDMiddleware",
+    # "core.middleware.ExceptionHandlerMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
     "allauth.account.middleware.AccountMiddleware",
     "debug_toolbar.middleware.DebugToolbarMiddleware",
