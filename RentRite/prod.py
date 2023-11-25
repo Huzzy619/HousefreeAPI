@@ -14,6 +14,7 @@ DEBUG = config("DEBUG", False, cast=bool)
 ALLOWED_HOSTS = [
     "rentrite.herokuapp.com",
     "rentrite.up.railway.app",
+    "rentrite-homes.up.railway.app",
     "rentrite.cleverapps.io",
 ]
 
