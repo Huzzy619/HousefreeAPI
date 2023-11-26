@@ -28,3 +28,6 @@ dev-setup :
 format : 
 	$ python -m autoflake --in-place --remove-unused-variables --recursive ./*/*.py
 	$ python -m black --preview ./*/*.py 
+
+lint:
+	$ ruff ./ --fix

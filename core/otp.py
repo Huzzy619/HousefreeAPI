@@ -4,6 +4,8 @@ from django.conf import settings
 from pyotp import HOTP
 
 from core.models import OTP
+from datetime import timedelta
+from django.utils import timezone
 
 
 class OTPGenerator:
@@ -31,9 +33,21 @@ class OTPGenerator:
         return otp
 
     def check_otp(self, otp):
+        otp_time = self.obj.date_created
+        current_time = timezone.now()
+
+        time_check = current_time - otp_time <= timedelta(minutes=10)
+
         # get the previous counter associated with a user and evaluate to get value
         value = self.processed_id + (self.obj.counter - 1)
-        return self.hotp.verify(otp, value)
+        verify_status = self.hotp.verify(otp, value)
+
+        if verify_status and time_check:
+            return "passed", True
+        elif verify_status and not time_check:
+            return "expired", False
+        else:
+            return "invalid", False
 
     def get_secret(self):
         """

@@ -133,15 +133,18 @@ def custom_exception_handler(exc, context):
                 code for code in ErrorEnum if code.value[1] == response.status_code
             ]
 
-            custom_response = ErrorResponse(
-                code=result[0],
-                status=response.status_code,
-                serializer_errors=(
-                    response.data
-                    if response.status_code == status.HTTP_400_BAD_REQUEST
-                    else None
-                ),
-            )
+            try:
+                custom_response = ErrorResponse(
+                    code=result[0],
+                    status=response.status_code,
+                    serializer_errors=(
+                        response.data
+                        if response.status_code == status.HTTP_400_BAD_REQUEST
+                        else None
+                    ),
+                )
+            except Exception:
+                custom_response = ErrorResponse(code=ErrorEnum.ERR_003)
             return custom_response
     return response
 

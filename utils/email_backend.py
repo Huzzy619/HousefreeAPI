@@ -23,7 +23,6 @@ def send_email(
     context: dict = {},
     template: str = None,
 ):
-    html_content = render_to_string(template, context)
     email = EmailMultiAlternatives(
         subject=subject,
         body=message,
@@ -31,12 +30,16 @@ def send_email(
         to=[email for email in recipients],
     )
 
-    email.attach_alternative(html_content, "text/html")
+    if template:
+        html_content = render_to_string(template, context)
+
+        email.attach_alternative(html_content, "text/html")
 
     # start a thread for each email
     try:
         EmailThread(email).start()
-    except:
+
+    except ConnectionError:
         print("Something went wrong \nCouldn't send Email")
 
 
@@ -79,5 +82,5 @@ def mailjet_email_backend(
         result = mailjet.send.create(data=data)
         print({"status": result.status_code})
         print(result.json())
-    except:
+    except Exception:
         print("Something went wrong with email messaging")

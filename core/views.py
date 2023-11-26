@@ -1,44 +1,82 @@
 import asyncio
 
-from allauth.account import app_settings as allauth_settings
-from allauth.account.models import EmailAddress
-from allauth.socialaccount.providers.google.views import GoogleOAuth2Adapter
-from allauth.socialaccount.providers.oauth2.client import OAuth2Client
 from asgiref.sync import async_to_sync
-from decouple import config
-from dj_rest_auth.registration.views import RegisterView, SocialLoginView
-from dj_rest_auth.utils import jwt_encode
-from dj_rest_auth.views import PasswordChangeView, PasswordResetView
-from django.conf import settings
-from django.contrib.auth import get_user_model
+from django.contrib.auth import authenticate, get_user_model
+from django.core.exceptions import ValidationError
+
+# Create your views here.
+from django.core.validators import validate_email
+from django.http import HttpRequest
 from django.shortcuts import get_object_or_404
-from drf_spectacular.utils import extend_schema
 from rest_framework import status
-from rest_framework.generics import CreateAPIView
+from rest_framework.generics import CreateAPIView, GenericAPIView
 from rest_framework.mixins import ListModelMixin, UpdateModelMixin
-from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import GenericViewSet, ModelViewSet
+from rest_framework_simplejwt.serializers import (
+    TokenObtainPairSerializer,
+    TokenRefreshSerializer,
+)
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
-from core.signals import reset_password_signal
+from core.exception_handlers import ErrorEnum, ErrorResponse, response_schemas
+from core.schemas import EmailEvents
+from core.serializers import (
+    AgentDetailsSerializer,
+    OTPSerializer,
+    PasswordResetSerializer,
+    ProfileSerializer,
+    UserSettingsSerializer,
+)
+from core.signals import new_user_signal, reset_password_signal
 from utils.auth.agent_verification import agent_identity_verification
 from utils.permissions import IsAgent, IsOwner
 
 from .models import AgentDetails, Profile, UserSettings
 from .otp import OTPGenerator
-from .serializers import *
-from .signals import new_user_signal, verification_signal
+from .serializers import (
+    GoogleSocialAuthSerializer,
+    InfoSerializer,
+    LoginSerializer,
+    RegisterSerializer,
+    UserSerializer,
+)
+from .signals import verification_signal
 
 
 class GetOTPView(APIView):
-    def get(self, request, email):
+    """
+    REGISTER = "register"
+    EMAIL_VERIFICATION = "email-verification"
+    PASSWORD_RESET = "password-reset"
+    PASSWORD_RESET_CONFIRM = "password-reset-confirm"
+    PASSWORD_CHANGE = "password-change"
+    PASSWORD_RESET_REQUEST = "password-reset-request"
+
+    Args:
+        APIView (_type_): _description_
+    """
+
+    def get(self, request, email, event, **kwargs):
+        try:
+            email_event = EmailEvents(event)
+        except ValueError as e:
+            return ErrorResponse(
+                code=ErrorEnum.ERR_001,
+                status=status.HTTP_400_BAD_REQUEST,
+                extra_detail=str(e),
+            )
+
         user = get_object_or_404(get_user_model(), email=email)
-        otp_gen = OTPGenerator(user_id=user.id)
 
-        otp = otp_gen.get_otp()
+        if email_event == EmailEvents.REGISTER:
+            new_user_signal.send_robust(__class__, user=user, send_email=True)
 
-        return Response({"detail": f"success otp- {otp}"}, status=status.HTTP_200_OK)
+        return Response(
+            {"detail": "Email resent successfully"}, status=status.HTTP_200_OK
+        )
 
 
 class VerifyOTPView(APIView):
@@ -52,21 +90,20 @@ class VerifyOTPView(APIView):
         )
         otp_gen = OTPGenerator(user_id=user.id)
 
-        check = otp_gen.check_otp(serializer.validated_data["otp"])
+        message, otp_status = otp_gen.check_otp(serializer.validated_data["otp"])
 
-        if check:
+        if otp_status:
             # Mark user as verified
-            user_obj = get_object_or_404(EmailAddress, user=user)
 
-            user_obj.verified = True
-            user_obj.save()
+            user.is_verified = True
+            user.save()
 
             return Response(
                 {"detail": "2FA successfully completed"},
                 status=status.HTTP_202_ACCEPTED,
             )
 
-        return Response({"detail": "Invalid otp"}, status=status.HTTP_403_FORBIDDEN)
+        return Response({"detail": message}, status=status.HTTP_403_FORBIDDEN)
 
 
 class PasswordResetView(APIView):
@@ -83,23 +120,6 @@ class PasswordResetView(APIView):
             {"detail": "otp to reset password has been sent to the provided email"},
             status=status.HTTP_200_OK,
         )
-
-
-class CustomPasswordResetConfirmView(PasswordChangeView):
-    serializer_class = CPasswordChangeSerializer
-    permission_classes = [AllowAny]
-
-    def get_serializer_context(self):
-        data = super().get_serializer_context()
-        if self.request.method == "POST":
-            email = self.request.data["email"]
-            user = get_object_or_404(get_user_model(), email=email)
-            data["user"] = user
-            return data
-        return super().get_serializer_context()
-
-    def get_queryset(self):
-        return super().get_queryset()
 
 
 class UserSettingsViewSet(
@@ -193,78 +213,134 @@ class ProfileViewSet(ModelViewSet):
         return Profile.objects.filter(user=self.request.user)
 
 
-class CustomSocialLoginView(SocialLoginView):
+# Create your views here.
+
+
+@response_schemas(response_model=InfoSerializer)
+class RegisterView(GenericAPIView):
     """
-    Google Login- Changing the Serializer class to a Custom made one
+    Create an account
+
+    Returns:
+
+        new_user: A newly registered user
     """
 
-    serializer_class = CustomSocialLoginSerializer
+    serializer_class = RegisterSerializer
 
-
-class CustomRegisterView(RegisterView):
-    """
-    Register New users
-    """
-
-    serializer_class = CustomRegisterSerializer
-
-    def perform_create(self, serializer):
-        user = serializer.save(self.request)
-
-        # Whether to send email after registration
-        send_email_check = getattr(settings, "SEND_EMAIL", False)
-        new_user_signal.send_robust(__class__, send_email=send_email_check, user=user)
-
-        if (
-            allauth_settings.EMAIL_VERIFICATION
-            != allauth_settings.EmailVerificationMethod.MANDATORY
-        ):
-            if getattr(settings, "REST_USE_JWT", False):
-                self.access_token, self.refresh_token = jwt_encode(user)
-            elif not getattr(settings, "REST_SESSION_LOGIN", False):
-                # Session authentication isn't active either, so this has to be
-                #  token authentication
-                # create_token(self.token_model, user, serializer)
-                pass
-
-        return user
-
-
-# if you want to use Authorization Code Grant, use this
-class GoogleLogin(CustomSocialLoginView):
-    site = config("CALLBACK_URL", "")
-    domain = site.split("/")[2] if site else ""
-
-    @extend_schema(
-        description=(
-            "# Visit this"
-            f" [`link`](https://accounts.google.com/o/oauth2/v2/auth?redirect_uri=https://{domain}/accounts/google/login/callback/&prompt=consent&response_type=code&client_id=878674025478-e8s4rf34md8h4n7qobb6mog43nfhfb7r.apps.googleusercontent.com&scope=openid%20email%20profile&access_type=offline)"
-            " for users to see the google account select modal."
+    def post(self, request):
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.save()
+        serializer = InfoSerializer(
+            data={"message": "Registered successfully", "status": True}
         )
-        + """
-        After Users select account for login, they will be redirected to a new url.
+        new_user_signal.send_robust(__class__, send_email=True, user=user)
+        serializer.is_valid(raise_exception=True)
+        return Response(
+            serializer.data,
+            status=status.HTTP_201_CREATED,
+        )
 
-        extract the `code` query parameter passed in the redirected url and send to this endpoint to get access and refresh tokens
 
-        Example data:
+class LoginView(TokenObtainPairView):
+    """
+    Login with either Email & Password to get Authentication tokens
 
-        {
+    Args:
 
-            code : "4%2F0AWgavdfDkbD_aCXtaruulCuVFpZSEpImEuZouGFZACGO1hxoDwqCV1znzazpn7ev5FmH2w"
+        Login credentials (_type_): email/password
 
-        }
-        """
-    )
+    Returns:
+
+        message: success
+
+        tokens: access and refresh
+
+        user: user profile details
+    """
+
+    serializer_class = TokenObtainPairSerializer
+
+    def post(self, request: HttpRequest, **kwargs):
+        serializer = LoginSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        # This could be a username or email
+        email, password = serializer.validated_data.values()
+
+        try:
+            validate_email(email)
+            email = get_user_model().objects.get(email=email).get_username()
+
+        except (get_user_model().DoesNotExist, ValidationError):
+            pass
+
+        user = authenticate(request, username=email, password=password)
+
+        if not user:
+            return ErrorResponse(code=ErrorEnum.ERR_007)
+
+        if not user.is_verified:
+            # We could prevent login here and return error message to user to verify email
+            # Or we could just return their verification status to the UI and show them a message to go complete their email verification
+            pass
+
+        request.data["username"] = email
+        tokens = super().post(request)
+        return Response(
+            {
+                "status": True,
+                "message": "Logged in successfully",
+                "tokens": tokens.data,
+                "user": UserSerializer(user).data,
+            },
+            status=status.HTTP_200_OK,
+        )
+
+
+class RefreshView(TokenRefreshView):
+    """
+    To get new access token after the initial one expires or becomes invalid
+
+    Args:
+        refresh_token
+
+    Returns:
+        access_token
+    """
+
+    serializer_class = TokenRefreshSerializer
+
     def post(self, request, *args, **kwargs):
-        return super().post(request, *args, **kwargs)
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        access_token = serializer.validated_data["access"]
+        return Response(
+            {"access": access_token, "status": True}, status=status.HTTP_200_OK
+        )
 
-    # * Local Development link
-    # ? https://accounts.google.com/o/oauth2/v2/auth?redirect_uri=http://127.0.0.1:8000/accounts/google/login/callback/&prompt=consent&response_type=code&client_id=878674025478-e8s4rf34md8h4n7qobb6mog43nfhfb7r.apps.googleusercontent.com&scope=openid%20email%20profile&access_type=offline
 
-    # CALLBACK_URL_YOU_SET_ON_GOOGLE
-    default_call_back_url = "http://127.0.0.1:8000/accounts/google/login/callback/"
+class GoogleSocialAuthView(APIView):
+    """
+    Login with Google by providing Auth_token
 
-    adapter_class = GoogleOAuth2Adapter
-    callback_url = config("CALLBACK_URL", default_call_back_url)
+    Args:
+        Auth_token
+    """
 
-    client_class = OAuth2Client
+    serializer_class = GoogleSocialAuthSerializer
+
+    def post(self, request: HttpRequest):
+        """
+
+        POST with "auth_token"
+        Send an id token from google to get user information
+        """
+
+        path = "signup" if "signup" in request.path else "login"
+        serializer = self.serializer_class(data=request.data, context={"path": path})
+        serializer.is_valid(raise_exception=True)
+        data = serializer.validated_data
+        data["status"]: True
+        return Response(data, status=status.HTTP_200_OK)

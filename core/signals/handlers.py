@@ -22,7 +22,6 @@ def send_verification_email(*args, **kwargs):
     if kwargs["send_email"]:
         user = kwargs["user"]
         code = OTPGenerator(user_id=user.id).get_otp()
-
         send_email(
             subject="Email Verification!",
             recipients=[user.email],

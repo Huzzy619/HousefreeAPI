@@ -5,26 +5,31 @@ from google.oauth2 import id_token
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from core.exception_handlers import ErrorEnum, ErrorResponse
-from core.serializers import UserSerializer
 
 
 def register_with_google(email, **kwargs):
-    user = get_user_model().objects.filter(email=email).first()
+    user_check = (
+        get_user_model()
+        .objects.filter(email=email, google_id=kwargs.get("google_id"))
+        .first()
+    )
 
     kwargs.pop("picture", None)  # For now, we would update the profile picture later
-    if not user:
-        user = get_user_model().objects.create_user(
-            email=email, password=config("SOCIAL_PASSWORD"), **kwargs
+    if user_check:
+        return ErrorResponse(
+            code=ErrorEnum.ERR_007,
+            extra_detail="Google account with this email already exists",
         )
+
+    user = get_user_model().objects.create_user(
+        email=email, password=config("SOCIAL_PASSWORD"), **kwargs
+    )
 
     refresh = RefreshToken.for_user(user)
 
     access = refresh.access_token
 
-    return {
-        "tokens": {"access": str(access), "refresh": str(refresh)},
-        "user": UserSerializer(user).data,
-    }
+    return {"tokens": {"access": str(access), "refresh": str(refresh)}, "user": user}
 
 
 def login_with_google(email, google_id):
@@ -40,10 +45,7 @@ def login_with_google(email, google_id):
 
     access = refresh.access_token
 
-    return {
-        "tokens": {"access": str(access), "refresh": str(refresh)},
-        "user": UserSerializer(user).data,
-    }
+    return {"tokens": {"access": str(access), "refresh": str(refresh)}, "user": user}
 
 
 class Google:

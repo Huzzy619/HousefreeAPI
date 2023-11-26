@@ -145,3 +145,4 @@ general.log
 playground
 .idea
 dump.py
+.ruff_cache

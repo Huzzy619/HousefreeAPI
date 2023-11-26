@@ -17,6 +17,7 @@ class User(AbstractUser):
     email = models.EmailField(unique=True)
     is_agent = models.BooleanField(default=False)
     google_id = models.CharField(max_length=250, blank=True, null=True)
+    is_verified = models.BooleanField(default=False)
     objects = CustomUserManager()
 
     USERNAME_FIELD = "email"
@@ -58,14 +59,14 @@ class AgentDetails(models.Model):
         upload_to=get_passport_path,
         null=True,
         blank=True,
-        verbose_name="Goverment ID Front",
+        verbose_name="Government ID Front",
         validators=[validate_file_size],
     )
     id_back = models.ImageField(
         upload_to=get_passport_path,
         null=True,
         blank=True,
-        verbose_name="Goverment ID Back",
+        verbose_name="Government ID Back",
         validators=[validate_file_size],
     )
     photo = models.ImageField(upload_to=get_passport_path)
@@ -96,3 +97,4 @@ class UserSettings(models.Model):
 class OTP(models.Model):
     counter = models.IntegerField(default=1)
     user = models.OneToOneField(User, on_delete=models.CASCADE)
+    date_created = models.DateTimeField(auto_now=True)
