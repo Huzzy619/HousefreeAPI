@@ -16,6 +16,9 @@ ALLOWED_HOSTS = [
     "rentrite.up.railway.app",
     "rentrite-homes.up.railway.app",
     "rentrite.cleverapps.io",
+    "localhost",
+    "127.0.0.1",
+    "localhost:3000"
 ]
 
 CSRF_TRUSTED_ORIGINS = ["https://" + host for host in ALLOWED_HOSTS]
