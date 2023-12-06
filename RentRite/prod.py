@@ -8,21 +8,22 @@ from .settings import *
 
 SECRET_KEY = os.environ.get("SECRET_KEY", config("SECRET_KEY", SECRET_KEY))
 
-DEBUG = config("DEBUG", False, cast=bool)
+# DEBUG = config("DEBUG", False, cast=bool)
+
 
 LOCAL_ALLOWED_HOSTS = ["localhost", "127.0.0.1", "localhost:3000"]
 
-ALLOWED_HOSTS = [
-    "rentrite.herokuapp.com",
-    "rentrite.up.railway.app",
-    "rentrite-homes.up.railway.app",
-    "rentrite.cleverapps.io",
-]
+# ALLOWED_HOSTS = [
+#     "rentrite.herokuapp.com",
+#     "rentrite.up.railway.app",
+#     "rentrite-homes.up.railway.app",
+#     "rentrite.cleverapps.io",
+# ]
 
 
-CSRF_TRUSTED_ORIGINS = ["https://" + host for host in ALLOWED_HOSTS] + [
-    "http://" + host for host in LOCAL_ALLOWED_HOSTS
-]
+# CSRF_TRUSTED_ORIGINS = ["https://" + host for host in ALLOWED_HOSTS] + [
+#     "http://" + host for host in LOCAL_ALLOWED_HOSTS
+# ]
 
 # DATABASES = {"default": dj_database_url.config()}
 DATABASES = {
