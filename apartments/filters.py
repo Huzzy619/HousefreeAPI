@@ -1,5 +1,5 @@
 from django.db import models
-from django_filters import CharFilter, FilterSet, NumericRangeFilter
+from django_filters import CharFilter, FilterSet, NumericRangeFilter, DateFromToRangeFilter
 
 from .models import Apartment
 
@@ -11,6 +11,7 @@ class ApartmentFilter(FilterSet):
     toilets = CharFilter(field_name="specifications__toilets", lookup_expr="exact")
     bathrooms = CharFilter(field_name="specifications__bathrooms", lookup_expr="exact")
     price = NumericRangeFilter(field_name="price", lookup_expr="range")
+    date_created = DateFromToRangeFilter(field_name="date_created")
 
     # Same with this fields, Probably because of the look_up
     # With this setuo, one can simplify the name of the attribute passed in the query parameter

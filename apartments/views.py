@@ -56,6 +56,7 @@ class ApartmentViewSet(ModelViewSet):
 
     filter_backends = [DjangoFilterBackend, OrderingFilter, SearchFilter]
     filterset_class = ApartmentFilter
+    # filterset_fields = ["date_created"]
     http_method_names = ["get", "post", "put", "delete"]
     lookup_field = (  # This will make it use the guid instead of the typical id to retrieve apartments
         "guid"
