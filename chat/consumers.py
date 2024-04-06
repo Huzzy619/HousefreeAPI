@@ -178,7 +178,7 @@ class ChatConsumer(JsonWebsocketConsumer):
 
         import time
 
-        while bool(self.message.attachment.first()) == False:
+        while bool(self.message.attachment.first()) is False:
             time.sleep(1)
 
         event["message"] = MessageSerializer(self.message).data

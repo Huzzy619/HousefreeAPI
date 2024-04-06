@@ -1,14 +1,15 @@
 from django.contrib.auth import get_user_model
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+from RentRite.models import BaseModel
 
 User = get_user_model()
 
 # Create your models here.
 
 
-class Notification(models.Model):
-    class CategoryChoices(models.TextChoices):
+class Notification(BaseModel):
+    class Category(models.TextChoices):
         PAYMENT = "Payment", _("Payment")
         CHAT = "Chat", _("Chat")
         ADVERT = "Advert", _("Advert")
@@ -18,12 +19,11 @@ class Notification(models.Model):
     description = models.TextField(_("Notification Description"))
     read = models.BooleanField(_("Read Notification"), default=False)
     category = models.CharField(
-        _("Category"),
+        verbose_name=_("Category"),
         max_length=100,
-        choices=CategoryChoices.choices,
-        default=CategoryChoices.OTHER,
+        choices=Category,
+        default=Category.OTHER,
     )
-    created_at = models.DateTimeField(_("Created"), auto_now_add=True)
 
     def __str__(self):
         return f"{self.user.email}: {self.description[:50]}..."

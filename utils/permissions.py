@@ -2,7 +2,6 @@ from django.shortcuts import get_object_or_404
 from rest_framework import permissions
 
 from apartments.models import Apartment
-from rest_framework import permissions
 
 
 class IsAgent(permissions.BasePermission):
@@ -31,7 +30,7 @@ class IsOwner(permissions.BasePermission):
             return True
         try:
             return obj.agent == request.user
-        except:
+        except Exception:
             # In a case when a user object is the instance to be checked
             return obj == request.user
 

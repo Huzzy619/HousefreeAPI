@@ -1,0 +1,7 @@
+-- user loguru to log result of actions
+-- disable django logger..
+
+
+
+Standard Plan Code --- PLN_q3poocbm0e5jp2d 
+amount 12,000  Monthly

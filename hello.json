@@ -1,0 +1,71 @@
+{
+  "event": "charge.success",
+  "data": {
+    "id": 3690192933,
+    "domain": "test",
+    "status": "success",
+    "reference": "b6ddd450-6d10-4d12-b68c-c31e70697c56",
+    "amount": 1200000,
+    "message": null,
+    "gateway_response": "Successful",
+    "paid_at": "2024-04-06T06:50:17.000Z",
+    "created_at": "2024-04-06T06:49:08.000Z",
+    "channel": "card",
+    "currency": "NGN",
+    "ip_address": "102.89.32.181",
+    "metadata": "",
+    "fees_breakdown": null,
+    "log": null,
+    "fees": 28000,
+    "fees_split": null,
+    "authorization": {
+      "authorization_code": "AUTH_y8epugl1zn",
+      "bin": "408408",
+      "last4": "4081",
+      "exp_month": "12",
+      "exp_year": "2030",
+      "channel": "card",
+      "card_type": "visa ",
+      "bank": "TEST BANK",
+      "country_code": "NG",
+      "brand": "visa",
+      "reusable": true,
+      "signature": "SIG_6AhN3vCWpQCpN9Xm02FH",
+      "account_name": null
+    },
+    "customer": {
+      "id": 162882920,
+      "first_name": null,
+      "last_name": null,
+      "email": "new-huzzy1@yopmail.com",
+      "customer_code": "CUS_sjxnotcfdi9bwdd",
+      "phone": null,
+      "metadata": null,
+      "risk_action": "default",
+      "international_format_phone": null
+    },
+    "plan": {
+      "id": 1275853,
+      "name": "Standard Plan",
+      "plan_code": "PLN_q3poocbm0e5jp2d",
+      "description": "Standard plan for Rentrite.",
+      "amount": 1200000,
+      "interval": "monthly",
+      "send_invoices": 1,
+      "send_sms": 1,
+      "currency": "NGN"
+    },
+    "subaccount": {},
+    "split": {},
+    "order_id": null,
+    "paidAt": "2024-04-06T06:50:17.000Z",
+    "requested_amount": 1200000,
+    "pos_transaction_data": null,
+    "source": {
+      "type": "api",
+      "source": "merchant_api",
+      "entry_point": "transaction_initialize",
+      "identifier": null
+    }
+  }
+}

@@ -14,10 +14,10 @@ class BlogViewSet(ModelViewSet):
         filters.OrderingFilter,
     ]
     http_method_names = ["post", "get", "delete", "patch"]
-    ordering_fields = ["date_published", "date_updated"]
     pagination_class = pagination.LimitOffsetPagination
     permission_classes = [IsMarketerOrReadOnly]
     queryset = Blog.objects.all()
+    ordering_fields = ["created_at", "updated_at"]
     search_fields = ["title", "content", "category"]
 
     def get_serializer_class(self):

@@ -23,9 +23,20 @@ from utils.permissions import IsAgent, IsFileOwner, IsOwner
 
 from .filters import ApartmentFilter
 from .models import Apartment, Bookmark, Media, Picture, Review
-from .serializers import *
+from .serializers import (
+    ApartmentSerializer,
+    CreateApartmentSerializer,
+    CreateMediaSerializer,
+    CreatePictureSerializer,
+    CreateBookmarkSerializer,
+    MediaSerializer,
+    PictureSerializer,
+    ReviewSerializer,
+)
+from django.db import IntegrityError
 
 from django.http import HttpResponse
+from core.exception_handlers import ErrorEnum, ErrorResponse
 
 from utils.helpers import custom_cache_decorator
 
@@ -56,14 +67,14 @@ class ApartmentViewSet(ModelViewSet):
 
     filter_backends = [DjangoFilterBackend, OrderingFilter, SearchFilter]
     filterset_class = ApartmentFilter
-    # filterset_fields = ["date_created"]
+    # filterset_fields = ["category", "_type"]
     http_method_names = ["get", "post", "put", "delete"]
     lookup_field = (  # This will make it use the guid instead of the typical id to retrieve apartments
         "guid"
     )
     permission_classes = [IsOwner, IsAgent]
-    search_fields = ["address", "price", "category", "title"]
-    ordering_fields = ["category"]
+    # search_fields = ["address", "price", "category", "title"]
+    # ordering_fields = ["category"]
 
     @action(methods=["GET"], permission_classes=[IsAuthenticated], detail=False)
     @method_decorator(cache_page(timedelta(hours=1).total_seconds()))
@@ -162,7 +173,6 @@ class PicturesViewSet(ModelViewSet):
 
 
 class MediaViewSet(ModelViewSet):
-
     """
     Short video clips of the apartment can be uploaded
 
@@ -204,7 +214,6 @@ class MediaViewSet(ModelViewSet):
 
 
 class ReviewViewSet(ModelViewSet):
-
     """
     Agents and other users can leave reviews on apartments
 
@@ -264,10 +273,15 @@ class BookmarkView(APIView):
 
             status_code: 201
         """
-
-        instance = Bookmark.objects.create(
-            user=request.user, apartment_id=request.data["apartment_id"]
-        )
+        try:
+            instance = Bookmark.objects.create(
+                user=request.user, apartment_id=request.data["apartment_id"]
+            )
+        except IntegrityError:
+            return ErrorResponse(
+                code=ErrorEnum.ERR_006,
+                extra_detail="Apartment not found",
+            )
         serializer = CreateBookmarkSerializer(instance)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
@@ -294,7 +308,12 @@ class BookmarkView(APIView):
 
         """
 
-        apartment_id_list = request.data["items"]
+        apartment_id_list = request.data.get("items", [])
+
+        if not apartment_id_list:
+            return Response(
+                {"message: No items to delete"}, status=status.HTTP_400_BAD_REQUEST
+            )
 
         Bookmark.objects.filter(apartment_id__in=apartment_id_list).delete()
 

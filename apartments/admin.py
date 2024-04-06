@@ -6,13 +6,11 @@ admin.site.register([Bookmark, Picture, Media])
 
 
 class PictureInline(admin.TabularInline):
-    # class Meta:
     model = Picture
     extra = 2
 
 
 class MediaInline(admin.TabularInline):
-    # class Meta:
     model = Media
     extra = 1
 

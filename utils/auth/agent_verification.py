@@ -7,6 +7,13 @@ FACEKI_ID = os.environ.get("FACEKI_ID", config("FACEKI_ID", ""))
 FACEKI_EMAIL = os.environ.get("FACEKI_EMAIL", config("FACEKI_EMAIL", ""))
 
 
+
+# OTHER OPTIONS FOR VERIFICATION 
+
+# https://docs.verifyme.ng/introduction/introduction-1
+# https://docs.qoreid.com/reference/getting-started-with-your-api
+
+
 async def agent_identity_verification(front_image, back_image, selfie_image):
 
     body = {"client_id": FACEKI_ID, "email": FACEKI_EMAIL}

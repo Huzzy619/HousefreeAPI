@@ -1,65 +1,99 @@
 import random
-import secrets
 import string
-
 from django.contrib.auth import get_user_model
 from django.db import models
+from uuid import uuid4
 
-from payments.paystack import Paystack
-
-PAYMENT_OPTION_CHOICES = (
-    ("paystack", "paystack"),
-    ("flutterwave", "flutterwave"),
-)
-PAYMENT_PLANS_CHOICES = (
-    ("Standard 1", "Standard 1"),
-    ("Standard 2", "Standard 2"),
-    ("Standard 3", "Standard 3"),
-    ("Gold 1", "Gold 1"),
-    ("Gold 2", "Gold 2"),
-)
+from RentRite.models import BaseModel
 
 
-class Payment(models.Model):
+class PaymentGateway(models.TextChoices):
+    PAYSTACK = "paystack"
+    FLUTTERWAVE = "flutterwave"
+
+
+class PaymentPlan(BaseModel):
+    class Term(models.TextChoices):
+        MONTHLY = "month"
+        BI_WEEKLY = "bi-weekly"
+        SIX_MONTHS = "6-months"
+        ANNUALLY = "year"
+
+    name = models.CharField(max_length=50)
+    price = models.DecimalField(max_digits=12, decimal_places=2)
+    term = models.CharField(max_length=50, choices=Term)
+    property_listings = models.IntegerField()
+    premium_listings = models.IntegerField()
+    post_boost = models.IntegerField()
+    plan_code = models.CharField(max_length=255, unique=True)
+
+    def __str__(self) -> str:
+        return f"{self.name} - {self.term}"
+
+
+class TransactionIntent(BaseModel):
+    class TransactionStatus(models.TextChoices):
+        CREATED = "CREATED"
+        PROCESSING = "PROCESSING"
+        COMPLETED = "COMPLETED"
+        FAILED = "FAILED"
+
+    user = user = models.ForeignKey(
+        get_user_model(), on_delete=models.CASCADE, blank=True, null=True
+    )
+    payment_plan = models.ForeignKey(
+        PaymentPlan, on_delete=models.SET_NULL, blank=True, null=True
+    )
+    payment_gateway = models.CharField(max_length=255, choices=PaymentGateway)
+    amount = models.DecimalField(max_digits=12, decimal_places=2)
+    description = models.TextField(null=True, blank=True)
+    transaction_uid = models.UUIDField(default=uuid4)
+    status = models.CharField(
+        max_length=255,
+        choices=TransactionStatus.choices,
+        default=TransactionStatus.CREATED,
+    )
+
+    def __str__(self) -> str:
+        return f"{self.transaction_uid} - {self.status}"
+
+
+class Subscription(BaseModel):
+    start_date = models.DateTimeField(auto_now=True)
+    payment_plan = models.ForeignKey(
+        PaymentPlan, on_delete=models.SET_NULL, blank=True, null=True
+    )
+    user = models.ForeignKey(
+        get_user_model(), on_delete=models.CASCADE, blank=True, null=True
+    )
+    is_active = models.BooleanField(default=True)
+    metadata = models.JSONField(null=True, blank=True)
+    subscription_code = models.CharField(null=True, blank=True)
+    email_token = models.CharField(null=True, blank=True)
+
+
+class Payment(BaseModel):
     user = models.ForeignKey(
         get_user_model(), on_delete=models.CASCADE, blank=True, null=True
     )
     email = models.EmailField()
-    amount = models.FloatField()
+    amount = models.DecimalField(max_digits=12, decimal_places=2)
     txn_ref = models.CharField(max_length=200, unique=True)
     verified = models.BooleanField(default=False)
-    payment_options = models.CharField(max_length=255, choices=PAYMENT_OPTION_CHOICES)
-    payment_plan = models.CharField(max_length=255, choices=PAYMENT_PLANS_CHOICES)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-    metadata = models.JSONField()
+    payment_plan = models.ForeignKey(
+        PaymentPlan, on_delete=models.SET_NULL, blank=True, null=True
+    )
+    metadata = models.JSONField(null=True, blank=True)
 
     class Meta:
-        ordering = ("-created_at",)
+        ordering = ["-created_at"]
         verbose_name_plural = "Payments"
 
     def __str__(self):
         return f"Payment of {self.amount} by {self.user} on {self.created_at}"
 
-    def save(self, *args, **kwargs):
-        if not self.txn_ref:
-            self.txn_ref = secrets.token_urlsafe(50)
-        super().save(*args, **kwargs)
 
-    def verify_paystack_payment(self):
-        paystack = Paystack()
-        status, result = paystack.verify_payment(self.txn_ref, self.amount)
-        if not status:
-            return False
-        if result["amount"] / 100 != self.amount:
-            print(result["amount"], self.amount)
-            return False
-        self.verified = True
-        self.save()
-        return True
-
-
-class Wallet(models.Model):
+class Wallet(BaseModel):
     user = models.OneToOneField(get_user_model(), on_delete=models.CASCADE)
     balance = models.PositiveIntegerField(default=0)
     currency = models.CharField(default="NGN", max_length=100)
@@ -81,23 +115,7 @@ class Wallet(models.Model):
         return super().save(**kwargs)
 
 
-class PaymentPlan(models.Model):
-    PERIODS = [
-        ("month", "month"),
-        ("bi-weekly", "bi-weekly"),
-        ("6-months", "6-months"),
-        ("year", "year"),
-    ]
-    plan_id = models.CharField(unique=True, max_length=50, verbose_name="Plan ID")
-    name = models.CharField(max_length=50)
-    price = models.DecimalField(max_digits=6, decimal_places=2)
-    period = models.CharField(max_length=50, choices=PERIODS)
-    property_listings = models.IntegerField()
-    premium_listings = models.IntegerField()
-    post_boost = models.IntegerField()
-
-
-class BankDetail(models.Model):
+class BankDetail(BaseModel):
     account_number = models.IntegerField()
     account_name = models.CharField(max_length=500)
     bank_name = models.CharField(max_length=500)
