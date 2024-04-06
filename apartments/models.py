@@ -11,32 +11,23 @@ from hitcount.models import (  # This will add a reverse lookup from HitCount Mo
     HitCountMixin,
 )
 from autoslug import AutoSlugField
-
-TYPE_CHOICES = [
-    ("Rent", "Rent"),
-    ("Sale", "Sale"),
-]
-
-CATEGORY_TYPE = [
-    ("Apartments", "Apartments"),
-    ("Hostels", "Hostels"),
-    ("Flats", "Flats"),
-    ("Commercial Properties", "Commercial Properties"),
-    ("Event Centers", "Event Centers"),
-    ("Self Contain", "Self Contain"),
-    ("Houses", "Houses"),
-]
-
-
-class BaseModel(models.Model):
-    date_created = models.DateTimeField(auto_now_add=True)
-    date_updated = models.DateTimeField(auto_now=True)
-
-    class Meta:
-        abstract = True
+from RentRite.models import BaseModel
 
 
 class Apartment(BaseModel, HitCountMixin):
+    class Type(models.TextChoices):
+        RENT = "Rent"
+        SALE = "Sale"
+
+    class Category(models.TextChoices):
+        APARTMENTS = "Apartments"
+        HOSTELS = "Hostels"
+        FLATS = "Flats"
+        COMMERCIAL_PROPERTIES = "Commercial Properties"
+        EVENT_CENTERS = "Event Centers"
+        SELF_CONTAIN = "Self Contain"
+        HOUSES = "Houses"
+
     guid = models.UUIDField(
         default=uuid.uuid4,
         editable=False,
@@ -46,9 +37,9 @@ class Apartment(BaseModel, HitCountMixin):
     )
     slug = AutoSlugField(populate_from="title", default="")
     property_ref = models.CharField(max_length=10, editable=False)
-    category = models.CharField(choices=CATEGORY_TYPE, max_length=50)
+    category = models.CharField(choices=Category, max_length=50)
     _type = models.CharField(
-        max_length=255, choices=TYPE_CHOICES, default="Rent", verbose_name="type"
+        max_length=255, choices=Type, default=Type.RENT, verbose_name="type"
     )
     price = models.DecimalField(max_digits=10, decimal_places=2)
     state = models.CharField(max_length=500)
@@ -119,9 +110,9 @@ class Review(BaseModel):
     )
 
     class Meta:
-        ordering = ["-date_updated"]
+        ordering = ["-updated_at"]
 
 
-class Bookmark(models.Model):
+class Bookmark(BaseModel):
     apartment = models.ForeignKey(Apartment, on_delete=models.CASCADE)
     user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)

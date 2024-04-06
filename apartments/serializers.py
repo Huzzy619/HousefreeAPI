@@ -15,7 +15,7 @@ class CreateBookmarkSerializer(serializers.ModelSerializer):
 class ReviewSerializer(serializers.ModelSerializer):
     class Meta:
         model = Review
-        fields = ["id", "text", "date_created"]
+        fields = ["id", "text", "created_at"]
 
     def save(self, **kwargs):
         user = self.context["user"]
@@ -156,8 +156,8 @@ class ApartmentSerializer(serializers.ModelSerializer):
             "agent",
             "pictures",
             "videos",
-            "date_created",
-            "date_updated",
+            "created_at",
+            "updated_at",
         ]
 
     def get_f_price(self, apartment):

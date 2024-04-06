@@ -21,8 +21,8 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "RentRite.settings")
 
 django_asgi = get_asgi_application()
 
-from utils.auth.AuthMiddleware import JWTAuthMiddleWareStack
-import chat.routing
+from utils.auth.AuthMiddleware import JWTAuthMiddleWareStack  # noqa
+import chat.routing  # noqa
 
 
 application = ProtocolTypeRouter(

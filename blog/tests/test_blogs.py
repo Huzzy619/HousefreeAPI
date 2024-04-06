@@ -9,7 +9,7 @@ User = get_user_model()
 blog_data = {
     "title": "string",
     "content": "string",
-    "category": "Spotlight",
+    "category": "spotlight",
     "featured": True,
 }
 

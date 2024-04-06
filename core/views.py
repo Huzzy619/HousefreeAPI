@@ -3,6 +3,7 @@ import asyncio
 from asgiref.sync import async_to_sync
 from django.contrib.auth import authenticate, get_user_model
 from django.core.exceptions import ValidationError
+
 # Create your views here.
 from django.core.validators import validate_email
 from django.http import HttpRequest
@@ -14,26 +15,38 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import GenericViewSet, ModelViewSet
-from rest_framework_simplejwt.serializers import (TokenObtainPairSerializer,
-                                                  TokenRefreshSerializer)
+from rest_framework_simplejwt.serializers import (
+    TokenObtainPairSerializer,
+    TokenRefreshSerializer,
+)
 from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework_simplejwt.views import (TokenObtainPairView,
-                                            TokenRefreshView)
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 from core.exception_handlers import ErrorEnum, ErrorResponse, response_schemas
 from core.schemas import EmailEvents
-from core.serializers import (AgentDetailsSerializer, OTPSerializer,
-                              PasswordResetSerializer, ProfileSerializer,
-                              UserSettingsSerializer)
+from core.serializers import (
+    AgentDetailsSerializer,
+    OTPSerializer,
+    PasswordResetSerializer,
+    ProfileSerializer,
+    UserSettingsSerializer,
+)
 from core.signals import new_user_signal, reset_password_signal
 from utils.auth.agent_verification import agent_identity_verification
 from utils.permissions import IsAgent, IsOwner
 
 from .models import AgentDetails, Profile, UserSettings
 from .otp import OTPGenerator
-from .serializers import (GoogleSocialAuthSerializer, InfoSerializer,
-                          LoginSerializer, RegisterSerializer, UserSerializer)
+from .serializers import (
+    GoogleSocialAuthSerializer,
+    InfoSerializer,
+    LoginSerializer,
+    RegisterSerializer,
+    UserSerializer,
+)
 from .signals import verification_signal
+from .schemas import VerificationStatus
+from rest_framework.permissions import AllowAny
 
 
 class GetOTPView(APIView):
@@ -161,7 +174,9 @@ class AgentDetailsView(CreateAPIView):
             front_image, back_image, selfie_image
         )
 
-        verification_signal.send(__class__, status="pending", user=request.user)
+        verification_signal.send(
+            __class__, status=VerificationStatus.PENDING, user=request.user
+        )
         if agent_verification:
             # checks if the agent details from identity verification service provider API
             # matches the agent details we've in our DB
@@ -173,17 +188,23 @@ class AgentDetailsView(CreateAPIView):
             ):
                 await asyncio.get_event_loop().run_in_executor(None, serializer.save)
                 headers = self.get_success_headers(serializer.data)
-                verification_signal.send(__class__, status="success", user=request.user)
+                verification_signal.send(
+                    __class__, status=VerificationStatus.SUCCESS, user=request.user
+                )
 
                 return Response(
                     serializer.data, status=status.HTTP_201_CREATED, headers=headers
                 )
-            verification_signal.send(__class__, status="failed", user=request.user)
+            verification_signal.send(
+                __class__, status=VerificationStatus.FAILED, user=request.user
+            )
 
             return Response(
                 data="user details does not match", status=status.HTTP_400_BAD_REQUEST
             )
-        verification_signal.send(__class__, status="failed", user=request.user)
+        verification_signal.send(
+            __class__, status=VerificationStatus.FAILED, user=request.user
+        )
 
         return Response(
             data="agent verification failed",
@@ -217,6 +238,7 @@ class RegisterView(GenericAPIView):
     """
 
     serializer_class = RegisterSerializer
+    permission_classes = [AllowAny]
 
     def post(self, request):
         serializer = self.serializer_class(data=request.data)
@@ -276,15 +298,15 @@ class LoginView(TokenObtainPairView):
             # Or we could just return their verification status to the UI and show them a message to go complete their email verification
             pass
         refresh = RefreshToken.for_user(user)
-        
+
         return Response(
             {
                 "status": True,
                 "message": "Logged in successfully",
-                "tokens":  {
-                "access": str(refresh.access_token),
-                "refresh": str(refresh),
-            },
+                "tokens": {
+                    "access": str(refresh.access_token),
+                    "refresh": str(refresh),
+                },
                 "user": UserSerializer(user).data,
             },
             status=status.HTTP_200_OK,

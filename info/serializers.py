@@ -1,12 +1,11 @@
 from rest_framework import serializers
 from .models import Contact, Newsletter, HelpDesk, Report
-from django.contrib.auth import get_user_model
 
 
 class ContactSerializer(serializers.ModelSerializer):
     class Meta:
         model = Contact
-        fields = ["first_name", "last_name", "email", "message", "date"]
+        fields = ["first_name", "last_name", "email", "message", "created_at"]
 
 
 class NewsletterSerializer(serializers.ModelSerializer):
@@ -18,7 +17,7 @@ class NewsletterSerializer(serializers.ModelSerializer):
 class HelpDeskSerializer(serializers.ModelSerializer):
     class Meta:
         model = HelpDesk
-        fields = ["category", "problem", "message", "date_created"]
+        fields = ["category", "problem", "message", "created_at"]
 
     def save(self, **kwargs):
         return super().save(user=self.context["user"], **self.validated_data)
@@ -30,6 +29,5 @@ class ReportListingSerializer(serializers.ModelSerializer):
         fields = ["problem", "description", "apartment"]
 
     def save(self, **kwargs):
-        user = get_user_model().objects.first()
+        user = self.context["user"]
         return super().save(user=user, **self.validated_data)
-        self.context["user"]

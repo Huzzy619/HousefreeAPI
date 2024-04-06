@@ -8,7 +8,7 @@ from ..models import Profile, UserSettings
 from ..otp import OTPGenerator
 from . import new_user_signal, reset_password_signal, verification_signal
 from notifications.models import Notification
-
+from core.schemas import VerificationStatus
 
 @receiver(post_save, sender=get_user_model())
 def create_user_profile_and_settings(instance, created, **kwargs):
@@ -58,20 +58,21 @@ def send_verification_status_email(*args, **kwargs):
     status, user = kwargs.values()
     context = {"name": user.get_full_name()}
 
-    if status == "pending":
-        subject = "Verification Pending"
-        message = "Your verification is currently pending"
-        template = "email/verification_pending.html"
+    match status:
+        case VerificationStatus.PENDING:
+            subject = "Verification Pending"
+            message = "Your verification is currently pending"
+            template = "email/verification_pending.html"
 
-    elif status == "success":
-        subject = "Verification Successful"
-        message = "Your verification has been successful"
-        template = "email/verification_success.html"
+        case VerificationStatus.SUCCESS:
+            subject = "Verification Successful"
+            message = "Your verification has been successful"
+            template = "email/verification_success.html"
 
-    elif status == "failed":
-        subject = "Verification Failed"
-        message = "Your verification has been rejected"
-        template = "email/verification_failed.html"
+        case VerificationStatus.FAILED:
+            subject = "Verification Failed"
+            message = "Your verification has been rejected"
+            template = "email/verification_failed.html"
 
     send_email(
         subject=subject,

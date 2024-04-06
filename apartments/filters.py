@@ -1,5 +1,11 @@
-from django.db import models
-from django_filters import CharFilter, FilterSet, NumericRangeFilter, DateFromToRangeFilter
+from django_filters import (
+    CharFilter,
+    ChoiceFilter,
+    FilterSet,
+    NumericRangeFilter,
+    DateFromToRangeFilter,
+    UUIDFilter,
+)
 
 from .models import Apartment
 
@@ -11,43 +17,39 @@ class ApartmentFilter(FilterSet):
     toilets = CharFilter(field_name="specifications__toilets", lookup_expr="exact")
     bathrooms = CharFilter(field_name="specifications__bathrooms", lookup_expr="exact")
     price = NumericRangeFilter(field_name="price", lookup_expr="range")
-    date_created = DateFromToRangeFilter(field_name="date_created")
+    created_at = DateFromToRangeFilter(field_name="created_at")
+    category = ChoiceFilter(field_name="category", choices=Apartment.Category.choices)
 
     # Same with this fields, Probably because of the look_up
-    # With this setuo, one can simplify the name of the attribute passed in the query parameter
+    # With this setup, one can simplify the name of the attribute passed in the query parameter
     address = CharFilter(field_name="address", lookup_expr="icontains")
-    agent_id = CharFilter(field_name="agent_id", lookup_expr="exact")
+    agent_id = UUIDFilter(field_name="agent_id", lookup_expr="exact")
 
     class Meta:
         model = Apartment
-        fields = {
-            "category": ["exact"],
-            "_type": ["exact"],
-            "state": ["exact"],
-            "property_ref": ["exact"],
-        }
+        fields = ["_type", "state", "property_ref"]
 
-    def filter_queryset(self, queryset):
-        # Override the query to allow it search for Comma Separated values
-        for name, value in self.form.cleaned_data.items():
-            # Check if value contains comma
+    # def filter_queryset(self, queryset):
+    #     # Override the query to allow it search for Comma Separated values
+    #     for name, value in self.form.cleaned_data.items():
+    #         # Check if value contains comma
 
-            if value is not None and "," in value:
-                # Split value by comma and convert to list
-                values = value.split(",")
-                # Apply OR operator to filter queryset with multiple values passed
-                queryset = queryset.filter(**{f"{name}__in": values})
-            else:
-                queryset = self.filters[name].filter(queryset, value)
+    #         if value is not None and "," in value:
+    #             # Split value by comma and convert to list
+    #             values = value.split(",")
+    #             # Apply OR operator to filter queryset with multiple values passed
+    #             queryset = queryset.filter(**{f"{name}__in": values})
+    #         else:
+    #             queryset = self.filters[name].filter(queryset, value)
 
-            assert isinstance(
-                queryset, models.QuerySet
-            ), "Expected '%s.%s' to return a QuerySet, but got a %s instead." % (
-                type(self).__name__,
-                name,
-                type(queryset).__name__,
-            )
-        return queryset
+    #         assert isinstance(
+    #             queryset, models.QuerySet
+    #         ), "Expected '%s.%s' to return a QuerySet, but got a %s instead." % (
+    #             type(self).__name__,
+    #             name,
+    #             type(queryset).__name__,
+    #         )
+    #     return queryset
 
 
 # ? Note

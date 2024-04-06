@@ -4,10 +4,12 @@ from django.contrib.auth import get_user_model
 from django.db import models
 from utils.paths.path_helpers import get_attachment_path
 
+from RentRite.models import BaseModel
+
 User = get_user_model()
 
 
-class Conversation(models.Model):
+class Conversation(BaseModel):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=128)
     online = models.ManyToManyField(to=User, blank=True)
@@ -27,7 +29,7 @@ class Conversation(models.Model):
         return f"{self.name} ({self.get_online_count()})"
 
 
-class Message(models.Model):
+class Message(BaseModel):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     conversation = models.ForeignKey(
         Conversation, on_delete=models.CASCADE, related_name="messages"
@@ -49,7 +51,7 @@ class Message(models.Model):
         )
 
 
-class Attachment(models.Model):
+class Attachment(BaseModel):
     _file = models.FileField(blank=True, null=True, upload_to=get_attachment_path)
     message = models.ForeignKey(
         Message, on_delete=models.CASCADE, related_name="attachment"

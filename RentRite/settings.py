@@ -46,6 +46,8 @@ INSTALLED_APPS = [
     "phonenumber_field",
     "django_filters",
     "hitcount",
+    "django_extensions",
+    "data_browser",
     # ? Local
     "core",
     "apartments",
@@ -108,22 +110,22 @@ CHANNEL_LAYERS = {
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
-    },
-    # The Multiple database system is not implemented yet
-    # "info_db": {
+    # "default": {
     #     "ENGINE": "django.db.backends.sqlite3",
-    #     "NAME": BASE_DIR / "infodb.sqlite3",
+    #     "NAME": BASE_DIR / "db.sqlite3",
     # },
-    # "default":{
-    #     "ENGINE": "django.db.backends.postgresql",
-    #     "NAME": "testrailway3",
-    #     "USER": "postgres",
-    #     "PASSWORD": "0509",
-    #     "HOST": "localhost"
-    # }
+    # # The Multiple database system is not implemented yet
+    # # "info_db": {
+    # #     "ENGINE": "django.db.backends.sqlite3",
+    # #     "NAME": BASE_DIR / "infodb.sqlite3",
+    # # },
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": "rentrite",
+        "USER": "postgres",
+        "PASSWORD": "password",
+        "HOST": "localhost",
+    }
 }
 
 
@@ -214,6 +216,7 @@ REST_FRAMEWORK = {
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
     "EXCEPTION_HANDLER": "core.exception_handlers.custom_exception_handler",
     "NON_FIELD_ERRORS_KEY": "error",
+    "DEFAULT_FILTER_BACKENDS": ("django_filters.rest_framework.DjangoFilterBackend",),
 }
 
 
@@ -250,7 +253,6 @@ HITCOUNT_KEEP_HIT_ACTIVE = {"days": 1}
 
 
 CELERY_BROKER_URL = REDIS_URL
-
 
 # ? localhost email settings
 EMAIL_PORT = 2525
@@ -290,7 +292,7 @@ LOGGING = {
     },
     "loggers": {
         "": {  # The empty string indicates ~ All Apps including installed apps
-            "handlers": ["file"],
+            "handlers": ["console"],
             "propagate": True,
         },
     },

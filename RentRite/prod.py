@@ -4,7 +4,8 @@ import dj_database_url
 import sentry_sdk
 from sentry_sdk.integrations.django import DjangoIntegration
 from corsheaders.defaults import default_headers
-from .settings import *
+from .settings import *  # noqa
+from decouple import config
 
 SECRET_KEY = os.environ.get("SECRET_KEY", config("SECRET_KEY", SECRET_KEY))
 
@@ -21,10 +22,11 @@ LOCAL_ALLOWED_HOSTS = ["localhost", "127.0.0.1", "localhost:3000"]
 # ]
 
 
-CSRF_TRUSTED_ORIGINS = ["https://" + host for host in ALLOWED_HOSTS] + [
-    "http://" + host for host in LOCAL_ALLOWED_HOSTS
-] + ["https://rentrite.up.railway.app", "https://rentrite-homes.up.railway.app"]
-
+CSRF_TRUSTED_ORIGINS = (
+    ["https://" + host for host in ALLOWED_HOSTS]
+    + ["http://" + host for host in LOCAL_ALLOWED_HOSTS]
+    + ["https://rentrite.up.railway.app", "https://rentrite-homes.up.railway.app"]
+)
 
 
 CORS_ALLOW_HEADERS = list(default_headers)

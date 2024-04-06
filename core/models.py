@@ -9,6 +9,8 @@ from utils.paths.path_helpers import get_passport_path
 from utils.validators.models import validate_NIN_digits, validate_file_size
 
 from .managers import CustomUserManager
+from django.forms.models import model_to_dict
+from RentRite.models import BaseModel
 
 
 class User(AbstractUser):
@@ -26,8 +28,11 @@ class User(AbstractUser):
     def __str__(self) -> str:
         return self.get_full_name() if self.first_name else "no name"
 
+    def to_dict(self) -> dict:
+        return model_to_dict(self)
 
-class Profile(models.Model):
+
+class Profile(BaseModel):
     GENDER = [
         ("M", "Male"),
         ("F", "Female"),
@@ -46,7 +51,7 @@ class Profile(models.Model):
     date_updated = models.DateTimeField(auto_now_add=True)
 
 
-class AgentDetails(models.Model):
+class AgentDetails(BaseModel):
     ID_TYPE = [("NIN", "NIN"), ("GOVERNMENT_ID", "GOVERNMENT_ID")]
 
     nin = models.CharField(
@@ -85,7 +90,7 @@ class AgentDetails(models.Model):
         )
 
 
-class UserSettings(models.Model):
+class UserSettings(BaseModel):
     THEME = [("light", "light"), ("dark", "dark")]
 
     language = models.CharField(default="English", max_length=200)

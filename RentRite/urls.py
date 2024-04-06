@@ -12,6 +12,7 @@ from drf_spectacular.views import (
 urlpatterns = [
     path("", TemplateView.as_view(template_name="index.html"), name="index"),
     path("admin/", admin.site.urls),
+    path("data-browser/", include("data_browser.urls")),
     path("accounts/", include("core.urls")),
     path("payments/", include("payments.urls")),
     path("chat/", include("chat.urls")),
@@ -20,7 +21,6 @@ urlpatterns = [
     path("", include("notifications.urls")),
     path("", include("blog.urls")),
     path("__debug__/", include("debug_toolbar.urls")),
-    # path("", include('playground.urls'))
 ]
 
 # # Documentation paths
