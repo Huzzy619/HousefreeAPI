@@ -38,10 +38,10 @@ class TransactionIntent(BaseModel):
         COMPLETED = "COMPLETED"
         FAILED = "FAILED"
 
-    id = models.UUIDField(
-        default=uuid4,
-        primary_key=True
-    )
+    # id = models.UUIDField(
+    #     default=uuid4,
+    #     primary_key=True
+    # )
 
     user = user = models.ForeignKey(
         get_user_model(), on_delete=models.CASCADE, blank=True, null=True
@@ -64,10 +64,10 @@ class TransactionIntent(BaseModel):
 
 
 class Subscription(BaseModel):
-    id = models.UUIDField(
-        default=uuid4,
-        primary_key=True
-    )
+    # id = models.UUIDField(
+    #     default=uuid4,
+    #     primary_key=True
+    # )
     start_date = models.DateTimeField(auto_now=True)
     payment_plan = models.ForeignKey(
         PaymentPlan, on_delete=models.SET_NULL, blank=True, null=True
