@@ -21,11 +21,11 @@ class PaymentPlan(BaseModel):
 
     name = models.CharField(max_length=50)
     price = models.DecimalField(max_digits=12, decimal_places=2)
-    term = models.CharField(max_length=50, choices=Term)
+    term = models.CharField(max_length=50, choices=Term, default=Term.MONTHLY)
     property_listings = models.IntegerField()
     premium_listings = models.IntegerField()
     post_boost = models.IntegerField()
-    plan_code = models.CharField(max_length=255, unique=True)
+    plan_code = models.CharField(max_length=255, unique=True, null=True, blank=True)
 
     def __str__(self) -> str:
         return f"{self.name} - {self.term}"
@@ -37,6 +37,11 @@ class TransactionIntent(BaseModel):
         PROCESSING = "PROCESSING"
         COMPLETED = "COMPLETED"
         FAILED = "FAILED"
+
+    id = models.UUIDField(
+        default=uuid4,
+        primary_key=True
+    )
 
     user = user = models.ForeignKey(
         get_user_model(), on_delete=models.CASCADE, blank=True, null=True
@@ -59,6 +64,10 @@ class TransactionIntent(BaseModel):
 
 
 class Subscription(BaseModel):
+    id = models.UUIDField(
+        default=uuid4,
+        primary_key=True
+    )
     start_date = models.DateTimeField(auto_now=True)
     payment_plan = models.ForeignKey(
         PaymentPlan, on_delete=models.SET_NULL, blank=True, null=True
