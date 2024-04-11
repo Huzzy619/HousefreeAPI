@@ -40,8 +40,9 @@ DATABASES = {
     )
 }
 
-# INSTALLED_APPS.remove("debug_toolbar")
-# MIDDLEWARE.remove("debug_toolbar.middleware.DebugToolbarMiddleware")
+INSTALLED_APPS.append('treblle')
+
+MIDDLEWARE.append('treblle.middleware.TreblleMiddleware')
 
 
 STORAGES = {
@@ -105,3 +106,9 @@ sentry_sdk.init(
     # We recommend adjusting this value in production,
     profiles_sample_rate=1.0,
 )
+
+
+TREBLLE_INFO = {
+'api_key': config('TREBLLE_API_KEY'),
+'project_id': config('TREBLLE_PROJECT_ID')
+}
