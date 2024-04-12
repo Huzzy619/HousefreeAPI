@@ -11,7 +11,7 @@ from .views import (
     hello,
 )
 
-router = DefaultRouter()
+router = DefaultRouter(trailing_slash=False)
 
 router.register("apartment", ApartmentViewSet, basename="apartments")
 
@@ -23,7 +23,7 @@ nested_router.register("reviews", ReviewViewSet, basename="apartments-reviews")
 
 
 urlpatterns = (
-    [path("bookmark/", BookmarkView.as_view()), path("hello/", hello)]
+    [path("bookmark", BookmarkView.as_view()), path("hello", hello)]
     + router.urls
     + nested_router.urls
 )

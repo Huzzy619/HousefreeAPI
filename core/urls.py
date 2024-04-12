@@ -3,23 +3,23 @@ from rest_framework.routers import DefaultRouter
 
 from . import views
 
-router = DefaultRouter()
+router = DefaultRouter(trailing_slash=False)
 # router.register("profile", ProfileViewSet, basename="profile")
 router.register("settings", views.UserSettingsViewSet, basename="settings")
 
 urlpatterns = [
-    path("register/", views.RegisterView.as_view()),
-    path("login/", views.LoginView.as_view()),
-    path("login/google/", views.GoogleSocialAuthView.as_view()),
-    path("signup/google/", views.GoogleSocialAuthView.as_view()),
-    path("refresh/token/", views.RefreshView.as_view()),
+    path("register", views.RegisterView.as_view()),
+    path("login", views.LoginView.as_view()),
+    path("login/google", views.GoogleSocialAuthView.as_view()),
+    path("signup/google", views.GoogleSocialAuthView.as_view()),
+    path("refresh/token", views.RefreshView.as_view()),
     path(
-        "agent/verification/",
+        "agent/verification",
         views.AgentDetailsView.as_view(),
         name="agent-verification",
     ),
-    path("otp/resend/<str:email>/<str:event>/", views.GetOTPView.as_view()),
-    path("otp/verify/", views.VerifyOTPView.as_view()),
+    path("otp/resend/<str:email>/<str:event>", views.GetOTPView.as_view()),
+    path("otp/verify", views.VerifyOTPView.as_view()),
 ] + router.urls
 
 
